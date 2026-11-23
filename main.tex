@@ -191,8 +191,8 @@ Evaluation adheres strictly to zero-estimation real execution across (1) Hardwar
 \toprule
 \textbf{Dimension} & \textbf{Real Execution Specification} \\
 \midrule
-\textbf{Crypto Stack} & OpenSSL 3.x + \texttt{oqs-provider} (\texttt{liboqs}), QUIC, OpenFHE v1.6+ \\
-\textbf{Hybrid DBs (2)} & PostgreSQL 18 + \texttt{pgvector}; Milvus v2.6+ \\
+\textbf{Crypto Stack} & OpenSSL 3.x + \texttt{liboqs 0.12.0} (ML-KEM), QUIC, CKKS FHE \\
+\textbf{Hybrid DBs (2)} & PostgreSQL 18.6 + \texttt{pgvector 0.8.1}; Milvus v2.6+ \\
 \textbf{Structured Data} & TPC-C~\cite{tpc_c_spec} \& YCSB-A JSON ($256\text{ B}$--$4\text{ KB}$)~\cite{cooper2010ycsb} \\
 \textbf{Vector Data} & SIFT1M ($128\text{d}$)~\cite{jegou2011sift} \& RAG BGE-M3 ($1024\text{d}$)~\cite{chen2024bgem3} \\
 \textbf{Baselines (4)} & Classical TLS 1.3, Static ML-KEM-1024, Rule-Heuristic, \textbf{CAPQ-Pareto} \\
