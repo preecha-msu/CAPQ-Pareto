@@ -6,6 +6,7 @@
 \label{tab:arm64_vs_x86}
 \setlength{\tabcolsep}{5.5pt}
 \footnotesize
+\adjustbox{max width=\textwidth}{%
 \begin{tabular}{lrrrrrc}
 \toprule
 \textbf{Primitive / Kernel} & \textbf{Wire (B)} & \textbf{\texttt{x86\_64} [ms]} & \textbf{GCP \texttt{ARM64} [ms]} & \textbf{ARM/x86 Ratio} & \textbf{ARM Est. E. [mJ]} & \textbf{Wilcoxon $p_{\text{Holm}}$} \\
@@ -22,5 +23,6 @@
 \midrule
 \multicolumn{7}{l}{\footnotesize Cloud VM deleted post-audit ($0$ orphan VMs). Verified 540-Row Raw Log SHA-256: \texttt{aef35746b4a61f41...6de4e8e5d87fc38f}} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table*}

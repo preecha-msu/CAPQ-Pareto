@@ -4,6 +4,7 @@
 \centering
 \caption{Kernel \texttt{tc/netem} (\texttt{MTU = 1500 B}) Socket Audit: Non-Resumed TCP/TLS 1.3 (\texttt{ML-KEM-1024}, $b=1$) vs. Batched QUIC 0-RTT (\texttt{X25519\_ML-KEM-768}, $b=16$)}
 \label{tab:wan_socket_audit}
+\adjustbox{max width=\textwidth}{%
 \begin{tabular}{lcccc}
 \toprule
 \textbf{WAN Profile (\texttt{tc/netem})} & \textbf{Static TCP+ML-KEM-1024 Mean (p95) [ms/tx]} & \textbf{QUIC 0-RTT Amortized Mean (p95) [ms/tx]} & \textbf{16-Tx Frame Wall-Clock [ms]} & \textbf{Wilcoxon $p_{\text{Holm}}$} \\
@@ -14,5 +15,6 @@
 \midrule
 \multicolumn{5}{l}{\footnotesize Verified Raw Socket CSV SHA-256: \texttt{262d428de4e8a12d...c89dc46b59655216}} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table*}

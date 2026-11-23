@@ -13,6 +13,19 @@ sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit"))
 import sha256_manifest as sm
 
 
+def wrap_tabular_if_needed(tex_str: str) -> str:
+    if r"\resizebox" in tex_str or r"\adjustbox" in tex_str:
+        return tex_str
+    max_w = r"\textwidth" if r"\begin{table*}" in tex_str else r"\columnwidth"
+    m_beg = re.search(r"\\begin\{tabular\}\{[^}]+\}", tex_str)
+    if not m_beg or r"\end{tabular}" not in tex_str:
+        return tex_str
+    b_tok = m_beg.group(0)
+    tex_str = tex_str.replace(b_tok, f"\\adjustbox{{max width={max_w}}}{{%\n{b_tok}", 1)
+    tex_str = tex_str.replace(r"\end{tabular}", "\\end{tabular}%\n}", 1)
+    return tex_str
+
+
 def sanitize_all_tables_and_sync_manifest() -> tuple[dict, list[str]]:
     tables_dir = REPO_ROOT / "00_manuscript/tables"
     manifest_path = REPO_ROOT / "06_experiments_results/sha256_manifest.json"
@@ -37,25 +50,7 @@ def sanitize_all_tables_and_sync_manifest() -> tuple[dict, list[str]]:
             return f"\\texttt{{{h[:16]}...{h[-16:]}}}"
 
         txt = re.sub(r"\\texttt\{([0-9a-f]{64})\}", _shorten_hex, txt)
-
-        # Ensure zero Overfull \hbox inside any single-column or double-column table
-        if r"\begin{table*}" in txt and r"\resizebox" not in txt and r"\adjustbox" not in txt:
-            txt = re.sub(
-                r"(\\begin\{tabular\}\{[^}]+\})",
-                lambda m: "\\adjustbox{max width=\\textwidth}{%\n" + m.group(1),
-                txt,
-                count=1,
-            )
-            txt = txt.replace(r"\end{tabular}", r"\end{tabular}%") + ""
-            txt = txt.replace(r"\end{tabular}%", "\\end{tabular}%\n}")
-        elif r"\begin{table}[" in txt and r"\resizebox" not in txt and r"\adjustbox" not in txt:
-            txt = re.sub(
-                r"(\\begin\{tabular\}\{[^}]+\})",
-                lambda m: "\\adjustbox{max width=\\columnwidth}{%\n" + m.group(1),
-                txt,
-                count=1,
-            )
-            txt = txt.replace(r"\end{tabular}", "\\end{tabular}%\n}")
+        txt = wrap_tabular_if_needed(txt)
 
         if txt != orig:
             tf.write_text(txt, encoding="utf-8", newline="\n")
@@ -134,7 +129,7 @@ def compute_stats_summary() -> dict[str, str]:
 def extract_label(tex_file: Path) -> str:
     m = re.search(r"\\label\{([^}]+)\}", tex_file.read_text(encoding="utf-8"))
     if not m:
-        raise RuntimeError(f"Missing \\label in {tex_file}")
+        raise RuntimeError(f"Missing label in {tex_file}")
     return m.group(1)
 
 
@@ -160,12 +155,12 @@ def build_clean_main_tex(lbl_core: str, lbl_abl: str, lbl_arm: str, lbl_gcp: str
     assert 150 <= wc <= 199, f"Abstract word count {wc} outside 100--200"
 
     if tier == 0:
-        fig_w1, fig_wc = "0.95\\textwidth", "0.96\\columnwidth"
+        fig_w1, fig_wc = "0.95\\textwidth", "0.95\\columnwidth"
         sep_cfg = r"""
-\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
-\setlength{\dbltextfloatsep}{10pt plus 2pt minus 2pt}
-\setlength{\dblfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\textfloatsep}{9pt plus 2pt minus 2pt}
+\setlength{\floatsep}{7pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{9pt plus 2pt minus 2pt}
+\setlength{\dblfloatsep}{7pt plus 2pt minus 2pt}
 """
     elif tier == 1:
         fig_w1, fig_wc = "0.88\\textwidth", "0.86\\columnwidth"
@@ -204,13 +199,11 @@ def build_clean_main_tex(lbl_core: str, lbl_abl: str, lbl_arm: str, lbl_gcp: str
 \usepackage{array}
 \usepackage{stfloats}
 \usepackage{placeins}
-\usepackage{microtype}
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
 
 \emergencystretch=2em
 \hbadness=10000
-% extrafloats handled by placeins
 \setcounter{topnumber}{3}
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{6}
@@ -260,7 +253,7 @@ Despite strong cryptographic guarantees, naively enforcing static maximum-securi
 To resolve this four-way tension among \emph{tail latency}, \emph{edge silicon energy}, \emph{cloud monetary cost}, and \emph{effective retrieval accuracy}, we design, implement, and validate \textbf{CAPQ-Pareto}. Every metric reported in this study is backed by hardware silicon counters \cite{david2010rapl,khan2018rapl,jay2023power_meters}, compiled C/C++ cryptographic bridges (\texttt{liboqs~0.12.0} and \texttt{OpenFHE~1.2.3}), production hybrid database engines (\texttt{PostgreSQL~18.6} with \texttt{pgvector} and \texttt{Qdrant}), and live multi-region Google Cloud Platform (GCP) deployments. Our primary contributions are:
 \begin{itemize}
     \item \textbf{Unit-Consistent 4D Cloud-Edge Pareto Formulation:} We formulate joint optimization over end-to-end latency ($L$), wraparound-safe net silicon edge energy ($E_{\text{edge}}$ in $\text{mJ}$), and per-second GCP compute plus internet egress billing ($C_{\text{gcp}}$ in $\text{USD}$), strictly gated by hard latency deadlines ($T_{\max}$) and minimum retrieval quality ($\text{Recall@10} \ge R_{\min}$).
-    \item \textbf{Co-Designed PQC Transport, Vector Quantization, and Coarse-Bucketed CKKS:} We unify three adaptive regimes: \emph{Regime~A} (\texttt{X25519+\allowbreak ML-KEM-768} over \texttt{QUIC 0-RTT} \cite{iyengar2021rfc9000} with transactional micro-batching), \emph{Regime~B} (\texttt{ML-KEM-512} paired with $\epsilon$-safe \texttt{INT8-SQ} scalar quantization compressing $1024\text{d}$ vectors from $4{,}096\text{ B}$ to $1{,}032\text{ B}$ within a single MTU, supported by a formal inner-product distortion bound), and \emph{Regime~C} (centroid-routed \texttt{OpenFHE CKKS} inner-product evaluation under \texttt{HEStd\_128\_classic}).
+    \item \textbf{Co-Designed PQC Transport, Vector Quantization, and Coarse-Bucketed CKKS:} We unify three adaptive regimes: \emph{Regime~A} (\texttt{X25519+\allowbreak ML-KEM-768} over \texttt{QUIC 0-RTT} \cite{iyengar2021rfc9000} with transactional micro-batching), \emph{Regime~B} (\texttt{ML-KEM-512} paired with $\epsilon$-safe \texttt{INT8-SQ} scalar quantization compressing $1024\text{d}$ vectors from $4{,}096\text{ B}$ to $1{,}032\text{ B}$ within a single MTU, supported by Proposition~1), and \emph{Regime~C} (centroid-routed \texttt{OpenFHE CKKS} inner-product evaluation under \texttt{HEStd\_128\_classic}).
     \item \textbf{SLA-Gated Regularized LinUCB Orchestrator:} We introduce a $10$-dimensional contextual bandit router \cite{li2010linucb,abbasi2011improved_bandits} guarded by a sliding-window $p95$ SLA gate that prunes deadline- or recall-violating actions prior to confidence-bound exploration (Algorithm~\ref{alg:linucb}).
     \item \textbf{1,980-Trial Hardware, \texttt{ARM64}, and 3-Region GCP Empirical Audit:} Across $720$ controlled \texttt{tc/netem} runs, $360$ cross-database (\texttt{BGE-M3} $1024\text{d}$) and WAN-shock runs, $540$ cross-architecture \texttt{x86\_64} vs.\ GCP \texttt{ARM64} (\texttt{Neoverse-N1}) trials, and $360$ live multi-region GCP WAN trials ($1{,}440$ queries from Thailand to Bangkok, Singapore, and Iowa), CAPQ-Pareto elevates transpacific SLA compliance from $0.0\%$ to $98.3\%$, cuts live $p99$ tail latency by up to $6.0\times$, and reveals a statistically significant ($p_{\text{Holm}} = 8.66 \times 10^{-6}$) AEAD cipher inversion on \texttt{ARM64}.
 \end{itemize}
@@ -396,7 +389,7 @@ where $R_{\min}(q) = 1.0$ for SQL, $R_{\min}(q) = 0.92$ for RAG vectors, and $\l
 
 \section{SLA-Gated LinUCB Crypto-Scheduler and Adaptive Regimes}\label{sec:scheduler}
 \subsection{Online Bandit Routing and Sliding-Window SLA Gate}
-At step $t$, Layer~2 constructs normalized context vector $\mathbf{x}_t = [1, \mathbb{I}_{\text{vec}}, d/1024, b/64, \lambda_{\text{sec}}/256, B_{\text{wan}}/100, \text{RTT}/250, p_{\text{loss}}/5, \alpha, \beta]^\top \in \mathbb{R}^{10}$. Standard unconstrained LinUCB \cite{li2010linucb} explores actions blindly during transient congestion, causing catastrophic deadline misses. As detailed in Algorithm~\ref{alg:linucb} ($< 45\;\mu\text{s}$ per decision), CAPQ-Pareto interposes a deterministic \emph{SLA Gate} over a $6$-sample sliding window $\mathcal{W}_m$ to prune deadline- or recall-violating modes prior to Lower-Confidence-Bound ($\text{LCB}_t$) minimization \cite{abbasi2011improved_bandits}.
+At step $t$, Layer~2 constructs normalized context vector $\mathbf{x}_t = [1, \mathbb{I}_{\text{vec}}, d/1024, b/64, \lambda_{\text{sec}}/256, B_{\text{wan}}/100, \text{RTT}/250, p_{\text{loss}}/5, \alpha, \beta]^\top \in \mathbb{R}^{10}$. Standard unconstrained LinUCB \cite{li2010linucb} explores actions blindly during transient congestion, causing deadline misses. As detailed in Algorithm~\ref{alg:linucb} ($< 45\;\mu\text{s}$ per decision), CAPQ-Pareto interposes a deterministic \emph{SLA Gate} over a $6$-sample sliding window $\mathcal{W}_m$ to prune deadline- or recall-violating modes prior to Lower-Confidence-Bound ($\text{LCB}_t$) minimization \cite{abbasi2011improved_bandits}.
 
 \subsection{Cryptographic Regimes and Distortion Bound}
 \begin{itemize}
@@ -407,7 +400,7 @@ At step $t$, Layer~2 constructs normalized context vector $\mathbf{x}_t = [1, \m
     \label{eq:int8_sq}
     \end{equation}
     reconstructed at the cloud node via $\hat{v}_i = v_{\min} + \Delta_s q_i^{(8)}$ while selecting \texttt{AES-256-GCM} on \texttt{x86\_64} (\texttt{AES-NI}) and \texttt{ChaCha20-\allowbreak Poly1305} on \texttt{ARM64}.
-    \item \textbf{Proposition~1 (Inner-Product Distortion Bound):} \emph{For any unit database vector $\mathbf{u} \in \mathbb{S}^{d-1}$ and query $\mathbf{q} \in \mathbb{S}^{d-1}$ quantized via Eq.~\eqref{eq:int8_sq}, worst-case inner-product error satisfies $|\langle \mathbf{u}, \hat{\mathbf{q}} \rangle - \langle \mathbf{u}, \mathbf{q} \rangle| \le \frac{\sqrt{d}(v_{\max}-v_{\min})}{510}$.} \emph{Proof:} Uniform rounding guarantees $|e_i| = |\hat{q}_i - q_i| \le \Delta_s / 2$ for each coordinate $i \in \{1,\dots,d\}$. By Cauchy--Schwarz, $|\langle \mathbf{u}, \mathbf{e} \rangle| \le \|\mathbf{u}\|_2 \|\mathbf{e}\|_2 \le 1 \cdot \sqrt{d (\Delta_s/2)^2} = \frac{\sqrt{d}(v_{\max}-v_{\min})}{510}$. For $1024\text{d}$ unit-normalized \texttt{BGE-M3} embeddings where $v_{\max}-v_{\min} \approx 0.24$, worst-case distortion is bounded by $\le 0.015$, preserving top-$10$ HNSW neighbor ordering while shrinking wire bytes by $74.8\%$ ($4{,}096\text{ B} \rightarrow 1{,}032\text{ B}$, fitting inside a single $1{,}500\text{ B}$ MTU frame).
+    \item \textbf{Proposition~1 (Inner-Product Distortion Bound):} \emph{For any unit database vector $\mathbf{u} \in \mathbb{S}^{d-1}$ and query $\mathbf{q} \in \mathbb{S}^{d-1}$ quantized via Eq.~\eqref{eq:int8_sq}, worst-case inner-product error satisfies $|\langle \mathbf{u}, \hat{\mathbf{q}} \rangle - \langle \mathbf{u}, \mathbf{q} \rangle| \le \frac{\sqrt{d}(v_{\max}-v_{\min})}{510}$.} \emph{Proof:} Uniform rounding guarantees $|e_i| = |\hat{q}_i - q_i| \le \Delta_s / 2$ for each coordinate $i \in \{1,\dots,d\}$. By Cauchy--Schwarz, $|\langle \mathbf{u}, \mathbf{e} \rangle| \le \|\mathbf{u}\|_2 \|\mathbf{e}\|_2 \le \frac{\sqrt{d}(v_{\max}-v_{\min})}{510}$. For $1024\text{d}$ unit-normalized \texttt{BGE-M3} embeddings ($v_{\max}-v_{\min} \approx 0.24$), distortion is bounded by $\le 0.015$, preserving top-$10$ HNSW neighbor ordering while shrinking wire bytes by $74.8\%$ ($4{,}096\text{ B} \rightarrow 1{,}032\text{ B}$, single MTU).
     \item \textbf{Regime~C (Coarse-Bucketed Zero-Trust CKKS):} Partitions vectors offline via spherical $k$-means into $K_c = 64$ edge-cached centroids ($32\text{ KB}$ for $128\text{d}$), encrypting confidential queries into a single SIMD-packed \texttt{OpenFHE CKKS} ciphertext ($N = 4096$, \texttt{BV} key-switching, $\log_2 Q = 68 \le 109\text{ bits}$, \texttt{HEStd\_128\_classic}) for server-side \texttt{EvalInnerProduct} over $M_b \le 16$ bucket candidates.
 \end{itemize}
 
@@ -560,9 +553,11 @@ def build_complete_supplement_tex(manifest_json: dict, supp_tables: list[str], s
         n_r = int(rec["measured_rows"])
         c_sha = str(rec["raw_csv_sha256"])
         t_sha = str(rec["latex_table_sha256"])
+        c_disp = f"{c_sha[:16]}...{c_sha[-12:]}"
+        t_disp = f"{t_sha[:16]}...{t_sha[-12:]}"
         rows_manifest.append(
             f"\\texttt{{{safe_id}}} & \\texttt{{{t_name}}} & ${n_r:,}$ & "
-            f"\\texttt{{{c_sha[:16]}...{c_sha[-12:]}}} & \\texttt{{{t_sha[:16]}...{t_sha[-12:]}}} \\\\"
+            f"\\texttt{{{c_disp}}} & \\texttt{{{t_disp}}} \\\\"
         )
 
     has_cites = False
@@ -574,17 +569,18 @@ def build_complete_supplement_tex(manifest_json: dict, supp_tables: list[str], s
         supp_inputs_block.append(f"\\input{{00_manuscript/tables/{tname}}}")
 
     bib_tail = (
-        "\n\\FloatBarrier\n\\bibliographystyle{IEEEtran}\n\\bibliography{references}\n"
+        "\n\\clearpage\n\\bibliographystyle{IEEEtran}\n\\bibliography{references}\n"
         if has_cites
-        else "\n\\FloatBarrier\n"
+        else "\n\\clearpage\n"
     )
 
     supp_abstract = (
         "This supplementary document provides (S1) the formal Renyi min-entropy leakage derivation and HEStd-128-classic "
-        "Ring-LWE modulus chains for coarse-bucketed OpenFHE CKKS search, (S2) per-region Google Cloud Platform pricing "
-        "and non-parametric bootstrap and McNemar statistical audit parameters, (S3) full hardware RAPL calibration, hybrid "
-        "database smoke tests, dataset ground-truth manifests, and Linux kernel tc/netem socket benchmark tables (Tables S2--S6), "
-        "and (S4) the complete cryptographic SHA-256 provenance manifest (Table S7) linking all 9 verified experimental logs."
+        "Ring-LWE modulus chains for coarse-bucketed OpenFHE CKKS search (Table S1), (S2) per-region Google Cloud Platform "
+        "pricing and non-parametric bootstrap and McNemar statistical audit parameters, (S3) full hardware RAPL calibration, "
+        "hybrid database smoke tests, dataset ground-truth manifests, and Linux kernel tc/netem socket benchmark tables "
+        "(Tables S2--S6), and (S4) the complete cryptographic SHA-256 provenance manifest (Table S7) linking all nine "
+        "verified experimental raw CSV logs."
     )
 
     return r"""\documentclass[10pt,journal,compsoc]{IEEEtran}
@@ -601,13 +597,11 @@ def build_complete_supplement_tex(manifest_json: dict, supp_tables: list[str], s
 \usepackage{array}
 \usepackage{stfloats}
 \usepackage{placeins}
-\usepackage{microtype}
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
 
 \emergencystretch=2em
 \hbadness=10000
-% extrafloats handled by placeins
 \renewcommand{\thesection}{S\arabic{section}}
 \renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\thefigure}{S\arabic{figure}}
@@ -678,13 +672,12 @@ Under sub-Gaussian telemetry noise on scalarized observations $y_t = \boldsymbol
 \section{Testbed Calibration, Smoke Audits, Datasets, and Socket Benchmarks}\label{sec:supp_tables}
 To preserve the 12-page regular-paper budget of the main manuscript while maintaining complete empirical transparency, Tables~S2--S6 present all foundational hardware RAPL calibration, dataset ground-truth manifests, database/FHE stack audits, and isolated Linux kernel \texttt{tc/netem} (\texttt{MTU = 1,500 B}) socket benchmarks generated directly from real hardware runs.
 
-""" + "\n\n\\FloatBarrier\n".join(supp_inputs_block) + r"""
-\FloatBarrier
+""" + "\n\n".join(supp_inputs_block) + r"""
 
 \section{Complete Cryptographic SHA-256 Provenance Manifest}\label{sec:supp_manifest}
 Table~\ref{tab:supp_sha256} records all nine immutable \texttt{SHA-256} digests stored in \path{06_experiments_results/sha256_manifest.json}, binding every raw CSV telemetry file to its corresponding LaTeX table across both the main paper and this supplement. Reviewers can launch the local hybrid database stack via \path{04_testbed_infra/docker-compose.yml} and verify zero-orphan GCP teardown via \path{04_testbed_infra/teardown_all_gcp.sh}.
 
-\begin{table*}[!htbp]
+\begin{table*}[!t]
 \centering
 \caption{Complete Cryptographic \texttt{SHA-256} Provenance Manifest Across All Nine Verified Experimental Artifacts}
 \label{tab:supp_sha256}
@@ -703,10 +696,11 @@ Table~\ref{tab:supp_sha256} records all nine immutable \texttt{SHA-256} digests 
 
 
 def compile_and_inspect_pdf(doc_stem: str) -> dict:
+    cap_stem = doc_stem.capitalize()
     wsl_sh = f"""
 set -e
 export DEBIAN_FRONTEND=noninteractive
-for sty in IEEEtran.cls algorithm.sty algpseudocode.sty stfloats.sty placeins.sty adjustbox.sty microtype.sty; do
+for sty in IEEEtran.cls algorithm.sty algpseudocode.sty stfloats.sty placeins.sty adjustbox.sty; do
     if ! kpsewhich "$sty" >/dev/null 2>&1; then
         apt-get -o DPkg::Lock::Timeout=120 update -qq
         apt-get -o DPkg::Lock::Timeout=120 install -y -qq --no-install-recommends \\
@@ -738,7 +732,7 @@ fi
 
 PAGES=$(pdfinfo {doc_stem}.pdf | awk '/^Pages:/ {{print $2}}')
 pdftotext {doc_stem}.pdf /tmp/capq_pdf_audit_{doc_stem}/rendered.txt
-cp {doc_stem}.pdf /mnt/d/Research/CAPQ-Pareto-{doc_stem.capitalize()}-IEEE-TCC.pdf
+cp {doc_stem}.pdf /mnt/d/Research/CAPQ-Pareto-{cap_stem}-IEEE-TCC.pdf
 echo "PAGES=$PAGES"
 """
     res = subprocess.run(["wsl", "-u", "root", "-e", "bash", "-c", wsl_sh], capture_output=True, text=True)
@@ -746,8 +740,14 @@ echo "PAGES=$PAGES"
         raise RuntimeError(f"LaTeX build failed for {doc_stem}.tex:\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}")
 
     pages = int([ln.split("=")[1] for ln in res.stdout.splitlines() if ln.startswith("PAGES=")][-1])
-    rendered_txt = subprocess.check_output(["wsl", "-u", "root", "-e", "cat", f"/tmp/capq_pdf_audit_{doc_stem}/rendered.txt"], text=True, encoding="utf-8", errors="replace")
-    overfulls = subprocess.run(["wsl", "-u", "root", "-e", "grep", "-E", r"Overfull \\hbox \([1-9][0-9]+\.[0-9]+pt", f"/tmp/capq_pdf_audit_{doc_stem}/{doc_stem}.log"], capture_output=True, text=True).stdout.strip()
+    rendered_txt = subprocess.check_output(
+        ["wsl", "-u", "root", "-e", "cat", f"/tmp/capq_pdf_audit_{doc_stem}/rendered.txt"],
+        text=True, encoding="utf-8", errors="replace",
+    )
+    overfulls = subprocess.run(
+        ["wsl", "-u", "root", "-e", "grep", "-E", r"Overfull \\hbox \([1-9][0-9]+\.[0-9]+pt", f"/tmp/capq_pdf_audit_{doc_stem}/{doc_stem}.log"],
+        capture_output=True, text=True,
+    ).stdout.strip()
 
     return {
         "pages": pages,
@@ -765,49 +765,55 @@ def main() -> None:
     lbl_arm  = extract_label(REPO_ROOT / "00_manuscript/tables/tab_arm64_vs_x86.tex")
     lbl_gcp  = extract_label(REPO_ROOT / "00_manuscript/tables/tab_gcp_multiregion_wan.tex")
 
-    # 1. Compile & Audit supplement.tex FIRST so supplement.pdf is 100% guaranteed restored!
+    # 1. Compile & Audit supplement.tex (Restores ALL 7 Tables S1..S7)
     supp_tex = build_complete_supplement_tex(manifest_data, supp_tables, st)
     (REPO_ROOT / "supplement.tex").write_text(supp_tex, encoding="utf-8", newline="\n")
     supp_info = compile_and_inspect_pdf("supplement")
 
     expected_supp_tabs = 2 + len(supp_tables)
     s_txt = supp_info["rendered_txt"]
-    found_s_tabs = sorted(set(re.findall(r"TABLE\s+S\d+", s_txt)), key=lambda x: int(re.search(r"\d+", x).group()))
+    raw_s_tabs = re.findall(r"TABLE\s+S\d+", s_txt)
+    clean_s_tabs = sorted({" ".join(x.split()) for x in raw_s_tabs}, key=lambda v: int(v.split("S")[1]))
     for idx_s in range(1, expected_supp_tabs + 1):
-        assert re.search(rf"TABLE\s+S{idx_s}\b", s_txt), f"Missing TABLE S{idx_s} in supplement.pdf! Found: {found_s_tabs}"
+        assert re.search(rf"TABLE\s+S{idx_s}\b", s_txt), f"Missing TABLE S{idx_s} in supplement.pdf! Found: {clean_s_tabs}"
     assert "gcp_multiregion_360_real_wan" in s_txt and "core_720" in s_txt, "SHA-256 manifest rows missing in supplement.pdf!"
-    print(
-        f"[SUPPLEMENT VERIFIED] supplement.pdf = {supp_info['pages']} pages | Overfull(>10pt)={len(supp_info['overfull_gt10pt'])} | "
-        f"Restored ALL {expected_supp_tabs} tables: {[re.sub(r'\\s+', ' ', x) for x in found_s_tabs]}"
-    )
 
-    # 2. Compile & Audit main.tex (<= 12 pages, 0 Overfull>10pt, Fig 1..8 + Algorithm 1 + TABLE 1..6 all verified via whitespace-safe regex!)
+    s_pages = supp_info["pages"]
+    s_ovf = len(supp_info["overfull_gt10pt"])
+    print(f"[SUPPLEMENT VERIFIED] supplement.pdf = {s_pages} pages | Overfull(>10pt)={s_ovf} | Restored ALL {expected_supp_tabs} tables: {clean_s_tabs}")
+
+    # 2. Compile & Audit main.tex (<= 12 pages, TABLE 1..6, Algorithm 1, Fig. 1..8)
     main_info = None
     for tier in [0, 1, 2]:
         m_tex = build_clean_main_tex(lbl_core, lbl_abl, lbl_arm, lbl_gcp, st, tier=tier)
         (REPO_ROOT / "main.tex").write_text(m_tex, encoding="utf-8", newline="\n")
         main_info = compile_and_inspect_pdf("main")
-        print(f"[MAIN VERIFIED] Tier={tier} -> main.pdf = {main_info['pages']} pages (<=12) | Overfull(>10pt)={len(main_info['overfull_gt10pt'])}")
-        if main_info["pages"] <= 12:
+        m_pages = main_info["pages"]
+        m_ovf = len(main_info["overfull_gt10pt"])
+        print(f"[MAIN VERIFIED] Tier={tier} -> main.pdf = {m_pages} pages (<=12) | Overfull(>10pt)={m_ovf}")
+        if m_pages <= 12:
             break
 
-    assert main_info is not None and main_info["pages"] <= 12, f"main.pdf exceeded 12 pages ({main_info['pages']})"
+    assert main_info is not None and main_info["pages"] <= 12, "main.pdf exceeded 12 pages!"
     m_txt = main_info["rendered_txt"]
-    found_m_tabs = sorted(set(re.findall(r"TABLE\s+\d+", m_txt)), key=lambda x: int(re.search(r"\d+", x).group()))
-    found_m_figs = sorted(set(re.findall(r"Fig\.\s+\d+\.", m_txt)), key=lambda x: int(re.search(r"\d+", x).group()))
+    raw_m_tabs = re.findall(r"TABLE\s+\d+", m_txt)
+    raw_m_figs = re.findall(r"Fig\.\s*\d+\.", m_txt)
+    clean_m_tabs = sorted({" ".join(x.split()) for x in raw_m_tabs}, key=lambda v: int(re.search(r"\d+", v).group()))
+    clean_m_figs = sorted({" ".join(x.split()) for x in raw_m_figs}, key=lambda v: int(re.search(r"\d+", v).group()))
 
     for t_num in range(1, 7):
-        assert re.search(rf"TABLE\s+{t_num}\b", m_txt), f"Missing TABLE {t_num} in main.pdf! Found: {found_m_tabs}"
+        assert re.search(rf"TABLE\s+{t_num}\b", m_txt), f"Missing TABLE {t_num} in main.pdf! Found: {clean_m_tabs}"
     for f_num in range(1, 9):
-        assert re.search(rf"Fig\.\s+{f_num}\.", m_txt), f"Missing Fig. {f_num}. in main.pdf! Found: {found_m_figs}"
-    assert re.search(r"Algorithm\s+1\b", m_txt) and not re.search(r"Fig\.\s+9\.", m_txt), "Algorithm/Figure numbering mismatch!"
+        assert re.search(rf"Fig\.\s*{f_num}\.", m_txt), f"Missing Fig. {f_num}. in main.pdf! Found: {clean_m_figs}"
+    assert re.search(r"Algorithm\s+1\b", m_txt) and not re.search(r"Fig\.\s*9\.", m_txt), "Algorithm/Figure numbering mismatch!"
 
     bio_pos = m_txt.rfind("Preecha Noiumkar")
     last_float_pos = max(
-        max(m_txt.rfind(x) for x in found_m_tabs),
-        max(m_txt.rfind(x) for x in found_m_figs),
+        max(m_txt.rfind(x) for x in raw_m_tabs),
+        max(m_txt.rfind(x) for x in raw_m_figs),
     )
-    print(f"[MAIN ELEMENTS] Verified {len(found_m_tabs)} Tables (1--6), Algorithm 1, and {len(found_m_figs)} Figures (1--8) | All floats before Biography: {last_float_pos < bio_pos}")
+    floats_before_bio = last_float_pos < bio_pos
+    print(f"[MAIN ELEMENTS] Verified {clean_m_tabs}, Algorithm 1, and {clean_m_figs} | All floats before Biography: {floats_before_bio}")
 
     # 3. Overwrite Overleaf ZIP with ALL verified files
     zip_target = Path(r"D:\Research\CAPQ-Pareto-Overleaf-IEEE-TCC.zip")
@@ -828,9 +834,13 @@ def main() -> None:
         for rel in include_rels:
             zf.write(REPO_ROOT / rel, arcname=rel)
 
-    print(f"\n[SUCCESS] D:\\Research\\CAPQ-Pareto-Main-IEEE-TCC.pdf       ({main_info['pages']} pages <= 12)")
-    print(f"[SUCCESS] D:\\Research\\CAPQ-Pareto-Supplement-IEEE-TCC.pdf ({supp_info['pages']} pages, TABLE S1--S{expected_supp_tabs})")
-    print(f"[SUCCESS] {zip_target} ({zip_target.stat().st_size:,} bytes | SHA-256: {sm.sha256_digest(zip_target)})")
+    out_main_pdf = Path(r"D:\Research\CAPQ-Pareto-Main-IEEE-TCC.pdf")
+    out_supp_pdf = Path(r"D:\Research\CAPQ-Pareto-Supplement-IEEE-TCC.pdf")
+    zip_bytes = zip_target.stat().st_size
+    zip_sha = sm.sha256_digest(zip_target)
+    print(f"\n[SUCCESS] {out_main_pdf} ({main_info['pages']} pages <= 12)")
+    print(f"[SUCCESS] {out_supp_pdf} ({supp_info['pages']} pages, TABLE S1--S{expected_supp_tabs})")
+    print(f"[SUCCESS] {zip_target} ({zip_bytes:,} bytes | SHA-256: {zip_sha})")
 
 
 if __name__ == "__main__":

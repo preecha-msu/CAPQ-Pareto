@@ -4,6 +4,7 @@
 \centering
 \caption{Cryptographically Verified Hybrid Benchmark Datasets, Baseline Integrity/Recall@10, and Artifact SHA-256 Digests}
 \label{tab:datasets_manifest}
+\adjustbox{max width=\textwidth}{%
 \begin{tabular}{lrrccc}
 \toprule
 \textbf{Real Benchmark Dataset} & \textbf{Records} & \textbf{Schema / Dim.} & \textbf{PG18.6 Integrity/Rec@10} & \textbf{Qdrant Rec@10} & \textbf{Artifact SHA-256} \\
@@ -15,5 +16,6 @@
 \midrule
 \multicolumn{6}{l}{\footnotesize Manifest CSV SHA-256: \texttt{732b12e214ec2517...c3f71cfa43f7722a}} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table*}
