@@ -59,6 +59,18 @@
       "measured_rows": 36,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_wan_socket_audit.tex",
       "latex_table_sha256": "fbea9c3f61f563980d6a68c5b70f9f618f7acb093f284f5c9f751155d49cfc8d"
+    },
+    {
+      "experiment_id": "core_720_paired_campaign",
+      "timestamp_utc": "2026-11-23T13:31:33Z",
+      "host": "PREECHA-IT",
+      "platform": "Windows-10-10.0.26300-SP0",
+      "python_version": "3.11.9",
+      "raw_csv_path": "D:\\Research\\CAPQ-Pareto\\06_experiments_results\\raw_logs\\core_720_real_campaign.csv",
+      "raw_csv_sha256": "21f6d95bc1b6cc0967525fa55dc052cb8c90d57852a2abaef63b8e23ee18ae62",
+      "measured_rows": 720,
+      "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_core_720_results.tex",
+      "latex_table_sha256": "8590d21586f70fb0380ca4ae914e174bf18a5a08efbefcfe708bab04e74f72f8"
     }
   ]
 }
