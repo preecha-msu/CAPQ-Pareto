@@ -1,0 +1,16 @@
+{
+  "verified_artifacts": [
+    {
+      "experiment_id": "hw_aead_calibration_185h",
+      "timestamp_utc": "2026-11-23T09:42:20Z",
+      "host": "PREECHA-IT",
+      "platform": "Windows-10-10.0.26300-SP0",
+      "python_version": "3.11.9",
+      "raw_csv_path": "D:\\Research\\CAPQ-Pareto\\06_experiments_results\\raw_logs\\hw_energy_calibration_audit.csv",
+      "raw_csv_sha256": "d239bc98284b07e56cf8fb1cb0e2a7dea0a80857a667336e06d40a500ef2393b",
+      "measured_rows": 20,
+      "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_hw_calibration.tex",
+      "latex_table_sha256": "d958b6716e11a9284181445aaf4d62b02d901cc2820507fa8345c2b344ce19a8"
+    }
+  ]
+}

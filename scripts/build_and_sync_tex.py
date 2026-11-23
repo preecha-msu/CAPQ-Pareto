@@ -162,7 +162,7 @@ C_{\text{gcp}}(d_i, m) = \left(p_{\text{vcpu}} n_{\text{vcpu}} + p_{\text{mem}} 
 \section{Adaptive Crypto-Scheduler and Regimes}
 \begin{itemize}
     \item \textbf{Regime A (Structured PQC-QUIC):} Lossless SQL/JSON batches over \texttt{QUIC 0-RTT} with \texttt{X25519\_ML-KEM-768}, \texttt{AES-256-GCM}, and adaptive batching $b \in \{1, 16, 64\}$.
-    \item \textbf{Regime B (Unstructured Quantized Light-PQC):} Edge quantization (\texttt{FP32}, \texttt{INT8}, \texttt{1-bit}) over \texttt{QUIC + ML-KEM-512 + ChaCha20-Poly1305}.
+    \item \textbf{Regime B (Unstructured Quantized Light-PQC):} Edge quantization (\texttt{FP32}, \texttt{INT8}, \texttt{1-bit}) over \texttt{QUIC + ML-KEM-512} paired with hardware-aware AEAD selection ($\{\texttt{AES-256-GCM}, \texttt{ChaCha20-Poly1305}\}$).
     \item \textbf{Regime C (Zero-Trust Coarse-Bucketed CKKS):} Edge K-Means coarse routing ($K_c$ centroids) paired with \texttt{OpenFHE CKKS} ($N_{\text{poly}} \in \{4096, 8192, 16384\}$) encrypted inner products over top-$r$ buckets.
 \end{itemize}
 
@@ -213,6 +213,8 @@ Evaluation adheres strictly to zero-estimation real execution across (1) Hardwar
 }
 \end{table}
 
+\IfFileExists{00_manuscript/tables/tab_hw_calibration.tex}{\input{00_manuscript/tables/tab_hw_calibration.tex}}{}
+
 \section*{Data Availability and Acknowledgment}
 All source code, \texttt{experiment\_matrix.yaml}, raw telemetry logs, SHA-256 verification manifests, and \LaTeX{} table generators are maintained at \url{https://github.com/preecha-msu/CAPQ-Pareto}. This research project was financially supported by the Faculty of Informatics, Mahasarakham University. In accordance with IEEE policy, generative AI tools were utilized strictly for manuscript language polishing and \LaTeX{} formatting verification; all software execution, hardware measurements, and statistical analyses are real and cryptographically verified.
 
@@ -250,7 +252,7 @@ SUPPLEMENT_TEX = r"""\documentclass[10pt,journal,compsoc]{IEEEtran}
 \maketitle
 
 \section{Security and Entropy Leakage Bounds of Coarse-Bucketed CKKS (Regime C)}
-In Regime~C, query embeddings $\mathbf{q} \in \mathbb{R}^\kappa$ are encrypted under the Ring-Learning-With-Errors (RLWE) assumption using OpenFHE CKKS with $N_{\text{poly}} \in \{8192, 16384\}$ ($\ge 128$-bit post-quantum security~\cite{cheon2017ckks, badawi2022openfhe}). Under uniform cluster balance across $K_c$ edge centroids ($1 \le r \le K_c$), revealing $r$ candidate bucket indices yields worst-case Shannon entropy reduction bounded by:
+In Regime~C, query embeddings $\mathbf{q} \in \mathbb{R}^\kappa$ are encrypted under the Ring-Learning-With-Errors (RLWE) assumption using CKKS across $N_{\text{poly}} \in \{4096, 8192, 16384\}$ strictly parameterized within Homomorphic Encryption Standard $\ge 128$-bit post-quantum security bounds~\cite{cheon2017ckks, badawi2022openfhe}: $Q_{4096}=[38,28,38]$ bits ($\sum=104 \le 109$, $\Delta=2^{28}$), $Q_{8192}=[60,40,60]$ bits ($\sum=160 \le 218$, $\Delta=2^{40}$), and $Q_{16384}=[60,50,50,60]$ bits ($\sum=220 \le 438$, $\Delta=2^{50}$). Under uniform cluster balance across $K_c$ edge centroids ($1 \le r \le K_c$), revealing $r$ candidate bucket indices yields worst-case Shannon entropy reduction bounded by:
 \begin{equation}
 \Delta H = \log_2\!\left(\frac{K_c}{r}\right) \text{ bits}, \quad \text{with } \Delta H = 0 \text{ when } r = K_c.
 \end{equation}
@@ -317,7 +319,7 @@ def main() -> None:
     print(f"[SHA-256] Overleaf ZIP      : {sha256_file(ZIP_TARGET)}")
 
     # 3. Replace on GitHub directly without backup files
-    subprocess.run(["git", "add", "-A", "main.tex", "supplement.tex", "scripts/", "02_orchestrator/", "05_telemetry_audit/", "tests/"], check=True)
+    subprocess.run(["git", "add", "-A", "main.tex", "supplement.tex", "configs/", "00_manuscript/tables/", "06_experiments_results/sha256_manifest.json", "scripts/", "02_orchestrator/", "05_telemetry_audit/", "tests/"], check=True)
     status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, check=True)
     if status.stdout.strip():
         subprocess.run(

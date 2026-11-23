@@ -22,7 +22,7 @@
 \maketitle
 
 \section{Security and Entropy Leakage Bounds of Coarse-Bucketed CKKS (Regime C)}
-In Regime~C, query embeddings $\mathbf{q} \in \mathbb{R}^\kappa$ are encrypted under the Ring-Learning-With-Errors (RLWE) assumption using OpenFHE CKKS with $N_{\text{poly}} \in \{8192, 16384\}$ ($\ge 128$-bit post-quantum security~\cite{cheon2017ckks, badawi2022openfhe}). Under uniform cluster balance across $K_c$ edge centroids ($1 \le r \le K_c$), revealing $r$ candidate bucket indices yields worst-case Shannon entropy reduction bounded by:
+In Regime~C, query embeddings $\mathbf{q} \in \mathbb{R}^\kappa$ are encrypted under the Ring-Learning-With-Errors (RLWE) assumption using CKKS across $N_{\text{poly}} \in \{4096, 8192, 16384\}$ strictly parameterized within Homomorphic Encryption Standard $\ge 128$-bit post-quantum security bounds~\cite{cheon2017ckks, badawi2022openfhe}: $Q_{4096}=[38,28,38]$ bits ($\sum=104 \le 109$, $\Delta=2^{28}$), $Q_{8192}=[60,40,60]$ bits ($\sum=160 \le 218$, $\Delta=2^{40}$), and $Q_{16384}=[60,50,50,60]$ bits ($\sum=220 \le 438$, $\Delta=2^{50}$). Under uniform cluster balance across $K_c$ edge centroids ($1 \le r \le K_c$), revealing $r$ candidate bucket indices yields worst-case Shannon entropy reduction bounded by:
 \begin{equation}
 \Delta H = \log_2\!\left(\frac{K_c}{r}\right) \text{ bits}, \quad \text{with } \Delta H = 0 \text{ when } r = K_c.
 \end{equation}

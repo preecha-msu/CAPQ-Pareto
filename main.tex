@@ -151,7 +151,7 @@ C_{\text{gcp}}(d_i, m) = \left(p_{\text{vcpu}} n_{\text{vcpu}} + p_{\text{mem}} 
 \section{Adaptive Crypto-Scheduler and Regimes}
 \begin{itemize}
     \item \textbf{Regime A (Structured PQC-QUIC):} Lossless SQL/JSON batches over \texttt{QUIC 0-RTT} with \texttt{X25519\_ML-KEM-768}, \texttt{AES-256-GCM}, and adaptive batching $b \in \{1, 16, 64\}$.
-    \item \textbf{Regime B (Unstructured Quantized Light-PQC):} Edge quantization (\texttt{FP32}, \texttt{INT8}, \texttt{1-bit}) over \texttt{QUIC + ML-KEM-512 + ChaCha20-Poly1305}.
+    \item \textbf{Regime B (Unstructured Quantized Light-PQC):} Edge quantization (\texttt{FP32}, \texttt{INT8}, \texttt{1-bit}) over \texttt{QUIC + ML-KEM-512} paired with hardware-aware AEAD selection ($\{\texttt{AES-256-GCM}, \texttt{ChaCha20-Poly1305}\}$).
     \item \textbf{Regime C (Zero-Trust Coarse-Bucketed CKKS):} Edge K-Means coarse routing ($K_c$ centroids) paired with \texttt{OpenFHE CKKS} ($N_{\text{poly}} \in \{4096, 8192, 16384\}$) encrypted inner products over top-$r$ buckets.
 \end{itemize}
 
@@ -201,6 +201,8 @@ Evaluation adheres strictly to zero-estimation real execution across (1) Hardwar
 \end{tabular}%
 }
 \end{table}
+
+\IfFileExists{00_manuscript/tables/tab_hw_calibration.tex}{\input{00_manuscript/tables/tab_hw_calibration.tex}}{}
 
 \section*{Data Availability and Acknowledgment}
 All source code, \texttt{experiment\_matrix.yaml}, raw telemetry logs, SHA-256 verification manifests, and \LaTeX{} table generators are maintained at \url{https://github.com/preecha-msu/CAPQ-Pareto}. This research project was financially supported by the Faculty of Informatics, Mahasarakham University. In accordance with IEEE policy, generative AI tools were utilized strictly for manuscript language polishing and \LaTeX{} formatting verification; all software execution, hardware measurements, and statistical analyses are real and cryptographically verified.

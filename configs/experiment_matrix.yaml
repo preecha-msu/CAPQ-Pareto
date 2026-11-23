@@ -3,14 +3,69 @@ project:
   seed: 42
   trials_per_config: 30
   warmup_queries: 50
+  zero_estimation_strict: true
+
+workloads:
+  structured:
+    datasets: ["tpcc_tx", "ycsb_workload_a"]
+    payload_sizes_bytes: [256, 1024, 4096]
+    batch_sizes: [1, 16, 64]
+    required_integrity: 1.0
+  unstructured_vector:
+    datasets: ["sift1m_128d", "rag_bge_m3_1024d"]
+    quantization_modes: ["fp32", "int8_sq", "binary_1bit"]
+    top_k: 10
+    min_recall_at_10: 0.92
+
+crypto_regimes:
+  baseline_classical_tls:
+    kem: "X25519"
+    ciphers: ["AES-256-GCM"]
+    transport: "TCP-TLS1.3"
+    quantum_safe: false
+  baseline_static_pqc:
+    kem: "ML-KEM-1024"
+    ciphers: ["AES-256-GCM"]
+    transport: "TCP-TLS1.3"
+    session_resumption: false
+    quantum_safe: true
+  regime_a_structured_quic_pqc:
+    kem: "X25519_ML-KEM-768"
+    ciphers: ["AES-256-GCM"]
+    transport: "QUIC-0RTT"
+    batch_sizes: [1, 16, 64]
+    quantum_safe: true
+  regime_b_unstructured_light_pqc:
+    kem: "ML-KEM-512"
+    ciphers: ["AES-256-GCM", "ChaCha20-Poly1305"]
+    transport: "QUIC"
+    quantum_safe: true
+  regime_c_zerotrust_fhe_ckks:
+    scheme: "CKKS"
+    rlwe_128bit_profiles:
+      poly_4096:  { poly_modulus_degree: 4096,  coeff_mod_bits: [38, 28, 38],     scale_bits: 28 }
+      poly_8192:  { poly_modulus_degree: 8192,  coeff_mod_bits: [60, 40, 60],     scale_bits: 40 }
+      poly_16384: { poly_modulus_degree: 16384, coeff_mod_bits: [60, 50, 50, 60], scale_bits: 50 }
+    coarse_clusters_kc: 32
+    top_r_buckets: [1, 2, 4]
+    quantum_safe: true
+
 gcp_regions:
   near_edge_bangkok: "asia-southeast3"
   regional_singapore: "asia-southeast1"
   remote_wan_us: "us-central1"
+
 gcp_billing_model_usd:
   asia_egress_per_gib: 0.12
   e2_vcpu_per_second: 0.00000745
   e2_memory_gb_per_second: 0.00000100
+
+pareto_weights_profiles:
+  balanced:      { alpha: 0.34, beta: 0.33, gamma: 0.33 }
+  battery_saver: { alpha: 0.15, beta: 0.70, gamma: 0.15 }
+  low_latency:   { alpha: 0.75, beta: 0.15, gamma: 0.10 }
+  cost_frugal:   { alpha: 0.15, beta: 0.15, gamma: 0.70 }
+
 sla_constraints:
   min_recall_at_10: 0.92
   hard_deadline_ms: 150.0
