@@ -1,0 +1,16 @@
+project:
+  name: "CAPQ-PARETO"
+  seed: 42
+  trials_per_config: 30
+  warmup_queries: 50
+gcp_regions:
+  near_edge_bangkok: "asia-southeast3"
+  regional_singapore: "asia-southeast1"
+  remote_wan_us: "us-central1"
+gcp_billing_model_usd:
+  asia_egress_per_gib: 0.12
+  e2_vcpu_per_second: 0.00000745
+  e2_memory_gb_per_second: 0.00000100
+sla_constraints:
+  min_recall_at_10: 0.92
+  hard_deadline_ms: 150.0
