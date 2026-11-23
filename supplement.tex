@@ -1,13 +1,40 @@
 \documentclass[10pt,journal,compsoc]{IEEEtran}
-\usepackage{amsmath,amssymb,booktabs}
+
+\ifCLASSOPTIONcompsoc
+  \usepackage[nocompress]{cite}
+\else
+  \usepackage{cite}
+\fi
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
 \begin{document}
+
 \title{Supplementary Material for ``CAPQ-Pareto: Context-Aware Post-Quantum and Homomorphic Encryption Orchestration for Hybrid Structured-Unstructured Databases Across the Cloud-Edge Continuum''}
-\author{Preecha~[Surname],~\IEEEmembership{Member,~IEEE}}
+
+\author{Preecha~Noiumkar,~\IEEEmembership{Member,~IEEE}%
+\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem P. Noiumkar is with the Department of Information Technology, Faculty of Informatics, Mahasarakham University, Maha Sarakham 44150, Thailand (e-mail: preecha.n@msu.ac.th; ORCID: \url{https://orcid.org/0009-0000-5964-4896}).}}
+
 \maketitle
 
-\section{Security and Leakage Analysis of Coarse-Bucketed CKKS (Regime C)}
-Detailed formal threat and access-pattern leakage bounds for edge K-Means coarse bucket routing under honest-but-curious cloud database servers will be documented here to preserve the 12-page main manuscript budget.
+\section{Security and Entropy Leakage Bounds of Coarse-Bucketed CKKS (Regime C)}
+In Regime~C, query embeddings $\mathbf{q} \in \mathbb{R}^\kappa$ are encrypted under the Ring-Learning-With-Errors (RLWE) assumption using OpenFHE CKKS with $N_{\text{poly}} \in \{8192, 16384\}$ ($\ge 128$-bit post-quantum security~\cite{cheon2017ckks, badawi2022openfhe}). Under uniform cluster balance across $K_c$ edge centroids ($1 \le r \le K_c$), revealing $r$ candidate bucket indices yields worst-case Shannon entropy reduction bounded by:
+\begin{equation}
+\Delta H = \log_2\!\left(\frac{K_c}{r}\right) \text{ bits}, \quad \text{with } \Delta H = 0 \text{ when } r = K_c.
+\end{equation}
+For non-uniform bucket prior $P(B_j)$, exact mutual information leakage $I(Q; \mathcal{B}_r)$ is computed empirically from real dataset cluster distributions during execution.
 
-\section{Extended Hyperparameter Matrix and GCP Pricing Calibration}
-Full per-region Google Cloud Platform pricing tables, OpenFHE ring dimension noise budgets, and extended ablation tables across PostgreSQL (\texttt{pgvector}) and Milvus.
+\section{Edge-Case Statistical Formulations and SHA-256 Verification Protocol}
+Let $d_k = X_k - Y_k$ ($k=1,\dots,N$) denote paired trial differences. If $\sum_{k=1}^N |d_k| = 0$, the two-sided Wilcoxon test deterministically returns $p = 1.0$. For $M$ pairwise baseline comparisons sorted as $p_{(1)} \le \dots \le p_{(M)}$, Holm--Bonferroni adjusted $p$-values enforce strict monotonicity:
+\begin{equation}
+p_{\text{Holm},(k)} = \max_{j \le k} \min\!\left(1.0,\, (M - j + 1)p_{(j)}\right).
+\end{equation}
+For paired binary SLA outcomes with discordant counts $(n_{01}, n_{10})$, $p_{\text{McNemar}} = 1.0$ if $n_{01}+n_{10}=0$, exact two-sided binomial probability if $0 < n_{01}+n_{10} < 25$, and continuity-corrected $\chi^2 = \frac{(|n_{01}-n_{10}|-1)^2}{n_{01}+n_{10}}$ if $n_{01}+n_{10} \ge 25$. Every table generated into \texttt{00\_manuscript/tables/} records the SHA-256 digest of its source raw CSV log.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
 \end{document}
