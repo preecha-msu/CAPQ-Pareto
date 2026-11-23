@@ -7,7 +7,7 @@ import zipfile
 from pathlib import Path
 
 REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto")
-ZIP_TARGET = Path(r"E:\Research\CAPQ-Pareto-Overleaf-IEEE-TCC.zip")
+ZIP_TARGET = Path(r"D:\Research\CAPQ-Pareto-Overleaf-IEEE-TCC.zip")
 
 MAIN_TEX = r"""\documentclass[10pt,journal,compsoc]{IEEEtran}
 
@@ -143,13 +143,13 @@ L(d_i, m) = T_{\text{prep}}^{\text{edge}} + T_{\text{crypto}}^{\text{edge}} + T_
 \label{eq:latency}
 \end{equation}
 
-Linux Intel RAPL counters report cumulative microjoules $E_{\text{uj}} \in [0, E_{\max\_\text{uj}})$. Accounting for hardware counter wraparound across $\Delta t_{\text{s}} = (t_1 - t_0)$ seconds and calibrated idle power $P_{\text{idle\_mW}}$ (in milliwatts), net edge energy (in millijoules) is:
+Physical edge energy counters $E_{\text{hw}}(t) = E_{\text{pkg}}(t) + E_{\text{dram}}(t) \in [0, E_{\max})$ sum package and DRAM rails while excluding redundant core/uncore sub-planes (\texttt{PP0}/\texttt{PP1}) to prevent double-counting bias. With unit factor $\kappa_E = 10^{-3}\text{ mJ}/\mu\text{J}$ (Linux \texttt{powercap}) or $\kappa_E = 3.6 \times 10^{-6}\text{ mJ}/\text{pWh}$ (Windows Kernel EMI RAPL) and calibrated idle power $P_{\text{idle\_mW}}$ across $\Delta t_{\text{s}} = t_1 - t_0$ seconds, wraparound-safe net edge energy (in millijoules) is:
 \begin{equation}
-\Delta E_{\text{raw}} = \begin{cases} E_{\text{uj}}(t_1) - E_{\text{uj}}(t_0), & E_{\text{uj}}(t_1) \ge E_{\text{uj}}(t_0), \\ \left(E_{\max\_\text{uj}} - E_{\text{uj}}(t_0)\right) + E_{\text{uj}}(t_1), & \text{otherwise}, \end{cases}
+\Delta E_{\text{raw}} = \begin{cases} E_{\text{hw}}(t_1) - E_{\text{hw}}(t_0), & E_{\text{hw}}(t_1) \ge E_{\text{hw}}(t_0), \\ \left(E_{\max} - E_{\text{hw}}(t_0)\right) + E_{\text{hw}}(t_1), & \text{otherwise}, \end{cases}
 \label{eq:rapl_wrap}
 \end{equation}
 \begin{equation}
-E_{\text{edge}}(d_i, m) = \max\!\left(0,\, 10^{-3}\Delta E_{\text{raw}} - P_{\text{idle\_mW}} \cdot \Delta t_{\text{s}}\right).
+E_{\text{edge}}(d_i, m) = \max\!\left(0,\, \kappa_E \Delta E_{\text{raw}} - P_{\text{idle\_mW}} \cdot \Delta t_{\text{s}}\right).
 \label{eq:energy}
 \end{equation}
 
@@ -189,7 +189,7 @@ C_{\text{gcp}}(d_i, m) = \left(p_{\text{vcpu}} n_{\text{vcpu}} + p_{\text{mem}} 
 \end{algorithm}
 
 \section{Testbed Architecture and Zero-Estimation Statistical Protocol}
-Evaluation adheres strictly to zero-estimation real execution across (1) Bare-Metal Linux Docker Edge containers (\texttt{cgroups v2}: \texttt{2 vCPU, 2 GB RAM}) with hardware \texttt{Intel RAPL} telemetry, and (2) Multi-Region GCP database instances (\texttt{e2-standard-4} x86\_64 and \texttt{t2a-standard-2} ARM64) across Bangkok, Singapore, and Iowa (Table~\ref{tab:testbed}). Every raw CSV log and generated \LaTeX{} result table is cryptographically bound via a SHA-256 verification manifest.
+Evaluation adheres strictly to zero-estimation real execution across (1) Hardware-instrumented Edge containers (\texttt{2 vCPU, 2 GB RAM} quota on \texttt{Intel Core Ultra 9 185H}) with physical \texttt{Intel RAPL / EMI} hardware energy counters, and (2) Multi-Region GCP database instances (\texttt{e2-standard-4} x86\_64 and \texttt{t2a-standard-2} ARM64) across Bangkok, Singapore, and Iowa (Table~\ref{tab:testbed}). Every raw CSV log and generated \LaTeX{} result table is cryptographically bound via a SHA-256 verification manifest.
 
 \textbf{Edge-Case-Safe Non-Parametric Protocol:} Each configuration executes $30$ independent measured trials after $50$ discarded warm-up queries. Continuous metrics are tested via paired two-sided Wilcoxon signed-rank tests (handling zero-difference pairs via Pratt's method and returning $p=1.0$ if all paired differences equal zero), adjusted via monotonic Holm--Bonferroni step-down correction ($p_{\text{Holm},(k)} = \max(p_{\text{Holm},(k-1)}, \min(1, (M-k+1)p_{(k)}))$ at $\alpha_{\text{FWER}} = 0.05$) alongside $10,000$-iteration bootstrap $95\%$ confidence intervals. Paired binary SLA compliance is tested via exact binomial McNemar tests when discordant pairs $n_{01}+n_{10} < 25$ (returning $p=1.0$ if $n_{01}+n_{10}=0$) and continuity-corrected McNemar $\chi^2$ otherwise.
 
@@ -287,16 +287,17 @@ def main() -> None:
     print(f"[SHA-256] main.tex       : {sha256_file(REPO_ROOT / 'main.tex')}")
     print(f"[SHA-256] supplement.tex : {sha256_file(REPO_ROOT / 'supplement.tex')}")
 
-    # 2. Check drive E:\ availability and overwrite E:\Research\CAPQ-Pareto-Overleaf-IEEE-TCC.zip
+    # 2. Strictly overwrite D:\Research\CAPQ-Pareto-Overleaf-IEEE-TCC.zip on every .tex update
     drive_root = Path(ZIP_TARGET.anchor)
-    target_zip = ZIP_TARGET if drive_root.exists() else Path(r"D:\Research\CAPQ-Pareto-Overleaf-IEEE-TCC.zip")
+    if not drive_root.exists():
+        raise FileNotFoundError(f"Drive {drive_root} is not accessible!")
 
-    target_zip.parent.mkdir(parents=True, exist_ok=True)
-    if target_zip.exists():
-        target_zip.unlink()
+    ZIP_TARGET.parent.mkdir(parents=True, exist_ok=True)
+    if ZIP_TARGET.exists():
+        ZIP_TARGET.unlink()
 
     include_files = ["main.tex", "supplement.tex", "references.bib", "README_OVERLEAF.md"]
-    with zipfile.ZipFile(target_zip, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+    with zipfile.ZipFile(ZIP_TARGET, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for fname in include_files:
             fpath = REPO_ROOT / fname
             if fpath.exists():
@@ -309,11 +310,14 @@ def main() -> None:
                     rel_p = full_p.relative_to(REPO_ROOT).as_posix()
                     zf.write(full_p, arcname=rel_p)
 
-    print(f"[OK] Overwrote Overleaf ZIP : {target_zip} ({target_zip.stat().st_size:,} bytes)")
-    print(f"[SHA-256] Overleaf ZIP      : {sha256_file(target_zip)}")
+    if not ZIP_TARGET.is_file():
+        raise RuntimeError(f"ZIP creation failed at {ZIP_TARGET}")
+
+    print(f"[OK] Overwrote Overleaf ZIP : {ZIP_TARGET} ({ZIP_TARGET.stat().st_size:,} bytes)")
+    print(f"[SHA-256] Overleaf ZIP      : {sha256_file(ZIP_TARGET)}")
 
     # 3. Replace on GitHub directly without backup files
-    subprocess.run(["git", "add", "-A", "main.tex", "supplement.tex", "scripts/"], check=True)
+    subprocess.run(["git", "add", "-A", "main.tex", "supplement.tex", "scripts/", "02_orchestrator/", "05_telemetry_audit/", "tests/"], check=True)
     status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, check=True)
     if status.stdout.strip():
         subprocess.run(
