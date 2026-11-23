@@ -1,7 +1,13 @@
-\documentclass[journal]{IEEEtran}
+\documentclass[10pt,journal,compsoc]{IEEEtran}
+
+\ifCLASSOPTIONcompsoc
+  \usepackage[nocompress]{cite}
+\else
+  \usepackage{cite}
+\fi
+
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
@@ -16,47 +22,52 @@
 
 \begin{document}
 
-\title{CAPQ-Pareto: Context-Aware Post-Quantum and Homomorphic Encryption Orchestration for Hybrid Structured-Unstructured Databases Across the Cloud-Edge Continuum\\
-\vspace{0.3em}\large\textit{[Research Proposal for Q1 Journal Submission: IEEE TDSC / IEEE TCC]}}
+\title{CAPQ-Pareto: Context-Aware Post-Quantum and Homomorphic Encryption Orchestration for Hybrid Structured-Unstructured Databases Across the Cloud-Edge Continuum}
 
 \author{Preecha~[Surname],~\IEEEmembership{Member,~IEEE}%
-\thanks{Manuscript proposal initialized November 2026. Repository: \url{https://github.com/preecha-msu/CAPQ-Pareto}.}%
-\thanks{The author is with Mahasarakham University, Maha Sarakham 44150, Thailand (e-mail: preecha@msu.ac.th).}}
+\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem P. [Surname] is with Mahasarakham University, Kham Riang, Kantarawichai, Maha Sarakham 44150, Thailand.\protect\\
+E-mail: preecha@msu.ac.th}%
+\thanks{Target Venue: IEEE Transactions on Cloud Computing (Regular Paper, 12-Page Budget). Artifact Repository: \url{https://github.com/preecha-msu/CAPQ-Pareto}.}}
 
-\markboth{RESEARCH PROPOSAL --- CAPQ-PARETO FRAMEWORK (TARGET: Q1 IEEE TRANSACTIONS)}{PREECHA: CAPQ-PARETO ORCHESTRATION FOR HYBRID CLOUD-EDGE DATABASES}
+\markboth{IEEE TRANSACTIONS ON CLOUD COMPUTING (PROPOSAL \& MANUSCRIPT BLUEPRINT)}%
+{PREECHA: CAPQ-PARETO ORCHESTRATION FOR HYBRID CLOUD-EDGE DATABASES}
 
-\maketitle
-
+% IEEE Computer Society Strict Rule: 100-200 words, plain text (no citations/equations)
+\IEEEtitleabstractindextext{%
 \begin{abstract}
-Modern distributed applications such as Retrieval-Augmented Generation (RAG) and clinical analytics increasingly rely on hybrid database architectures that jointly process structured transactions (SQL/JSON) alongside high-dimensional unstructured vector embeddings across the Cloud-Edge continuum. However, migrating these pipelines to resist quantum adversaries introduces severe bottlenecks. Standardized Post-Quantum Cryptography (PQC) key encapsulation (NIST FIPS 203 ML-KEM) incurs substantial ciphertext expansion and packet fragmentation over wide-area networks (WAN), whereas zero-trust vector queries using approximate Fully Homomorphic Encryption (CKKS) impose prohibitive latency, edge energy drain, and cloud billing costs while breaking standard graph-based vector indices. This proposal introduces \textbf{CAPQ-Pareto}, a context-aware multi-objective orchestration framework that dynamically routes hybrid database payloads across heterogeneous cryptographic and compression regimes. First, we formulate joint encryption-compression selection as a constrained Pareto optimization problem minimizing end-to-end latency, hardware-measured edge energy, and per-second cloud billing under strict security, deadline, and retrieval accuracy ($\text{Recall@}K$) guarantees. Second, we design a Contextual Bandit scheduler with a strict Service-Level Agreement (SLA) gate selecting among: (i) batched QUIC 0-RTT with hybrid X25519/ML-KEM-768 for lossless SQL workloads, (ii) precision-quantized vector transmission over lightweight PQC, and (iii) coarse-bucketed CKKS homomorphic inner-product evaluation for zero-trust vector queries. Finally, we establish a reproducible hybrid testbed combining bare-metal Linux edge containers instrumented with Intel RAPL power telemetry and multi-region Google Cloud Platform (GCP) x86\_64 and ARM64 database nodes running PostgreSQL (\texttt{pgvector}) and Milvus.
+Cloud-edge applications such as Retrieval-Augmented Generation (RAG) and clinical analytics increasingly rely on hybrid databases that jointly serve lossless structured transactions (SQL/JSON) and approximate vector similarity queries across wide-area networks (WAN). However, securing these pipelines against quantum adversaries introduces severe cloud-edge bottlenecks: standardized Post-Quantum Cryptography (NIST FIPS 203 ML-KEM) causes handshake expansion and WAN packet fragmentation, whereas zero-trust vector evaluation via approximate Fully Homomorphic Encryption (CKKS) incurs prohibitive latency, edge energy drain, and cloud billing costs while breaking server-side graph indices. We propose CAPQ-Pareto, a context-aware orchestration framework that dynamically routes hybrid database workloads across heterogeneous cryptographic and compression regimes. We formulate joint encryption-quantization selection as a constrained multi-objective Pareto optimization problem minimizing tail latency, physical edge energy, and per-second cloud compute and egress costs under strict security, deadline, and retrieval accuracy (Recall@K) bounds. An online SLA-gated Contextual Bandit scheduler dispatches batches across micro-batched QUIC 0-RTT with hybrid X25519/ML-KEM-768, precision-quantized vector transport over lightweight PQC, and coarse-bucketed CKKS inner-product search. Evaluation spans bare-metal Intel RAPL edge containers and multi-region Google Cloud x86\_64 and ARM64 clusters running PostgreSQL (pgvector) and Milvus.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Post-quantum cryptography, ML-KEM, homomorphic encryption, CKKS, hybrid vector databases, cloud-edge continuum, multi-objective optimization, contextual bandits.
-\end{IEEEkeywords}
+Cloud-edge continuum, post-quantum cryptography, ML-KEM, homomorphic encryption, hybrid vector databases, multi-objective optimization, cloud economics, tail latency.
+\end{IEEEkeywords}}
 
-\section{Introduction and Problem Statement}
-\IEEEPARstart{E}{nterprise} Retrieval-Augmented Generation (RAG) and smart healthcare systems simultaneously execute relational metadata queries (structured SQL/JSON requiring $100\%$ lossless integrity) and approximate nearest-neighbor (ANN) vector searches ($128$--$1024$ dimensions) across hybrid database engines such as PostgreSQL (\texttt{pgvector}) and Milvus~\cite{wang2021milvus, malkov2020hnsw}. To mitigate \textit{Harvest-Now, Decrypt-Later} quantum threats and honest-but-curious cloud risks, infrastructures must transition toward NIST ML-KEM~\cite{nist_fips203_2024, stebila2016liboqs} and approximate Homomorphic Encryption (CKKS)~\cite{cheon2017ckks, badawi2022openfhe}.
+\maketitle
+\IEEEdisplaynontitleabstractindextext
+\IEEEpeerreviewmaketitle
 
-However, static deployment creates three critical gaps: (1) PQC handshake expansion causes WAN packet fragmentation over TCP/TLS, penalizing small SQL transactions; (2) lossy vector quantization (\texttt{FP32} to \texttt{INT8}/1-bit), CKKS approximation noise (which prevents standard server-side HNSW traversal), and hard SLA timeouts couple encryption choices directly to effective retrieval accuracy; and (3) prior studies lack hardware-grounded optimization spanning accuracy, tail latency, physical edge energy (mJ), and cloud egress/compute cost (USD).
+\IEEEraisesectionheading{\section{Introduction and Problem Statement}\label{sec:introduction}}
+\IEEEPARstart{C}{loud-edge} data infrastructures supporting enterprise Retrieval-Augmented Generation (RAG) and smart healthcare workflows simultaneously execute structured metadata queries (SQL/JSON requiring $100\%$ lossless integrity) and approximate nearest-neighbor (ANN) vector searches ($128$--$1024$ dimensions) across hybrid engines such as PostgreSQL (\texttt{pgvector}) and Milvus~\cite{wang2021milvus, malkov2020hnsw}. Protecting long-lived cloud-edge traffic against \textit{Harvest-Now, Decrypt-Later} quantum adversaries and honest-but-curious cloud operators necessitates transitioning to NIST ML-KEM~\cite{nist_fips203_2024, stebila2016liboqs} and approximate Homomorphic Encryption (CKKS)~\cite{cheon2017ckks, badawi2022openfhe}.
+
+Nevertheless, static cryptographic deployment introduces three cloud-system challenges: (1) PQC key/ciphertext expansion triggers IP/TCP packet fragmentation over WAN links, inflating p99 tail latency for small SQL transactions; (2) edge vector quantization (\texttt{FP32} to \texttt{INT8}/1-bit), CKKS approximation noise (which precludes server-side HNSW graph traversal), and hard SLA timeouts couple security directly to effective retrieval accuracy; and (3) prior studies neglect joint optimization across retrieval accuracy, tail latency, physical edge energy (mJ), and per-second cloud compute/egress billing (USD).
 
 \subsection{Key Scientific Contributions}
 \begin{itemize}
-    \item \textbf{Empirical Bottleneck Discovery:} Cross-architecture characterization of NIST ML-KEM over QUIC~\cite{iyengar2021quic} and OpenFHE CKKS~\cite{badawi2022openfhe} across hybrid SQL and vector benchmarks~\cite{cooper2010ycsb, jegou2011sift, chen2024bgem3} over multi-region WAN links.
-    \item \textbf{Constrained 4D Mathematical Formulation:} Joint cryptographic-quantization routing modeling physical Intel RAPL energy~\cite{khan2018rapl} and per-second GCP billing under security, deadline, and $\text{Recall@}K$ constraints.
-    \item \textbf{SLA-Gated Contextual Bandit Orchestrator:} An online LinUCB scheduler~\cite{li2010linucb} dynamically dispatching payloads across three specialized regimes.
+    \item \textbf{Multi-Region Cloud-Edge Bottleneck Characterization:} Empirical analysis of NIST ML-KEM over QUIC~\cite{iyengar2021quic} and OpenFHE CKKS~\cite{badawi2022openfhe} under dynamic hybrid SQL/vector bursts~\cite{cooper2010ycsb, jegou2011sift, chen2024bgem3} across x86\_64 and ARM64 cloud nodes.
+    \item \textbf{Constrained 4D Cloud-Edge Cost-Energy Model:} Joint cryptographic-quantization formulation integrating hardware Intel RAPL energy~\cite{khan2018rapl} and per-second Google Cloud billing under security, p95/p99 deadline, and $\text{Recall@}K$ guarantees.
+    \item \textbf{SLA-Gated Contextual Bandit Scheduler:} A sub-millisecond LinUCB orchestrator~\cite{li2010linucb} dynamically routing batches across three cryptographic regimes to minimize SLA violations and cloud operational cost.
 \end{itemize}
 
-\section{Related Work Positioning}
-Table~\ref{tab:gap_analysis} contrasts CAPQ-Pareto against existing paradigms.
+\section{Related Work and Gap Matrix}
+Table~\ref{tab:gap_analysis} positions CAPQ-Pareto relative to existing cloud database and post-quantum networking approaches.
 
 \begin{table*}[t]
 \centering
-\caption{Comparison of Existing Encrypted Database Paradigms vs. Proposed CAPQ-Pareto Framework}
+\caption{Comparison of Cloud-Edge Encrypted Database Paradigms vs. Proposed CAPQ-Pareto Framework}
 \label{tab:gap_analysis}
 \begin{tabular}{lcccccc}
 \toprule
-\textbf{Paradigm / Scope} & \textbf{Hybrid DB} & \textbf{NIST PQC} & \textbf{Zero-Trust FHE} & \textbf{SLA \& Recall@$K$ Gate} & \textbf{Hardware RAPL} & \textbf{Cloud Billing} \\
+\textbf{Paradigm / Scope} & \textbf{Hybrid DB} & \textbf{NIST PQC} & \textbf{Zero-Trust FHE} & \textbf{Tail-SLA \& Recall@$K$} & \textbf{Hardware RAPL} & \textbf{Cloud Billing} \\
 \midrule
 Classical Cloud DB (TLS 1.3) & \checkmark & $\times$ & $\times$ & $\times$ & $\times$ & Partial \\
 Static PQC-TLS / QUIC~\cite{stebila2016liboqs, iyengar2021quic} & $\times$ & \checkmark & $\times$ & $\times$ & Partial & $\times$ \\
@@ -66,11 +77,11 @@ Standalone FHE Vector Search~\cite{cheon2017ckks, badawi2022openfhe} & $\times$ 
 \end{tabular}
 \end{table*}
 
-\section{System Architecture and Mathematical Formulation}
+\section{System Architecture and Cloud-Edge Formulation}
 \begin{figure*}[t]
 \centering
 \IfFileExists{00_manuscript/figures/workflow/capq_pareto_workflow.jpg}{%
-    \includegraphics[width=0.96\textwidth]{capq_pareto_workflow.jpg}%
+    \includegraphics[width=0.95\textwidth]{capq_pareto_workflow.jpg}%
 }{%
     \fbox{\parbox{0.94\textwidth}{\centering\vspace{1.0em}
     \textbf{[Figure 1 Placeholder: CAPQ-Pareto 4-Layer Workflow]}\\
@@ -81,50 +92,55 @@ Standalone FHE Vector Search~\cite{cheon2017ckks, badawi2022openfhe} & $\times$ 
 \label{fig:architecture}
 \end{figure*}
 
-For each batch $d_i$ under network state $\boldsymbol{\omega}_t = (\text{BW}_t, \text{RTT}_t, \text{Loss}_t)$, CAPQ-Pareto selects regime $m \in \mathcal{M}$ minimizing:
+Under instantaneous network state $\boldsymbol{\omega}_t = (\text{BW}_t, \text{RTT}_t, \text{Loss}_t)$ and workload arrival rate $\lambda_t$, CAPQ-Pareto selects regime $m \in \mathcal{M}$ for batch $d_i$ minimizing:
 \begin{equation}
 \min_{m \in \mathcal{M}} \quad \mathcal{J}(d_i, m \mid \boldsymbol{\omega}_t) = \alpha \hat{L}(d_i, m) + \beta \hat{E}_{\text{edge}}(d_i, m) + \gamma \hat{C}_{\text{gcp}}(d_i, m)
 \label{eq:obj}
 \end{equation}
-subject to $S(m) \ge S_{\text{req}}(d_i)$, $A_{\text{raw}}(d_i, m)\cdot\mathbb{I}[L(d_i,m) \le T_{\max}] \ge A_{\min}(d_i)$, and $L_{\text{p95}}(d_i, m) \le T_{\max}$. Net edge energy is obtained via RAPL counters $E_{\text{edge}} = \Delta E_{\text{RAPL}} - P_{\text{idle}}\Delta t$, and GCP cost combines per-second vCPU, memory, and internet egress charges:
+subject to $S(m) \ge S_{\text{req}}(d_i)$, $A_{\text{raw}}(d_i, m)\cdot\mathbb{I}[L(d_i,m) \le T_{\max}] \ge A_{\min}(d_i)$, and $L_{\text{p95}}(d_i, m) \le T_{\max}$. Net physical edge energy is measured via RAPL counters $E_{\text{edge}} = \Delta E_{\text{RAPL}} - P_{\text{idle}}\Delta t$, while cloud operational cost models per-second GCP vCPU, memory, and WAN egress charges:
 \begin{equation}
 C_{\text{gcp}}(d_i, m) = p_{\text{vcpu}} n_{\text{vcpu}} T_{\text{cloud}} + p_{\text{mem}} M_{\text{gb}} T_{\text{cloud}} + p_{\text{egress}} B_{\text{out}}(d_i, m).
 \end{equation}
 
-\section{Adaptive Crypto-Scheduler and Testbed Plan}
+\section{SLA-Gated Orchestrator and Evaluation Plan}
 \begin{algorithm}[t]
 \caption{CAPQ-Pareto SLA-Gated LinUCB Scheduler}
 \label{alg:scheduler}
 \begin{algorithmic}[1]
 \Require Weights $(\alpha, \beta, \gamma)$, exploration $\nu$, action set $\mathcal{M}$
-\For{each incoming hybrid workload batch $d_t$}
+\For{each incoming hybrid workload batch $d_t$ under burst rate $\lambda_t$}
     \State Observe context $\mathbf{x}_t$ and filter feasible set $\mathcal{M}_{\text{sla}} \subseteq \mathcal{M}$ satisfying security, $A_{\min}$, and $T_{\max}$
     \For{each $m \in \mathcal{M}_{\text{sla}}$}
         \State $\hat{\boldsymbol{\theta}}_m \leftarrow \mathbf{A}_m^{-1}\mathbf{b}_m$; \quad $u_m \leftarrow \hat{\boldsymbol{\theta}}_m^\top \mathbf{x}_t - \nu \sqrt{\mathbf{x}_t^\top \mathbf{A}_m^{-1}\mathbf{x}_t}$
     \EndFor
-    \State Execute $m^*_t \leftarrow \arg\min_{m \in \mathcal{M}_{\text{sla}}} u_m$ across Regime A (QUIC 0-RTT + ML-KEM-768), Regime B (Quantized ML-KEM-512 + ChaCha20), or Regime C (Coarse-Bucketed OpenFHE CKKS)
-    \State Measure $(L_t, E_{\text{edge},t}, C_{\text{gcp},t}, A_{\text{eff},t})$, compute $\mathcal{J}_t$, and update $(\mathbf{A}_{m^*_t}, \mathbf{b}_{m^*_t})$
+    \State Dispatch $m^*_t \leftarrow \arg\min_{m \in \mathcal{M}_{\text{sla}}} u_m$ via Regime A (QUIC 0-RTT + ML-KEM-768), Regime B (Quantized ML-KEM-512 + ChaCha20), or Regime C (Bucketed OpenFHE CKKS)
+    \State Log $(L_t, E_{\text{edge},t}, C_{\text{gcp},t}, A_{\text{eff},t})$, compute $\mathcal{J}_t$, and update $(\mathbf{A}_{m^*_t}, \mathbf{b}_{m^*_t})$
 \EndFor
 \end{algorithmic}
 \end{algorithm}
 
 \begin{table}[t]
 \centering
-\caption{Hybrid Local-RAPL and Multi-Region GCP Evaluation Plan}
+\caption{IEEE TCC Experimental Matrix (Local RAPL + Multi-Region GCP)}
 \label{tab:testbed}
 \begin{tabular}{ll}
 \toprule
 \textbf{Dimension} & \textbf{Specification} \\
 \midrule
 Local Edge Tier & Bare-metal Linux Docker (\texttt{2 vCPU, 2GB}), Intel RAPL, \texttt{tc/netem} \\
-GCP Cloud Tier & \texttt{asia-southeast3} (BKK), \texttt{asia-southeast1} (x86/ARM64), \texttt{us-central1} \\
-Databases \& Data & PostgreSQL (\texttt{pgvector}) \& Milvus; TPC-C, YCSB-A, SIFT1M, BGE-M3 \\
-Scale \& Audit & $720$ core + $450$ ablation runs ($30$ trials/config, Wilcoxon $p < 0.05$) \\
-Target Venues & \textit{IEEE TDSC}, \textit{IEEE TCC}, \textit{Elsevier FGCS} (18-Week Plan) \\
+GCP Regions & \texttt{asia-southeast3} (BKK), \texttt{asia-southeast1} (x86/ARM64), \texttt{us-central1} \\
+DBs \& Workloads & PostgreSQL (\texttt{pgvector}) \& Milvus; TPC-C, YCSB-A, SIFT1M, BGE-M3 \\
+Cloud Metrics & Mean/p95/p99 Latency, SLA Violation \%, RAPL mJ, GCP USD/1M queries \\
+Statistical Audit & $720$ core + $450$ ablation runs ($30$ trials/config, Wilcoxon $p < 0.05$) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
+
+\begin{IEEEbiographynophoto}{Preecha [Surname]}
+(Member, IEEE) is with Mahasarakham University, Thailand. His research interests include cloud-edge continuum systems, post-quantum security, and distributed database optimization.
+\end{IEEEbiographynophoto}
+
 \end{document}
