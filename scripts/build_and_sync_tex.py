@@ -271,6 +271,8 @@ For paired binary SLA outcomes with discordant counts $(n_{01}, n_{10})$, $p_{\t
 
 \IfFileExists{00_manuscript/tables/tab_datasets_manifest.tex}{\input{00_manuscript/tables/tab_datasets_manifest.tex}}{}
 
+\IfFileExists{00_manuscript/tables/tab_wan_socket_audit.tex}{\input{00_manuscript/tables/tab_wan_socket_audit.tex}}{}
+
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 \end{document}
@@ -304,7 +306,7 @@ def main() -> None:
     if ZIP_TARGET.exists():
         ZIP_TARGET.unlink()
 
-    include_files = [".gitignore", "main.tex", "supplement.tex", "references.bib", "README_OVERLEAF.md"]
+    include_files = [".gitattributes", ".gitignore", "main.tex", "supplement.tex", "references.bib", "README_OVERLEAF.md"]
     with zipfile.ZipFile(ZIP_TARGET, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for fname in include_files:
             fpath = REPO_ROOT / fname
@@ -325,7 +327,7 @@ def main() -> None:
     print(f"[SHA-256] Overleaf ZIP      : {sha256_file(ZIP_TARGET)}")
 
     # 3. Replace on GitHub directly without backup files
-    subprocess.run(["git", "add", "-A", ".gitignore", "main.tex", "supplement.tex", "configs/", "00_manuscript/tables/", "06_experiments_results/sha256_manifest.json", "scripts/", "01_workloads/", "02_orchestrator/", "05_telemetry_audit/", "tests/"], check=True)
+    subprocess.run(["git", "add", "-A", ".gitattributes", ".gitignore", "main.tex", "supplement.tex", "configs/", "00_manuscript/tables/", "06_experiments_results/sha256_manifest.json", "scripts/", "01_workloads/", "02_orchestrator/", "05_telemetry_audit/", "tests/"], check=True)
     status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, check=True)
     if status.stdout.strip():
         subprocess.run(
