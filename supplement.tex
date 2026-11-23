@@ -6,21 +6,23 @@
 
 \begin{document}
 \title{Supplementary Material for ``CAPQ-Pareto: Hardware- and Multi-Region Cloud-Verified 4D Pareto Cryptographic Orchestration for Post-Quantum Hybrid Relational-Vector Databases''}
-\author{Preecha~Research~Group}
+\author{Preecha~Noiumkar,~\IEEEmembership{Member,~IEEE}%
+\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem P. Noiumkar is with the Department of Information Technology, Faculty of Informatics, Mahasarakham University, Maha Sarakham 44150, Thailand (e-mail: preecha.n@msu.ac.th; ORCID: \url{https://orcid.org/0009-0000-5964-4896}).}%
+\thanks{This research project was financially supported by the Faculty of Informatics, Mahasarakham University.}}
 \maketitle
 
 \section*{S1. Formal Min-Entropy Leakage Bound of Coarse-Bucketed CKKS (Regime C)}
-In Tier~2 Zero-Trust execution ($z_q = 1$), the query embedding $\mathbf{q} \in \mathbb{S}^{d-1}$ is encrypted under \texttt{OpenFHE CKKS} (\texttt{HEStd\_128\_classic}), while only the coarse spherical $k$-means cluster index $C = \arg\max_{c \in \{1,\dots,K_c\}} \langle \mathbf{q}, \boldsymbol{\mu}_c \rangle$ is revealed to bound server-side homomorphic inner-product evaluations from $N_{\text{db}}$ to $M_b \approx N_{\text{db}}/K_c$. Let $H_\infty(\mathbf{Q}) = -\log_2 \max_{\mathbf{q}} p(\mathbf{q})$ denote the prior min-entropy of the query distribution. By chain rule of R\'enyi min-entropy, observing $C \in \{1,\dots,K_c\}$ reduces conditional min-entropy by at most:
+In Tier~2 Zero-Trust execution ($z_q = 1$), the query embedding $\mathbf{q} \in \mathbb{S}^{d-1}$ is encrypted under \texttt{OpenFHE CKKS} (\texttt{HEStd\_128\_classic}), while only the coarse spherical $k$-means cluster index $C = \arg\max_{c \in \{1,\dots,K_c\}} \langle \mathbf{q}, \boldsymbol{\mu}_c \rangle$ is revealed to bound server-side homomorphic inner-product evaluations from $N_{\text{db}}$ to $M_b \approx N_{\text{db}}/K_c$. Let $H_\infty(\mathbf{Q}) = -\log_2 \max_{\mathbf{q}} p(\mathbf{q})$ denote the prior min-entropy of the query distribution. By the chain rule of R\'enyi min-entropy, observing $C \in \{1,\dots,K_c\}$ reduces conditional min-entropy by at most:
 \begin{equation}
 \mathcal{L}_{\text{bucket}} = H_\infty(\mathbf{Q}) - H_\infty(\mathbf{Q} \mid C) \le \log_2 K_c \quad [\text{bits}].
 \end{equation}
 For $K_c = 64$, $\mathcal{L}_{\text{bucket}} \le 6.0\text{ bits}$, leaving fine-grained semantic coordinates protected by $\ge 128$-bit Ring-LWE security ($\log_2 Q \le 109\text{ bits}$ at $N=4096$ with \texttt{BV} key-switching).
 
-\section*{S2. Regret Guarantee of SLA-Gated Regularized LinUCB}
-Let $\mathcal{F}_t \subseteq \mathcal{M}$ denote the nonempty feasible action set admitted by the sliding-window SLA gate at round $t$. Under bounded sub-Gaussian telemetry noise $\eta_t$ on scalarized objective observations $y_t = \boldsymbol{\theta}_{m_t}^\top \mathbf{x}_t + \eta_t$ with $\|\mathbf{x}_t\|_2 \le L_x$ and $\|\boldsymbol{\theta}_m\|_2 \le S_\theta$, choosing $\mathbf{A}_{m,0} = \lambda_{\text{reg}}\mathbf{I}_{d_c}$ ensures cumulative regret over $T$ rounds relative to the optimal SLA-feasible policy $m_t^* = \arg\min_{m \in \mathcal{F}_t} \boldsymbol{\theta}_m^\top \mathbf{x}_t$ satisfies $\mathcal{R}_T = \mathcal{O}\!\big(d_c \sqrt{T \ln(1 + T L_x^2 / (d_c \lambda_{\text{reg}}))}\big)$, converging rapidly for $d_c = 10$ within $< 15$ warm-up queries.
+\section*{S2. Regret Bound and Non-Parametric Bootstrap / McNemar Audit}
+Under bounded sub-Gaussian telemetry noise on scalarized observations $y_t = \boldsymbol{\theta}_{m_t}^\top \mathbf{x}_t + \eta_t$ over the nonempty SLA-feasible action set $\mathcal{F}_t \subseteq \mathcal{M}$, regularized LinUCB ($\mathbf{A}_{m,0} = \lambda_{\text{reg}}\mathbf{I}_{d_c}$) achieves cumulative regret $\mathcal{R}_T = \mathcal{O}\!\big(d_c \sqrt{T \ln(1 + T L_x^2 / (d_c \lambda_{\text{reg}}))}\big)$ for $d_c = 10$. Across the $360$ paired multi-region GCP trials ($1{,}440$ live queries), $10{,}000$-iteration paired bootstrap resampling yields $\Delta\mathcal{J}_{\text{SLA}} = 0.544$ ($95\%$ CI: $[0.379, 0.695]$) vs.\ \texttt{Static\_MLKEM1024} and $\Delta\mathcal{J}_{\text{SLA}} = 0.543$ ($95\%$ CI: $[0.379, 0.696]$) vs.\ \texttt{Classical\_TLS1.3}, with continuity-corrected McNemar's $\chi^2 = 103.61$ ($b=188$, $c=35$).
 
-\section*{S3. Zero-Orphan Cloud Reproduction Protocol}
-All Google Cloud benchmarks (\texttt{Step C3} \texttt{Tau T2A ARM64} and \texttt{Step C4} 3-Region \texttt{Bangkok}, \texttt{Singapore}, and \texttt{US-Central}) enforce three layers of billing protection: (1)~kernel-level \texttt{shutdown -P +60} startup watchdogs attached via instance metadata, (2)~Python \texttt{try/finally} automatic \texttt{gcloud compute instances delete --quiet} blocks upon region completion or exception, and (3)~post-campaign global verification via \texttt{04\_testbed\_infra/teardown\_all\_gcp.sh}.
+\section*{S3. One-Command Docker Compose \& Zero-Orphan Cloud Reproduction}
+Reviewers can launch the local hybrid database stack via \texttt{docker compose -f 04\_testbed\_infra/docker-compose.yml up -d}. All Google Cloud benchmarks enforce three billing safeguards: (1)~kernel \texttt{shutdown -P +60} metadata watchdogs, (2)~Python \texttt{try/finally} automatic VM deletion, and (3)~global verification via \texttt{04\_testbed\_infra/teardown\_all\_gcp.sh}.
 
 \section*{S4. Complete SHA-256 Cryptographic Verification Manifest}
 Table~\ref{tab:supp_sha256} lists the immutable \texttt{SHA-256} digests linking raw experimental CSV logs directly to the generated LaTeX tables in the main manuscript.
