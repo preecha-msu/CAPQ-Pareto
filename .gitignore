@@ -21,3 +21,6 @@ venv/
 *.key
 *service-account*.json
 .env
+01_workloads/**/*.npz
+01_workloads/**/*.jsonl
+04_testbed_infra/qdrant_local_storage/

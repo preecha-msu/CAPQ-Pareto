@@ -35,6 +35,18 @@
       "measured_rows": 40,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_openfhe_qdrant_audit.tex",
       "latex_table_sha256": "da653aa98e7a24582d5ba9ca09c368c09f5e3358ed47ab719db61b9894ad299e"
+    },
+    {
+      "experiment_id": "hybrid_4datasets_ingestion_audit",
+      "timestamp_utc": "2026-11-23T12:07:01Z",
+      "host": "PREECHA-IT",
+      "platform": "Windows-10-10.0.26300-SP0",
+      "python_version": "3.11.9",
+      "raw_csv_path": "D:\\Research\\CAPQ-Pareto\\06_experiments_results\\raw_logs\\datasets_ingestion_manifest.csv",
+      "raw_csv_sha256": "732b12e214ec25173d5e297a7c64b839cb67b1479eb73da6c3f71cfa43f7722a",
+      "measured_rows": 4,
+      "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_datasets_manifest.tex",
+      "latex_table_sha256": "a868cb8c5d5ec75413fc345d82cea979c14e92418b2dd6cce7562360a10bf890"
     }
   ]
 }
