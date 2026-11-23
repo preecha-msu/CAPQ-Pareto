@@ -5,19 +5,33 @@
   \usepackage{cite}
 \fi
 \usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{array}
+\usepackage{stfloats}
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
 
-\renewcommand{\topfraction}{0.92}
-\renewcommand{\bottomfraction}{0.88}
-\renewcommand{\textfraction}{0.06}
-\renewcommand{\floatpagefraction}{0.86}
-\renewcommand{\dbltopfraction}{0.92}
-\renewcommand{\dblfloatpagefraction}{0.86}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{6}
+\setcounter{dbltopnumber}{3}
+\renewcommand{\topfraction}{0.94}
+\renewcommand{\bottomfraction}{0.90}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.88}
+\renewcommand{\dbltopfraction}{0.94}
+\renewcommand{\dblfloatpagefraction}{0.88}
+
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\dblfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{1pt}
 
 \begin{document}
 
@@ -58,7 +72,7 @@ To resolve this four-way tension among \emph{tail latency}, \emph{edge silicon e
 \begin{itemize}
     \item \textbf{Unit-Consistent 4D Cloud-Edge Pareto Formulation:} We formulate joint optimization over end-to-end latency ($L$), wraparound-safe net silicon edge energy ($E_{\text{edge}}$ in $\text{mJ}$), and per-second GCP compute plus internet egress billing ($C_{\text{gcp}}$ in $\text{USD}$), strictly gated by hard latency deadlines ($T_{\max}$) and minimum retrieval quality ($\text{Recall@10} \ge R_{\min}$).
     \item \textbf{Co-Designed PQC Transport, Vector Quantization, and Coarse-Bucketed CKKS:} We unify three adaptive regimes: \emph{Regime~A} (\texttt{X25519+ML-KEM-768} over \texttt{QUIC 0-RTT} \cite{iyengar2021rfc9000} with transactional micro-batching), \emph{Regime~B} (\texttt{ML-KEM-512} paired with $\epsilon$-safe \texttt{INT8-SQ} scalar quantization compressing $1024\text{d}$ vectors from $4{,}096\text{ B}$ to $1{,}032\text{ B}$ within a single MTU), and \emph{Regime~C} (centroid-routed \texttt{OpenFHE CKKS} inner-product evaluation under \texttt{HEStd\_128\_classic}).
-    \item \textbf{SLA-Gated Regularized LinUCB Orchestrator:} We introduce a $10$-dimensional contextual bandit router \cite{li2010linucb,abbasi2011improved_bandits} guarded by a sliding-window $p95$ SLA gate that prunes deadline- or recall-violating actions prior to confidence-bound exploration.
+    \item \textbf{SLA-Gated Regularized LinUCB Orchestrator:} We introduce a $10$-dimensional contextual bandit router \cite{li2010linucb,abbasi2011improved_bandits} guarded by a sliding-window $p95$ SLA gate that prunes deadline- or recall-violating actions prior to confidence-bound exploration (Algorithm~\ref{alg:linucb}).
     \item \textbf{1,980-Trial Hardware, \texttt{ARM64}, and 3-Region GCP Empirical Audit:} Across $720$ controlled \texttt{tc/netem} runs, $360$ cross-database (\texttt{BGE-M3} $1024\text{d}$) and WAN-shock runs, $540$ cross-architecture \texttt{x86\_64} vs.\ GCP \texttt{ARM64} (\texttt{Neoverse-N1}) trials, and $360$ live multi-region GCP WAN trials ($1{,}440$ queries from Thailand to Bangkok, Singapore, and Iowa), CAPQ-Pareto elevates transpacific SLA compliance from $0.0\%$ to $98.3\%$, cuts live $p99$ tail latency by up to $6.0\times$, and reveals a statistically significant ($p_{\text{Holm}} = 8.66 \times 10^{-6}$) AEAD cipher inversion on \texttt{ARM64}.
 \end{itemize}
 
@@ -95,7 +109,7 @@ Empirical studies by Paquin et al. \cite{paquin2020pqctls} and Sikeridis et al. 
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=0.94\textwidth]{00_manuscript/figures/fig1_capq_architecture.pdf}
+\includegraphics[width=0.93\textwidth]{00_manuscript/figures/fig1_capq_architecture.pdf}
 \caption{Four-layer architecture of \textbf{CAPQ-Pareto} bridging a bare-metal RAPL-instrumented Edge Gateway in Thailand with live Google Cloud Hybrid Database nodes across Bangkok (\texttt{asia-southeast3}), Singapore (\texttt{asia-southeast1}, \texttt{x86\_64} and \texttt{Tau T2A ARM64}), and Iowa (\texttt{us-central1}).}
 \label{fig:arch}
 \end{figure*}
@@ -134,7 +148,7 @@ T_{\text{wan}}(m) = k_{\text{rtt}}(m)\cdot\text{RTT} + \frac{8\big(S_{\text{hs}}
 where $\Phi_{\text{frag}}$ grows superlinearly when $N_{\text{pkt}}(m) > 1$ and $p_{\text{loss}} > 0$ due to multi-fragment reassembly stalls \cite{sikeridis2020pqctls_wan,sosnowski2023pqc_quic}.
 
 \subsection{Wraparound-Safe Silicon RAPL Energy and GCP Billing}
-Let $R(t)$ denote the hardware energy counter scaled by unit multiplier $\kappa_E$ into millijoules ($\text{mJ}$) modulo $R_{\max}$. Over $[t_0, t_1]$ ($\Delta t = t_1 - t_0$), wraparound-safe gross energy and net active per-query energy after subtracting calibrated quiescent idle power $P_{\text{idle}}$ ($\text{mW}$) across $N_w$ queries of batch size $b$ are:
+Let $R(t)$ denote the hardware energy counter scaled by unit multiplier $\kappa_E$ into millijoules ($\text{mJ}$) modulo $R_{\max}$. Over $[t_0, t_1]$ ($\Delta t = t_1 - t_0$), wraparound-safe net active per-query energy after subtracting calibrated quiescent idle power $P_{\text{idle}}$ ($\text{mW}$) across $N_w$ queries of batch size $b$ is:
 \begin{equation}
 E_{\text{edge}}(m) = \frac{\max\!\Big(0,\; \kappa_E\big((R(t_1)-R(t_0))\bmod R_{\max}\big) - P_{\text{idle}}\Delta t\Big)}{N_w \cdot b}.
 \label{eq:net_energy}
@@ -156,29 +170,35 @@ With warm-up normalized metrics $\tilde{X}(m) = \text{clip}\big((X(m)-X_{\min})/
 \min_{m \in \mathcal{M}} \quad & \mathcal{J}(m) = \alpha \tilde{L}(m) + \beta \tilde{E}_{\text{edge}}(m) + \gamma \tilde{C}_{\text{gcp}}(m) \label{eq:pareto_obj}\\
 \text{s.t.} \quad & P_{95}\!\big(L(m)\big) \le T_{\max}(r), \quad \mathbb{E}\!\big[A_{\text{eff}}(m)\big] \ge R_{\min}(q), \quad \text{Sec}(m) \ge \lambda_{\text{sec}}(z_q), \label{eq:const_acc}
 \end{align}
-where $R_{\min}(q) = 1.0$ for SQL, $R_{\min}(q) = 0.92$ for RAG vectors, and $\lambda_{\text{sec}} = 128\text{ bits}$. To compare SLA-violating baselines without selection bias, we evaluate $\mathcal{J}_{\text{SLA}}(m) = \mathcal{J}(m) + \big(1 - \text{SLA\_Pass}(m)\big)$.
+where $R_{\min}(q) = 1.0$ for SQL, $R_{\min}(q) = 0.92$ for RAG vectors, and $\lambda_{\text{sec}} = 128\text{ bits}$. To evaluate SLA-violating baselines without selection bias, we compute $\mathcal{J}_{\text{SLA}}(m) = \mathcal{J}(m) + \big(1 - \text{SLA\_Pass}(m)\big)$.
 
-\begin{figure}[!t]
-\centering
-\fbox{\parbox{0.95\columnwidth}{\footnotesize
-\textbf{Algorithm 1: SLA-Gated Regularized LinUCB Orchestrator}\\[1pt]
-\textbf{Input:} Action space $\mathcal{M}$, ridge $\lambda_{\text{reg}}=1.0$, exploration $\nu=0.20$, deadline $T_{\max}(r)$, recall floor $R_{\min}=0.92$, weights $(\alpha,\beta,\gamma)$.\\
-\textbf{Init:} $\mathbf{A}_m \leftarrow \lambda_{\text{reg}}\mathbf{I}_{10}$, $\mathbf{b}_m \leftarrow \mathbf{0}_{10}$, sliding window $\mathcal{W}_m$ ($\forall m \in \mathcal{M}$).\\[1pt]
-1: \textbf{for} each arriving hybrid query $q_t$ with context $\mathbf{x}_t \in \mathbb{R}^{10}$ \textbf{do}\\
-2: \quad $\mathcal{M}_{\text{sec}} \leftarrow \{m \in \mathcal{M} : \text{Sec}(m) \ge \lambda_{\text{sec}}(z_{q_t})\}$; obtain $(\hat{L}_{95}(m), \hat{A}(m))$ from $\mathcal{W}_m$.\\
-3: \quad \textbf{SLA Gate:} $\mathcal{F}_t \leftarrow \{m \in \mathcal{M}_{\text{sec}} : \hat{L}_{95}(m) \le T_{\max}(r) \wedge \hat{A}(m) \ge R_{\min}\}$.\\
-4: \quad \textbf{if} $\mathcal{F}_t = \emptyset$ \textbf{then} $\mathcal{F}_t \leftarrow \{\arg\min_{m \in \mathcal{M}_{\text{sec}}} \hat{L}_{95}(m)\}$ \emph{(Safe Fallback)}.\\
-5: \quad $\forall m \in \mathcal{F}_t$: $\hat{\boldsymbol{\theta}}_m \leftarrow \mathbf{A}_m^{-1}\mathbf{b}_m$;\; $\text{LCB}_t(m) \leftarrow \hat{\boldsymbol{\theta}}_m^\top \mathbf{x}_t - \nu\sqrt{\mathbf{x}_t^\top \mathbf{A}_m^{-1}\mathbf{x}_t}$.\\
-6: \quad Dispatch $q_t$ via $m_t^* \leftarrow \arg\min_{m \in \mathcal{F}_t} \text{LCB}_t(m)$; observe $(L_t, E_{\text{edge},t}, C_{\text{gcp},t}, A_{\text{eff},t})$.\\
-7: \quad Update $\mathbf{A}_{m_t^*} \mathrel{+}= \mathbf{x}_t\mathbf{x}_t^\top$, $\mathbf{b}_{m_t^*} \mathrel{+}= \big(\mathcal{J}_t(m_t^*) + \mathbb{I}[\neg\text{SLA}_t]\big)\mathbf{x}_t$, and $\mathcal{W}_{m_t^*}$.\\
-8: \textbf{end for}
-}}
-\caption{Online SLA-gated contextual bandit routing executing in $< 45\;\mu\text{s}$ per query on the edge gateway.}
-\label{fig:alg_linucb}
-\end{figure}
+\begin{algorithm}[!t]
+\caption{SLA-Gated Regularized LinUCB Orchestrator}
+\label{alg:linucb}
+\footnotesize
+\begin{algorithmic}[1]
+\Require Action space $\mathcal{M}$, ridge $\lambda_{\text{reg}}=1.0$, exploration $\nu=0.20$, deadline $T_{\max}(r)$, recall floor $R_{\min}=0.92$, weights $(\alpha,\beta,\gamma)$
+\Ensure Optimal per-query cryptographic-compression regime $m_t^* \in \mathcal{M}$
+\State Initialize $\mathbf{A}_m \leftarrow \lambda_{\text{reg}}\mathbf{I}_{10}$, $\mathbf{b}_m \leftarrow \mathbf{0}_{10}$, window $\mathcal{W}_m$ ($\forall m \in \mathcal{M}$)
+\For{each arriving hybrid query $q_t$ with context $\mathbf{x}_t \in \mathbb{R}^{10}$}
+    \State $\mathcal{M}_{\text{sec}} \leftarrow \{m \in \mathcal{M} : \text{Sec}(m) \ge \lambda_{\text{sec}}(z_{q_t})\}$
+    \State Query sliding-window $p95$ latency $\hat{L}_{95}(m)$ and mean $\hat{A}(m)$ from $\mathcal{W}_m$
+    \State \textbf{SLA Gate:} $\mathcal{F}_t \leftarrow \{m \in \mathcal{M}_{\text{sec}} : \hat{L}_{95}(m) \le T_{\max}(r) \wedge \hat{A}(m) \ge R_{\min}\}$
+    \If{$\mathcal{F}_t = \emptyset$}
+        \State $\mathcal{F}_t \leftarrow \{\arg\min_{m \in \mathcal{M}_{\text{sec}}} \hat{L}_{95}(m)\}$ \Comment{Safe min-latency fallback}
+    \EndIf
+    \For{each $m \in \mathcal{F}_t$}
+        \State $\hat{\boldsymbol{\theta}}_m \leftarrow \mathbf{A}_m^{-1}\mathbf{b}_m$;\quad $\text{LCB}_t(m) \leftarrow \hat{\boldsymbol{\theta}}_m^\top \mathbf{x}_t - \nu\sqrt{\mathbf{x}_t^\top \mathbf{A}_m^{-1}\mathbf{x}_t}$
+    \EndFor
+    \State Dispatch $q_t$ via $m_t^* \leftarrow \arg\min_{m \in \mathcal{F}_t} \text{LCB}_t(m)$
+    \State Measure live $(L_t, E_{\text{edge},t}, C_{\text{gcp},t}, A_{\text{eff},t})$; set $y_t \leftarrow \mathcal{J}_t(m_t^*) + \mathbb{I}[\neg\text{SLA}_t]$
+    \State $\mathbf{A}_{m_t^*} \leftarrow \mathbf{A}_{m_t^*} + \mathbf{x}_t\mathbf{x}_t^\top$;\quad $\mathbf{b}_{m_t^*} \leftarrow \mathbf{b}_{m_t^*} + y_t\mathbf{x}_t$;\quad update $\mathcal{W}_{m_t^*}$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
 
 \section{SLA-Gated LinUCB Crypto-Scheduler and Adaptive Regimes}\label{sec:scheduler}
-At step $t$, Layer~2 constructs context vector $\mathbf{x}_t = [1, \mathbb{I}_{\text{vec}}, d/1024, b/64, \lambda_{\text{sec}}/256, B_{\text{wan}}/100, \text{RTT}/250, p_{\text{loss}}/5, \alpha, \beta]^\top \in \mathbb{R}^{10}$. As shown in Fig.~\ref{fig:alg_linucb} (Algorithm~1), CAPQ-Pareto interposes a deterministic \emph{SLA Gate} over a $6$-sample sliding window $\mathcal{W}_m$ to prune infeasible modes before Lower-Confidence-Bound ($\text{LCB}_t$) selection \cite{li2010linucb,abbasi2011improved_bandits}:
+At step $t$, Layer~2 constructs context vector $\mathbf{x}_t = [1, \mathbb{I}_{\text{vec}}, d/1024, b/64, \lambda_{\text{sec}}/256, B_{\text{wan}}/100, \text{RTT}/250, p_{\text{loss}}/5, \alpha, \beta]^\top \in \mathbb{R}^{10}$. As detailed in Algorithm~\ref{alg:linucb} ($< 45\;\mu\text{s}$ per decision), CAPQ-Pareto interposes a deterministic \emph{SLA Gate} over a $6$-sample sliding window $\mathcal{W}_m$ to prune infeasible modes before Lower-Confidence-Bound ($\text{LCB}_t$) selection \cite{li2010linucb,abbasi2011improved_bandits}:
 \begin{itemize}
     \item \textbf{Regime~A (Transactional SQL Fast-Path):} Uses hybrid \texttt{X25519+ML-KEM-768} over persistent \texttt{QUIC 0-RTT} (\texttt{UDP:443}) \cite{iyengar2021rfc9000}, activating micro-batching ($b=16$) when energy/cost weights $(\beta,\gamma)$ dominate.
     \item \textbf{Regime~B ($\epsilon$-Safe Quantized RAG Vector Path):} Pairs \texttt{ML-KEM-512} with min-max scalar quantization (\texttt{INT8-SQ}):
@@ -204,87 +224,87 @@ At step $t$, Layer~2 constructs context vector $\mathbf{x}_t = [1, \mathbb{I}_{\
 \textbf{C-ARM64 (Step C3)} & Local \texttt{x86\_64} vs.\ Live GCP \texttt{Tau T2A ARM64} (\texttt{Neoverse-N1}) & $540$ & $49{,}410$ & 9 Native C/C++ Kernels (\texttt{liboqs~0.12} + \texttt{OpenFHE~1.2.3}) & Table~\ref{tab:arm64_vs_x86}, Fig.~\ref{fig:arm64_cross} \\
 \textbf{C-MultiRegion (Step C4)} & Physical Edge (Thailand) $\rightarrow$ Live GCP Bangkok, Singapore, Iowa & $360$ & $1{,}440$ & Live \texttt{QUIC UDP:443} \& \texttt{TLS:8443} + Cloud \texttt{PG+pgvector} & Table~\ref{tab:gcp_multiregion_wan}, Fig.~\ref{fig:gcp_p99} \\
 \midrule
-\textbf{Total Verified} & \textbf{Hybrid Bare-Metal RAPL Edge + 3 GCP Regions + GCP ARM64} & $\mathbf{1{,}980}$ & $\mathbf{64{,}170}$ & \textbf{4 Real Datasets, 2 Hybrid DBs, 2 CPU ISAs} & \textbf{SHA-256 Manifest Locked} \\
+\textbf{Total Verified} & \textbf{Hybrid Bare-Metal RAPL Edge + 3 GCP Regions + GCP ARM64} & $\mathbf{1{,}980}$ & $\mathbf{64{,}170}$ & \textbf{4 Real Datasets, 2 Hybrid DBs, 2 CPU ISAs} & \textbf{SHA-256 Manifest (Supp. S1--S7)} \\
 \bottomrule
 \end{tabular}%
 }
 \end{table*}
 
+\input{00_manuscript/tables/tab_core_720_results.tex}
+
 \section{Experimental Evaluation}\label{sec:eval}
 \subsection{Testbed Hardware, GCP Regions, and Non-Parametric Statistical Protocol}
-Table~\ref{tab:exp_campaigns} summarizes all $1{,}980$ real trial executions ($64{,}170$ live operations) cryptographically locked in \texttt{sha256\_manifest.json}:
+Table~\ref{tab:exp_campaigns} summarizes all $1{,}980$ real trial executions ($64{,}170$ live operations) cryptographically locked in \texttt{sha256\_manifest.json} (detailed calibration and provenance tables in Supplementary Tables~S1--S7):
 \begin{itemize}
     \item \textbf{Physical Edge \& Multi-Region GCP Nodes:} Bare-metal \texttt{Intel Core Ultra 9 185H} gateway in Khon Kaen, Thailand (\texttt{pdh.dll} RAPL/EMI) connected over the public internet to live GCP instances in \textbf{Bangkok} (\texttt{asia-southeast3-a}, \texttt{n4-standard-4}, $\$0.2396/\text{hr}$), \textbf{Singapore} (\texttt{asia-southeast1-b}, \texttt{e2-standard-4}, $\$0.1588/\text{hr}$ and \texttt{Tau T2A t2a-standard-4 Ampere Altra Neoverse-N1 aarch64}), and \textbf{US-Central} (\texttt{us-central1-a}, \texttt{e2-standard-4}, $\$0.1340/\text{hr}$), with $\$0.12/\text{GiB}$ egress.
-    \item \textbf{Non-Parametric Statistical Protocol:} Each configuration runs $N=30$ paired trials after dedicated warm-up queries across \texttt{Classical\_TLS1.3}, \texttt{Static\_MLKEM1024}, \texttt{Rule\_Heuristic}, and \textbf{\texttt{CAPQ\_Pareto}}. We apply two-sided paired Wilcoxon signed-rank tests with Holm--Bonferroni step-down correction ($p_{\text{Holm}} < 0.05$) \cite{holm1979simple}, $10{,}000$-iteration pairedpercentile bootstrap $95\%$ confidence intervals (CIs) \cite{efron1979bootstrap}, and continuity-corrected McNemar's $\chi^2$ tests \cite{mcnemar1947note} on binary SLA outcomes.
+    \item \textbf{Non-Parametric Statistical Protocol:} Each configuration runs $N=30$ paired trials after dedicated warm-up queries across \texttt{Classical\_TLS1.3}, \texttt{Static\_MLKEM1024}, \texttt{Rule\_Heuristic}, and \textbf{\texttt{CAPQ\_Pareto}}. We apply two-sided paired Wilcoxon signed-rank tests with Holm--Bonferroni step-down correction ($p_{\text{Holm}} < 0.05$) \cite{holm1979simple}, $10{,}000$-iteration paired percentile bootstrap $95\%$ confidence intervals (CIs) \cite{efron1979bootstrap}, and continuity-corrected McNemar's $\chi^2$ tests \cite{mcnemar1947note} on binary SLA outcomes.
 \end{itemize}
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.96\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig2_wan_fragmentation_bottleneck.pdf}
+\includegraphics[width=0.94\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig2_wan_fragmentation_bottleneck.pdf}
 \caption{Measured WAN MTU fragmentation penalty comparing fresh \texttt{TCP+TLS~1.3} with \texttt{ML-KEM-1024} against warm \texttt{QUIC 0-RTT} across progressive RTT and loss profiles.}
 \label{fig:frag}
 \end{figure}
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.96\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig3_pareto_4d_tradeoff.pdf}
+\includegraphics[width=0.94\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig3_pareto_4d_tradeoff.pdf}
 \caption{Measured 4D Pareto frontier across $720$ controlled paired trials showing latency, silicon RAPL edge energy, GCP cost, and SLA compliance.}
 \label{fig:pareto4d}
 \end{figure}
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.96\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig4_profile_breakdown.pdf}
+\includegraphics[width=0.94\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig4_profile_breakdown.pdf}
 \caption{Per-profile breakdown across \texttt{5g\_mec\_good} ($12\text{ ms}$), \texttt{wan\_congested} ($65\text{ ms}$, $1.5\%$ loss), and \texttt{remote\_iot\_constrained} ($140\text{ ms}$, $3.0\%$ loss).}
 \label{fig:breakdown}
 \end{figure}
+
+\input{00_manuscript/tables/tab_ablation_crossdb.tex}
+\input{00_manuscript/tables/tab_arm64_vs_x86.tex}
 
 \subsection{Controlled Kernel WAN (720 Runs) and High-Dim BGE-M3 Cross-DB Ablation (360 Runs)}
 Figs.~\ref{fig:frag}--\ref{fig:breakdown} and Table~\ref{tab:core_720_results} establish our controlled \texttt{tc/netem} baseline ($720$ paired trials). Multi-frame \texttt{ML-KEM-1024} handshakes ($3{,}136\text{ B}$) paired with \texttt{FP32} vectors suffer severe TCP retransmission stalls at $1.5\%$--$3.0\%$ loss, whereas CAPQ-Pareto achieves the lowest $\mathcal{J}_{\text{SLA}}$ across all strata ($p_{\text{Holm}} < 10^{-8}$).
 
 In Table~\ref{tab:ablation_crossdb} and Figs.~\ref{fig:shock_weights}--\ref{fig:crossdb_bgem3} ($360$ runs), $\epsilon$-safe \texttt{INT8-SQ} compresses $1024\text{d}$ \texttt{Wikipedia BGE-M3} embeddings by $74.8\%$ ($4{,}096\text{ B} \rightarrow 1{,}032\text{ B}$, single MTU) while preserving $\text{Recall@10} = 0.9513$ on \texttt{PostgreSQL~18.6} (\texttt{pgvector~0.8.1}) and $0.9927$ on \texttt{Qdrant} ($\ge 0.92$ SLA). Extreme \texttt{1-bit} quantization ($136\text{ B}$) drops $\text{Recall@10}$ to $0.6983$--$0.7077$ and is automatically blocked by our SLA gate. Under sudden WAN shocks ($12 \rightarrow 65 \rightarrow 140\text{ ms}$ RTT, Fig.~\ref{fig:shock_weights}a), CAPQ-Pareto adapts within two sliding-window epochs to maintain $< 150\text{ ms}$ latency.
 
-\input{00_manuscript/tables/tab_core_720_results.tex}
-\input{00_manuscript/tables/tab_ablation_crossdb.tex}
-
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.96\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig5_ablation_weights_and_shock.pdf}
+\includegraphics[width=0.94\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig5_ablation_weights_and_shock.pdf}
 \caption{Online trajectory adaptation under sudden WAN latency/loss shocks and 4-profile Pareto weight sensitivity.}
 \label{fig:shock_weights}
 \end{figure}
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.96\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig6_crossdb_bgem3_1024d.pdf}
+\includegraphics[width=0.94\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig6_crossdb_bgem3_1024d.pdf}
 \caption{Cross-database \texttt{BGE-M3} ($1024\text{d}$) $\text{Recall@10}$ and query latency across \texttt{PostgreSQL~18.6} (\texttt{pgvector~0.8.1}) and \texttt{Qdrant} native HNSW.}
 \label{fig:crossdb_bgem3}
 \end{figure}
 
+\input{00_manuscript/tables/tab_gcp_multiregion_wan.tex}
+
 \subsection{Cross-Architecture Validation: \texttt{x86\_64} vs. GCP \texttt{ARM64}}
 Table~\ref{tab:arm64_vs_x86} and Fig.~\ref{fig:arm64_cross} benchmark nine native C/C++ kernels ($540$ paired trials) across local \texttt{x86\_64} (\texttt{Core Ultra 9 185H}) and live GCP \texttt{Tau T2A ARM64} (\texttt{t2a-standard-4}, Ampere Altra \texttt{Neoverse-N1}). On \texttt{x86\_64} (\texttt{VAES/AES-NI}), $4\text{ KB}$ \texttt{AES-256-GCM} ($2.1\;\mu\text{s}$) is $2.05\times$ faster than \texttt{ChaCha20-Poly1305} ($4.3\;\mu\text{s}$), whereas on cloud \texttt{ARM64} this relationship \emph{inverts}: \texttt{ChaCha20-Poly1305} ($29.1\;\mu\text{s}$, $0.102\text{ mJ}$) outperforms \texttt{AES-256-GCM} ($31.8\;\mu\text{s}$, $0.111\text{ mJ}$, $p_{\text{Holm}} = 8.66 \times 10^{-6}$). Full \texttt{ML-KEM-512/768/1024} completes in $0.135$--$0.312\text{ ms}$ on \texttt{ARM64}, whereas $8$-candidate \texttt{OpenFHE CKKS} scales from $65.80\text{ ms}$ ($N=4096$) to $613.33\text{ ms}$ ($N=16384$), confirming that interactive Zero-Trust search requires $N \le 8192$ with coarse bucketing.
 
-\input{00_manuscript/tables/tab_arm64_vs_x86.tex}
-
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.96\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig7_arm64_vs_x86_cross_arch.pdf}
+\includegraphics[width=0.94\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig7_arm64_vs_x86_cross_arch.pdf}
 \caption{Cross-architecture execution latency ($N=30$ trials/kernel) comparing local \texttt{x86\_64} against live Google Cloud \texttt{Tau T2A ARM64} (\texttt{Neoverse-N1}).}
 \label{fig:arm64_cross}
 \end{figure}
 
 \subsection{Live Multi-Region Google Cloud WAN Evaluation}
-Table~\ref{tab:gcp_multiregion_wan} and Fig.~\ref{fig:gcp_p99} report $360$ paired cloud trials ($1{,}440$ live internet queries) from Thailand to \textbf{Bangkok} ($\text{RTT}=11.51\text{ ms}$, $T_{\max}=150\text{ ms}$), \textbf{Singapore} ($\text{RTT}=37.29\text{ ms}$, $T_{\max}=150\text{ ms}$), and \textbf{US-Central} ($\text{RTT}=229.59\text{ ms}$, $T_{\max}=350\text{ ms}$). Across all $90$ paired multi-region trials per orchestrator, $10{,}000$-iteration paired bootstrap analysis \cite{efron1979bootstrap} confirms that CAPQ-Pareto reduces $\mathcal{J}_{\text{SLA}}$ by $\Delta\mathcal{J}_{\text{SLA}} = 0.544$ ($95\%$ CI: $[0.379, 0.695]$) against \texttt{Static\_MLKEM1024} and $\Delta\mathcal{J}_{\text{SLA}} = 0.543$ ($95\%$ CI: $[0.379, 0.696]$) against \texttt{Classical\_TLS1.3}. Continuity-corrected McNemar's test \cite{mcnemar1947note} over the $360$ paired live queries confirms highly significant SLA recovery ($\chi^2 = 103.61$, discordant pairs $b=188$ vs.\ $c=35$, $p < 10^{-16}$):
+Table~\ref{tab:gcp_multiregion_wan} and Fig.~\ref{fig:gcp_p99} report $360$ paired cloud trials ($1{,}440$ live internet queries) from Thailand to \textbf{Bangkok} ($\text{RTT}=11.51\text{ ms}$, $T_{\max}=150\text{ ms}$), \textbf{Singapore} ($\text{RTT}=37.29\text{ ms}$, $T_{\max}=150\text{ ms}$), and \textbf{US-Central} ($\text{RTT}=229.59\text{ ms}$, $T_{\max}=350\text{ ms}$). Across all $90$ paired multi-region trials per orchestrator, $10{,}000$-iteration paired percentile bootstrap analysis \cite{efron1979bootstrap} confirms that CAPQ-Pareto reduces $\mathcal{J}_{\text{SLA}}$ by $\Delta\mathcal{J}_{\text{SLA}} = 0.544$ ($95\%$ CI: $[0.379, 0.695]$) against \texttt{Static\_MLKEM1024} and $\Delta\mathcal{J}_{\text{SLA}} = 0.543$ ($95\%$ CI: $[0.379, 0.696]$) against \texttt{Classical\_TLS1.3}. Continuity-corrected McNemar's test \cite{mcnemar1947note} over the $360$ paired live queries confirms highly significant SLA recovery ($\chi^2 = 103.61$, discordant pairs $b=188$ vs.\ $c=35$, $p < 10^{-16}$):
 \begin{itemize}
     \item \textbf{US-Central ($229.59\text{ ms}$ RTT):} Non-resumed \texttt{TCP+TLS~1.3} baselines suffer four transpacific round-trips ($\text{Mean}=920.5$--$933.4\text{ ms}$, $p99$ up to $1{,}481.4\text{ ms}$), yielding \textbf{$0.0\%$ SLA pass}. \texttt{Rule\_Heuristic} stalls at $50.0\%$ due to \texttt{1-bit} recall failure. \textbf{CAPQ-Pareto achieves $98.3\%$ SLA pass}, $A_{\text{eff}} = 0.998$, and $\mathbf{p99 = 246.6\text{ ms}}$ ($6.0\times$ lower $p99$ than classical TCP/TLS~1.3).
     \item \textbf{Singapore ($37.29\text{ ms}$ RTT) \& Bangkok ($11.51\text{ ms}$ RTT):} In Singapore, CAPQ-Pareto lowers mean latency by $42.2\%$ ($95.8\text{ ms}$ vs.\ $165.7\text{ ms}$) and raises SLA pass from $15.8\%$--$20.0\%$ to $72.5\%$. In Bangkok, CAPQ-Pareto cuts $p99$ latency by $47.7\%$ ($136.7\text{ ms}$ vs.\ $261.5\text{ ms}$) and edge RAPL energy by $32.3\%$ ($67.38\text{ mJ}$ vs.\ $99.60\text{ mJ}$). On links with $\text{RTT}<55\text{ ms}$, mandatory Zero-Trust queries ($25\%$ of stream) exposed boundary recall loss under single-bucket ($16$-vector) CKKS scans, motivating multi-probe encrypted IVF ($m_{\text{probe}} \ge 3$).
 \end{itemize}
 
-\input{00_manuscript/tables/tab_gcp_multiregion_wan.tex}
-
 \begin{figure}[!t]
 \centering
-\includegraphics[width=0.96\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig8_gcp_multiregion_p99_wan.pdf}
+\includegraphics[width=0.94\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig8_gcp_multiregion_p99_wan.pdf}
 \caption{Live multi-region Google Cloud $p99$ tail latency and joint regional SLA pass rate measured from Thailand to Bangkok, Singapore, and Iowa.}
 \label{fig:gcp_p99}
 \end{figure}

@@ -10,7 +10,7 @@
       "raw_csv_sha256": "d239bc98284b07e56cf8fb1cb0e2a7dea0a80857a667336e06d40a500ef2393b",
       "measured_rows": 20,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_hw_calibration.tex",
-      "latex_table_sha256": "d958b6716e11a9284181445aaf4d62b02d901cc2820507fa8345c2b344ce19a8"
+      "latex_table_sha256": "04a9be10bf97a3c42420415ccbf154539286b1397cd4b59e9b8a421f69860831"
     },
     {
       "experiment_id": "stack_primitives_smoke_audit",
@@ -22,7 +22,7 @@
       "raw_csv_sha256": "5960410307286e382a8ccea9759942770c7e202a16a1d5400c9a92f0b6af9acf",
       "measured_rows": 90,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_stack_smoke_audit.tex",
-      "latex_table_sha256": "842899e71420cab259136aab91c0eeb9033772afe8e2f074bf9ca5ef6f293560"
+      "latex_table_sha256": "a7aeb7a9c58bca08f2c530148171e8efc8ded92b4dd603d3c51a6ecbbe5610f8"
     },
     {
       "experiment_id": "openfhe_hestd128_and_qdrant_audit",
@@ -34,7 +34,7 @@
       "raw_csv_sha256": "bf7c05de4c32ba1f5035d096da9d70eb00daabc2d3496744ebd2668d99363a92",
       "measured_rows": 40,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_openfhe_qdrant_audit.tex",
-      "latex_table_sha256": "da653aa98e7a24582d5ba9ca09c368c09f5e3358ed47ab719db61b9894ad299e"
+      "latex_table_sha256": "cfdb9a36acdafd81d453aa8d82b82a0ce1927b9829b1e99e09e6af597dffaa0e"
     },
     {
       "experiment_id": "hybrid_4datasets_ingestion_audit",
@@ -46,7 +46,7 @@
       "raw_csv_sha256": "732b12e214ec25173d5e297a7c64b839cb67b1479eb73da6c3f71cfa43f7722a",
       "measured_rows": 4,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_datasets_manifest.tex",
-      "latex_table_sha256": "a868cb8c5d5ec75413fc345d82cea979c14e92418b2dd6cce7562360a10bf890"
+      "latex_table_sha256": "a04f266ee7e45cc8f338d389a8bea9f4ea1259d91cf7093c6a3454f6d6c1e378"
     },
     {
       "experiment_id": "wan_netem_mtu1500_socket_audit",
@@ -58,7 +58,7 @@
       "raw_csv_sha256": "262d428de4e8a12da77de289d96e87e80087debf4243a729c89dc46b59655216",
       "measured_rows": 36,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_wan_socket_audit.tex",
-      "latex_table_sha256": "fbea9c3f61f563980d6a68c5b70f9f618f7acb093f284f5c9f751155d49cfc8d"
+      "latex_table_sha256": "308d2d96d3c90b1642e73b1f99a9932a6081f67e006fdbb803ffb41dc9999e10"
     },
     {
       "experiment_id": "core_720_paired_campaign",
@@ -70,7 +70,7 @@
       "raw_csv_sha256": "21f6d95bc1b6cc0967525fa55dc052cb8c90d57852a2abaef63b8e23ee18ae62",
       "measured_rows": 720,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_core_720_results.tex",
-      "latex_table_sha256": "8590d21586f70fb0380ca4ae914e174bf18a5a08efbefcfe708bab04e74f72f8"
+      "latex_table_sha256": "9c0e62deaeb1832f33761433299ab6a7a7ba7ed4fa5a8f548ec5500bdd7e9353"
     },
     {
       "experiment_id": "ablation_360_crossdb_and_weights",
@@ -82,7 +82,7 @@
       "raw_csv_sha256": "404b95cd5f58af3d058641c183a6439a4994a2c9530108264fdbd6fa5302dc7c",
       "measured_rows": 360,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_ablation_crossdb.tex",
-      "latex_table_sha256": "1c9b6cd286cf4271176bbaae82c12d0339cc9ddc00b615ac47e8f22e7028ab63"
+      "latex_table_sha256": "aa269bee1f8081d03f0dcbb0539b78f5d52046d52344a54a6038a0236b407cb8"
     },
     {
       "experiment_id": "gcp_arm64_vs_x86_cross_arch_540",
@@ -94,7 +94,7 @@
       "raw_csv_sha256": "aef35746b4a61f413d8b85fcf5254a521e3a56a00d3fd0a06de4e8e5d87fc38f",
       "measured_rows": 540,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_arm64_vs_x86.tex",
-      "latex_table_sha256": "e58804d71e18ea4cbb7af4b795d651c056fc8b436bab3e98965a2f4b252ddcb3"
+      "latex_table_sha256": "7e9cc363232589d5512cf51fe5eab2cda85ee2c4f1c3a9e1560b55ea64a79a16"
     },
     {
       "experiment_id": "gcp_multiregion_360_real_wan",
@@ -106,7 +106,7 @@
       "raw_csv_sha256": "feb30c8fb2369424877a9d945cea53aa2a921587f24abd2da2280d6e51a1e085",
       "measured_rows": 360,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_gcp_multiregion_wan.tex",
-      "latex_table_sha256": "813b4a3a591e5e9fbd1dbd14d1d7b2bfd0015c974fd2ab5ec3e851d5aa74b577"
+      "latex_table_sha256": "764270140173635dd4bd7068508832624f39795fc978397a0501691d306eff19"
     }
   ]
 }
