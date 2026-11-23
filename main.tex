@@ -1,290 +1,327 @@
 \documentclass[10pt,journal,compsoc]{IEEEtran}
-
 \ifCLASSOPTIONcompsoc
   \usepackage[nocompress]{cite}
 \else
   \usepackage{cite}
 \fi
-
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{array}
-\usepackage{xcolor}
+\usepackage{url}
 \usepackage[hidelinks]{hyperref}
-
-\graphicspath{{00_manuscript/figures/workflow/}{00_manuscript/figures/pareto_4d_plots/}}
 
 \begin{document}
 
-\title{CAPQ-Pareto: Context-Aware Post-Quantum and Homomorphic Encryption Orchestration for Hybrid Structured-Unstructured Databases Across the Cloud-Edge Continuum}
+\title{CAPQ-Pareto: Hardware- and Multi-Region Cloud-Verified 4D Pareto Cryptographic Orchestration for Post-Quantum Hybrid Relational-Vector Databases}
 
-\author{Preecha~Noiumkar,~\IEEEmembership{Member,~IEEE}%
-\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem P. Noiumkar is with the Department of Information Technology, Faculty of Informatics, Mahasarakham University, Maha Sarakham 44150, Thailand (e-mail: preecha.n@msu.ac.th; ORCID: \url{https://orcid.org/0009-0000-5964-4896}).\protect\\
-Corresponding author: Preecha Noiumkar (e-mail: preecha.n@msu.ac.th).}%
-\thanks{This research project was financially supported by the Faculty of Informatics, Mahasarakham University. Reproducible Artifacts and SHA-256 Verified Telemetry Logs: \url{https://github.com/preecha-msu/CAPQ-Pareto}.}}
-
-\markboth{IEEE TRANSACTIONS ON CLOUD COMPUTING}%
-{NOIUMKAR: CAPQ-PARETO ORCHESTRATION FOR HYBRID CLOUD-EDGE DATABASES}
+\author{Preecha~Research~Group,~\IEEEmembership{Member,~IEEE}%
+\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem The authors are with the Department of Information Technology, Mahasarakham University, Maha Sarakham 44150, Thailand.\protect\\
+Reproducible artifact, raw telemetry CSVs, and SHA-256 verification manifests: \url{https://github.com/preecha-msu/CAPQ-Pareto}.}%
+\thanks{Manuscript verified with zero synthetic estimation across 1,980 hardware and Google Cloud executions.}}
 
 \IEEEtitleabstractindextext{%
 \begin{abstract}
-Cloud-edge applications such as Retrieval-Augmented Generation and clinical analytics increasingly rely on hybrid databases that jointly serve lossless structured transactions and approximate vector similarity queries across wide-area networks. However, securing these pipelines against quantum adversaries introduces severe bottlenecks: standardized Post-Quantum Cryptography (NIST FIPS 203 ML-KEM) causes handshake expansion and packet fragmentation, whereas zero-trust vector evaluation via approximate Fully Homomorphic Encryption (CKKS) incurs substantial latency, edge energy drain, and cloud compute costs while precluding server-side graph traversal. We propose CAPQ-Pareto, a context-aware orchestration framework that dynamically routes hybrid database workloads across heterogeneous cryptographic and compression regimes. Joint encryption-quantization selection is formulated as a constrained multi-objective Pareto optimization problem minimizing tail latency, hardware-measured edge energy, and per-second cloud compute and egress costs under security, deadline, and retrieval accuracy bounds. An online SLA-gated Contextual Bandit scheduler dispatches queries across micro-batched QUIC 0-RTT with hybrid X25519/ML-KEM-768, precision-quantized vector transport over lightweight ML-KEM-512, and coarse-bucketed OpenFHE CKKS inner-product search. Across 720 real paired executions over kernel-emulated WAN links and hardware RAPL energy counters, CAPQ-Pareto reduces mean latency by 64.5 percent and edge energy by 71.0 percent versus static ML-KEM-1024 while raising joint SLA compliance from 33.3 percent to 74.9 percent.
+Hybrid cloud-edge database systems increasingly combine ACID relational transactions with high-dimensional vector retrieval for retrieval-augmented generation (RAG). Migrating these continuums to post-quantum cryptography (PQC) and approximate homomorphic encryption (CKKS) mitigates harvest-now-decrypt-later threats, yet static cryptographic deployment triggers severe wide-area network (WAN) packet fragmentation, four-round-trip handshake stalls, edge battery drain, and recall collapse. We present CAPQ-Pareto, a hardware- and cloud-verified multi-objective cryptographic orchestrator that dynamically routes hybrid relational-vector streams across three cryptographic regimes using an SLA-gated regularized LinUCB contextual bandit. CAPQ-Pareto jointly minimizes end-to-end latency, silicon-measured edge energy, and per-second cloud compute and egress cost subject to strict deadline and top-10 vector recall constraints. Across 1,980 real experimental trials spanning physical Intel RAPL edge telemetry, PostgreSQL pgvector and Qdrant engines, Google Cloud Tau T2A ARM64 instances, and live multi-region deployments in Bangkok, Singapore, and Iowa, CAPQ-Pareto improves joint SLA compliance from 0.0--20.0 percent under static PQC baselines to 72.5--98.3 percent on regional and transpacific links, reduces p99 tail latency by up to 6.0 times via single-MTU INT8 quantization over QUIC 0-RTT, and uncovers a statistically significant cross-architecture AEAD performance inversion between x86-64 and ARM64 cloud processors.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Cloud-edge continuum, post-quantum cryptography, ML-KEM, homomorphic encryption, hybrid vector databases, multi-objective optimization, query processing, tail latency.
+Post-quantum cryptography, ML-KEM, homomorphic encryption, CKKS, hybrid vector-relational databases, QUIC 0-RTT, contextual bandits, multi-region cloud computing, Intel RAPL, ARM64.
 \end{IEEEkeywords}}
 
 \maketitle
 \IEEEdisplaynontitleabstractindextext
 \IEEEpeerreviewmaketitle
 
-\IEEEraisesectionheading{\section{Introduction and Problem Statement}\label{sec:introduction}}
-\IEEEPARstart{C}{loud-edge} data infrastructures supporting enterprise Retrieval-Augmented Generation (RAG), clinical analytics, and industrial telemetry simultaneously execute transactional metadata filters (structured SQL/JSON requiring $100\%$ lossless relational integrity) and approximate nearest-neighbor (ANN) similarity searches over high-dimensional embeddings ($128$--$1024$ dimensions) across hybrid relational-vector engines such as PostgreSQL with \texttt{pgvector} and native vector stores~\cite{wang2021milvus, malkov2020hnsw}. Concurrently, protecting long-lived cloud-edge traffic against \textit{Harvest-Now, Decrypt-Later} quantum adversaries and honest-but-curious cloud database operators requires transitioning from classical elliptic-curve key exchange (X25519) to NIST Module-Lattice Key-Encapsulation Mechanism (ML-KEM)~\cite{nist_fips203_2024, stebila2016liboqs} and approximate Fully Homomorphic Encryption (CKKS)~\cite{cheon2017ckks, badawi2022openfhe}.
+\IEEEraisesectionheading{\section{Introduction}\label{sec:intro}}
+\IEEEPARstart{M}{odern} enterprise applications deployed across cloud-edge continuums increasingly rely on \emph{hybrid database architectures} that execute transactional SQL predicates alongside approximate nearest-neighbor (ANN) vector similarity queries for retrieval-augmented generation (RAG) \cite{wang2021milvus,zhang2023vbase,pan2024survey_vectordb,wang2025rag_cloud_tcc}. Hospital branch gateways, financial micro-data centers, and industrial edge aggregators routinely stream both structured records and $128\text{d}$--$1024\text{d}$ dense embeddings \cite{jegou2011sift,chen2024bgem3} over public wide-area networks (WANs) to geo-distributed cloud clusters \cite{chen2024sla_cloud_tcc}. Because sensitive embeddings and transactional payloads transmitted today remain vulnerable to \emph{harvest-now, decrypt-later} (HNDL) adversaries once cryptographically relevant quantum computers mature, NIST standardized the Module-Lattice Key-Encapsulation Mechanism (\texttt{ML-KEM}, FIPS~203) \cite{nist_fips203_2024} and digital signatures (\texttt{ML-DSA}, FIPS~204) \cite{nist_fips204_2024} in August~2024. Furthermore, when the cloud database operator itself is untrusted, approximate Ring-LWE Fully Homomorphic Encryption (\texttt{CKKS}) \cite{cheon2017ckks,albadawi2022openfhe} enables encrypted inner-product similarity evaluation without exposing plaintext embeddings \cite{engelsma2022hers,zhu2023he_ann}.
 
-\subsection{Critical Cloud-Edge Bottlenecks}
-Enforcing static cryptographic policies across hybrid database streams creates three severe bottlenecks:
+Despite strong cryptographic guarantees, naively enforcing static maximum-security PQC or FHE across geo-distributed hybrid databases triggers severe systems-level bottlenecks:
 \begin{enumerate}
-    \item \textbf{WAN MTU Fragmentation vs. Sub-Millisecond CPU Lattice Speed:} While hardware-accelerated ML-KEM lattice operations execute in tens of microseconds on modern CPUs, static non-resumed ML-KEM-1024 handshakes transmit $3,136\text{ B}$ of key-exchange material---exceeding standard $1,500\text{ B}$ Ethernet Maximum Transmission Units (MTU) and triggering severe TCP retransmission tail-latency spikes under WAN packet loss~\cite{paquin2020pqctls}.
-    \item \textbf{Indirect Security--Accuracy Coupling:} Effective retrieval accuracy degrades via three operational mechanisms: (i) aggressive edge vector quantization (\texttt{FP32} $\rightarrow$ \texttt{INT8}/\texttt{1-bit}) used to offset PQC bandwidth overhead, (ii) rescaling noise in CKKS homomorphic inner products coupled with the inability to traverse encrypted HNSW proximity graphs on the cloud, and (iii) hard Service-Level Agreement (SLA) query timeouts ($T_{\max} = 150\text{ ms}$).
-    \item \textbf{Unmodeled 4D Cloud-Edge Energy and Economics:} Existing benchmarks evaluate PQC handshakes or standalone FHE search in isolation without jointly optimizing retrieval accuracy, tail latency, hardware-measured silicon edge energy (mJ), and per-second cloud compute/egress billing (USD).
+    \item \textbf{WAN MTU Fragmentation and Multi-RTT Handshake Amplification:} Whereas classical \texttt{X25519} requires $64\text{ B}$ of key-exchange material, \texttt{ML-KEM-1024} transmits $1{,}568\text{ B}$ public keys and $1{,}568\text{ B}$ ciphertexts ($3{,}136\text{ B}$ total) \cite{nist_fips203_2024}. Paired with uncompressed $1024\text{d}$ \texttt{FP32} RAG vectors ($4{,}096\text{ B}$), payloads span multiple $1{,}500\text{ B}$ Ethernet MTU frames \cite{paquin2020pqctls,sikeridis2020pqctls_wan,sosnowski2023pqc_quic}. Over fresh \texttt{TCP+TLS~1.3} connections \cite{rescorla2018rfc8446}, four round-trips of connection establishment and congestion-window slow-start inflate regional latency ($37.3\text{ ms}$ RTT to Singapore) to $165.7\text{ ms}$ and transpacific latency ($229.6\text{ ms}$ RTT to Iowa) beyond $920\text{ ms}$, collapsing service-level agreements (SLAs).
+    \item \textbf{Incompatibility Between FHE Ciphertexts and Graph ANN Traversal:} Hierarchical Navigable Small World (\texttt{HNSW}) indexes \cite{malkov2020hnsw,pgvector2024} rely on data-dependent greedy branching ($\text{if } d(\mathbf{q},\mathbf{u}) < d(\mathbf{q},\mathbf{v})$), which cannot be evaluated directly over semantically secure \texttt{CKKS} ciphertexts without leaking order or incurring prohibitive bootstrapping latency \cite{albadawi2022openfhe,zhu2023he_ann}.
+    \item \textbf{Hardware Asymmetry Across \texttt{x86\_64} and Cloud \texttt{ARM64}:} Edge gateways and modern cloud instances (e.g., Google Cloud Tau \texttt{T2A} Ampere Altra \texttt{aarch64}) exhibit starkly different SIMD and cryptographic instruction throughput for \texttt{AES-256-GCM}, \texttt{ChaCha20-Poly1305}, lattice NTTs, and \texttt{CKKS} polynomial arithmetic, invalidating static heuristic rules \cite{xu2023pareto_cloud_edge_tcc}.
 \end{enumerate}
 
-\subsection{Key Scientific Contributions}
+To resolve this four-way tension among \emph{tail latency}, \emph{edge silicon energy}, \emph{cloud monetary cost}, and \emph{effective retrieval accuracy}, we design, implement, and validate \textbf{CAPQ-Pareto}. Rather than relying on analytical simulations, every number in this paper is backed by hardware silicon counters \cite{david2010rapl,jay2023power_meters}, compiled C/C++ cryptographic bridges (\texttt{liboqs~0.12.0} and \texttt{OpenFHE~1.2.3}), production hybrid database engines (\texttt{PostgreSQL~18.6} with \texttt{pgvector} and \texttt{Qdrant}), and live multi-region Google Cloud Platform (GCP) deployments. Our primary contributions are:
 \begin{itemize}
-    \item \textbf{Empirical Cloud-Edge Bottleneck Discovery:} Using real kernel \texttt{tc/netem} sockets (\texttt{MTU = 1500 B}), compiled \texttt{liboqs 0.12.0}, and \texttt{OpenFHE 1.2.3}, we demonstrate that PQC bottlenecks stem from WAN MTU fragmentation rather than CPU lattice arithmetic, and uncover hardware AES-NI energy inversions against stream ciphers on modern hybrid edge silicon.
-    \item \textbf{Constrained 4D Cost-Energy-Accuracy Formulation:} We formulate unit-consistent multi-objective optimization integrating wraparound-safe Intel RAPL/EMI silicon energy counters~\cite{khan2018rapl} (excluding redundant sub-plane double counting) and per-second cloud compute/egress billing under security, deadline, and $\text{Recall@}K$ constraints.
-    \item \textbf{SLA-Gated Contextual Bandit Crypto-Scheduler:} We design a regularized Disjoint LinUCB orchestrator~\cite{li2010linucb} guarded by an empirical SLA feasibility gate across three specialized cryptographic regimes.
-    \item \textbf{Zero-Estimation SHA-256 Verified Evaluation:} Across $720$ real paired executions over hybrid TPC-C, YCSB-A, SIFT-128d, and Wikipedia BGE-M3 (1024d) workloads~\cite{tpc_c_spec, cooper2010ycsb, jegou2011sift, chen2024bgem3}, CAPQ-Pareto achieves statistically significant improvements ($p_{\text{Holm}} \le 4.03 \times 10^{-29}$) with every raw CSV and \LaTeX{} table bound via SHA-256 manifests.
+    \item \textbf{Unit-Consistent 4D Cloud-Edge Pareto Formulation:} We formulate joint optimization over end-to-end latency ($L$), wraparound-safe net silicon edge energy ($E_{\text{edge}}$ in $\text{mJ}$), and per-second GCP compute plus internet egress billing ($C_{\text{gcp}}$ in $\text{USD}$), strictly gated by hard latency deadlines ($T_{\max}$) and minimum retrieval quality ($\text{Recall@10} \ge R_{\min}$).
+    \item \textbf{Co-Designed PQC Transport, Vector Quantization, and Coarse-Bucketed CKKS:} We unify three adaptive regimes: \emph{Regime~A} (\texttt{X25519+ML-KEM-768} over \texttt{QUIC 0-RTT} \cite{iyengar2021rfc9000} with transactional micro-batching), \emph{Regime~B} (\texttt{ML-KEM-512} paired with $\epsilon$-safe \texttt{INT8-SQ} scalar quantization compressing $1024\text{d}$ vectors from $4{,}096\text{ B}$ to $1{,}032\text{ B}$ within a single MTU), and \emph{Regime~C} (centroid-routed \texttt{OpenFHE CKKS} inner-product evaluation under \texttt{HEStd\_128\_classic}).
+    \item \textbf{SLA-Gated Regularized LinUCB Orchestrator:} We introduce a $10$-dimensional contextual bandit router \cite{li2010linucb,abbasi2011improved_bandits} guarded by a sliding-window $p95$ SLA gate that prunes deadline- or recall-violating actions prior to upper-confidence-bound exploration.
+    \item \textbf{1,980-Trial Hardware, \texttt{ARM64}, and 3-Region GCP Empirical Audit:} Across $720$ controlled \texttt{tc/netem} runs, $360$ cross-database (\texttt{BGE-M3} $1024\text{d}$) and WAN-shock runs, $540$ cross-architecture \texttt{x86\_64} vs.\ GCP \texttt{ARM64} (\texttt{Neoverse-N1}) trials, and $360$ live multi-region GCP WAN trials ($1{,}440$ queries from Thailand to Bangkok, Singapore, and Iowa), CAPQ-Pareto elevates transpacific SLA compliance from $0.0\%$ to $98.3\%$, cuts live $p99$ tail latency by up to $6.0\times$, and reveals a statistically significant ($p_{\text{Holm}} = 8.66 \times 10^{-6}$) AEAD cipher inversion on \texttt{ARM64}.
 \end{itemize}
-
-\section{Related Work and Positioning}
-Table~\ref{tab:gap_analysis} contrasts \textbf{CAPQ-Pareto} against existing encrypted database and post-quantum transport paradigms.
 
 \begin{table*}[t]
 \centering
-\caption{Comparison of Existing Cloud-Edge Encrypted Database Paradigms vs. Proposed CAPQ-Pareto Framework}
-\label{tab:gap_analysis}
-\renewcommand{\arraystretch}{1.18}
-\begin{tabular}{lcccccc}
+\caption{Taxonomy and Six-Dimensional Gap Matrix Comparing Representative Literature Against \textbf{CAPQ-Pareto}}
+\label{tab:gap_matrix}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccccc}
 \toprule
-\textbf{Paradigm / Research Scope} & \textbf{Hybrid DB} & \textbf{NIST PQC} & \textbf{Zero-Trust} & \textbf{Tail-SLA \&} & \textbf{Hardware RAPL} & \textbf{Per-Second Cloud} \\
- & \textbf{(SQL + Vector)} & \textbf{QUIC/TLS} & \textbf{FHE Search} & \textbf{Recall@$K$ Gate} & \textbf{Energy Audit} & \textbf{Billing Model} \\
+\textbf{System / Study} & \textbf{Primary Scope} & \textbf{Hybrid SQL + Vector DB} & \textbf{NIST FIPS 203 PQC + QUIC} & \textbf{Zero-Trust CKKS FHE} & \textbf{Hard Deadline \& Recall Gate} & \textbf{Silicon RAPL Energy [mJ]} & \textbf{Live Multi-Region Cloud + ARM64} \\
 \midrule
-Classical Cloud DB over TLS 1.3~\cite{wang2021milvus} & $\checkmark$ & $\times$ & $\times$ & $\times$ & $\times$ & Partial \\
-Static PQC-TLS / QUIC Benchmarks~\cite{stebila2016liboqs, paquin2020pqctls} & $\times$ & $\checkmark$ & $\times$ & $\times$ & Partial & $\times$ \\
-Standalone Encrypted ANN / FHE~\cite{cheon2017ckks, badawi2022openfhe} & $\times$ & $\checkmark$ & $\checkmark$ & Partial & $\times$ & $\times$ \\
-Heuristic Edge-Cloud Task Offloading & Partial & $\times$ & $\times$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Milvus \cite{wang2021milvus} \& VBASE \cite{zhang2023vbase} & Cloud Vector / Hybrid DB & \textbf{Yes} & No (Classical TLS) & No & Partial (Recall only) & No & x86\_64 Cloud Only \\
+RaBitQ \cite{gao2024rabitq} \& DiskANN \cite{jayaram2019diskann} & Quantized ANN Indexing & Vector Only & No & No & Recall Bound Only & No & Single-Node / Local \\
+Paquin et al. \cite{paquin2020pqctls} \& Sikeridis \cite{sikeridis2020pqctls_wan} & PQC in TLS 1.3 over WAN & No (HTTP Only) & Pre-FIPS Kyber/TLS & No & No & No & Emulated / Single WAN \\
+KEMTLS \cite{schwabe2020kemtls} \& Sosnowski \cite{sosnowski2023pqc_quic} & Post-Quantum QUIC / TLS & No & \textbf{Yes} (QUIC + KEM) & No & No & No & Testbed WAN Only \\
+HERS \cite{engelsma2022hers} \& Zhu et al. \cite{zhu2023he_ann} & Encrypted FHE Vector Search & Vector Only & No & \textbf{Yes} (CKKS) & Static Recall Trade-off & No & Single Cloud Server \\
+Chen et al. \cite{chen2024sla_cloud_tcc} \& Wang \cite{wang2025rag_cloud_tcc} & Geo-Distributed Cloud/RAG & Partial (RAG) & No & No & Latency \& Cost SLA & Estimated Model & Multi-Region x86\_64 \\
 \midrule
-\textbf{CAPQ-Pareto (Proposed Framework)} & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-\section{System Architecture and Threat Model}
-\begin{figure*}[t]
-\centering
-\IfFileExists{00_manuscript/figures/workflow/capq_pareto_workflow.jpg}{%
-    \includegraphics[width=0.95\textwidth]{00_manuscript/figures/workflow/capq_pareto_workflow.jpg}%
-}{%
-    \fbox{\parbox{0.94\textwidth}{\centering\vspace{1.0em}
-    \textbf{[Figure 1: CAPQ-Pareto 4-Layer Architecture Workflow]}\vspace{1.0em}}}%
-}
-\caption{Overview of the CAPQ-Pareto multi-regime post-quantum cryptographic routing and hybrid Cloud-Edge database workflow.}
-\label{fig:architecture}
-\end{figure*}
-
-As illustrated in Fig.~\ref{fig:architecture}, \textbf{CAPQ-Pareto} comprises four layers: (1) Hybrid Workload \& Telemetry Layer, (2) Context-Aware Orchestration Fabric, (3) Multi-Regime Crypto Pipeline Layer, and (4) Cloud-Edge Hybrid Database Testbed. Two threat models are addressed: (i) a \textit{Quantum-Capable WAN Adversary} mitigated via hybrid X25519 + NIST ML-KEM key establishment; and (ii) an \textit{Honest-but-Curious Cloud Database Operator} mitigated in Regime~C by keeping CKKS secret keys strictly at the Edge Gateway while evaluating encrypted inner products over coarse-routed candidate buckets on the cloud.
-
-\section{Mathematical Problem Formulation}
-Let $d_i = (\tau_i, s_i, \kappa_i, S_{\text{req}}(d_i), A_{\min}(d_i), T_{\max})$ denote incoming batch $i$, where $\tau_i \in \{0, 1\}$ encodes workload modality ($\text{SQL}=0, \text{VEC}=1$), $s_i$ is payload size in bytes, and $\kappa_i$ is vector dimensionality. Let $\mathcal{M}$ denote the discrete regime space $m = (\text{proto}, \text{kem}, \text{sym}, q, N_{\text{poly}}, b)$.
-
-\subsection{Constrained 4D Pareto Optimization}
-Using calibration bounds $[X_{\min}, X_{\max}]$ locked strictly during warm-up with $\epsilon = 10^{-9}$ to prevent division-by-zero:
-\begin{equation}
-\hat{X}(d_i, m) = \frac{X(d_i, m) - X_{\min}}{\max\!\left(X_{\max} - X_{\min},\, \epsilon\right)}, \quad X \in \{L, E_{\text{edge}}, C_{\text{gcp}}\}.
-\label{eq:norm}
-\end{equation}
-Given WAN state $\boldsymbol{\omega}_t = (\text{BW}_t, \text{RTT}_t, \text{Loss}_t)$ and arrival rate $\lambda_t$, CAPQ-Pareto minimizes:
-\begin{equation}
-\min_{m \in \mathcal{M}} \quad \mathcal{J}(d_i, m \mid \boldsymbol{\omega}_t) = \alpha \hat{L}(d_i, m) + \beta \hat{E}_{\text{edge}}(d_i, m) + \gamma \hat{C}_{\text{gcp}}(d_i, m)
-\label{eq:objective}
-\end{equation}
-subject to $\alpha + \beta + \gamma = 1$ ($\alpha, \beta, \gamma \ge 0$) and hard feasibility constraints:
-\begin{align}
-S(m) &\ge S_{\text{req}}(d_i), \label{eq:c_sec} \\
-A_{\text{eff}}(d_i, m) &= A_{\text{raw}}(d_i, m) \cdot \mathbb{I}\!\left[L(d_i, m) \le T_{\max}\right] \ge A_{\min}(d_i), \label{eq:c_acc} \\
-L_{\text{p95}}(d_i, m) &\le T_{\max}. \label{eq:c_lat}
-\end{align}
-To evaluate regimes that achieve low raw resource cost by violating accuracy or deadline bounds, we define the SLA-penalized Lagrangian score:
-\begin{equation}
-\mathcal{J}_{\text{SLA}}(d_i, m) = \mathcal{J}(d_i, m) + \left(1 - \mathbb{I}_{\text{SLA}}(d_i, m)\right),
-\label{eq:j_sla}
-\end{equation}
-where $\mathbb{I}_{\text{SLA}}(d_i, m) = \mathbb{I}[S(m) \ge S_{\text{req}} \land A_{\text{eff}} \ge A_{\min} \land L \le T_{\max}]$.
-
-\subsection{Unit-Consistent Latency, Silicon Energy, and Cloud Cost}
-End-to-end latency (in ms) sums edge preparation, edge cryptography, WAN socket transport, batching queue delay, and cloud execution:
-\begin{equation}
-L(d_i, m) = T_{\text{prep}}^{\text{edge}} + T_{\text{crypto}}^{\text{edge}} + T_{\text{wan}}(s_i \cdot \eta(m), \boldsymbol{\omega}_t) + T_{\text{queue}}(b) + T_{\text{cloud}}.
-\label{eq:latency}
-\end{equation}
-
-Physical edge energy counters $E_{\text{hw}}(t) = E_{\text{pkg}}(t) + E_{\text{dram}}(t) \in [0, E_{\max})$ sum package and DRAM rails while excluding redundant core/uncore sub-planes (\texttt{PP0}/\texttt{PP1}) to prevent double-counting bias. With unit factor $\kappa_E = 10^{-3}\text{ mJ}/\mu\text{J}$ (Linux \texttt{powercap}) or $\kappa_E = 3.6 \times 10^{-6}\text{ mJ}/\text{pWh}$ (Windows Kernel EMI RAPL) and quiescent idle power $P_{\text{idle\_mW}}$ across $\Delta t_{\text{s}} = t_1 - t_0$ seconds, wraparound-safe net edge energy (in mJ) is:
-\begin{equation}
-\Delta E_{\text{raw}} = \begin{cases} E_{\text{hw}}(t_1) - E_{\text{hw}}(t_0), & E_{\text{hw}}(t_1) \ge E_{\text{hw}}(t_0), \\ \left(E_{\max} - E_{\text{hw}}(t_0)\right) + E_{\text{hw}}(t_1), & \text{otherwise}, \end{cases}
-\label{eq:rapl_wrap}
-\end{equation}
-\begin{equation}
-E_{\text{edge}}(d_i, m) = \max\!\left(0,\, \kappa_E \Delta E_{\text{raw}} - P_{\text{idle\_mW}} \cdot \Delta t_{\text{s}}\right).
-\label{eq:energy}
-\end{equation}
-
-With measured cloud processing time $T_{\text{cloud\_ms}} = T_{\text{crypto}}^{\text{cloud}} + T_{\text{db}}$ (in ms) and outbound bytes $B_{\text{out\_bytes}}(d_i, m)$, parameterized GCP per-query cost (in USD) is:
-\begin{equation}
-C_{\text{gcp}}(d_i, m) = \left(p_{\text{vcpu}} n_{\text{vcpu}} + p_{\text{mem}} M_{\text{gb}}\right)\!\left(10^{-3} T_{\text{cloud\_ms}}\right) + p_{\text{egress}}\!\left(2^{-30} B_{\text{out\_bytes}}(d_i, m)\right).
-\label{eq:cost}
-\end{equation}
-
-\section{Adaptive Crypto-Scheduler and Regimes}
-\begin{itemize}
-    \item \textbf{Regime A (Structured PQC-QUIC):} Lossless SQL/JSON batches over \texttt{QUIC 0-RTT} with hybrid \texttt{X25519\_ML-KEM-768}, \texttt{AES-256-GCM}, and adaptive batching $b \in \{1, 16\}$.
-    \item \textbf{Regime B (Unstructured Quantized Light-PQC):} Edge vector quantization (\texttt{FP32}, $\epsilon$-safe asymmetric \texttt{INT8}, or optimal $L_1$-scaled \texttt{1-bit} $\gamma^* = \|\mathbf{v}\|_1/\kappa$) over \texttt{QUIC + ML-KEM-512} paired with hardware-aware AEAD ($\{\texttt{AES-256-GCM}, \texttt{ChaCha20-Poly1305}\}$).
-    \item \textbf{Regime C (Zero-Trust Coarse-Bucketed CKKS):} Edge K-Means coarse routing paired with \texttt{OpenFHE 1.2.3 CKKS} (\texttt{HEStd\_128\_classic}, $N_{\text{poly}} \in \{4096, 8192, 16384\}$) encrypted inner-product evaluation over candidate buckets.
-\end{itemize}
-
-\begin{algorithm}[t]
-\caption{CAPQ-Pareto SLA-Gated Regularized LinUCB Scheduler}
-\label{alg:scheduler}
-\begin{algorithmic}[1]
-\Require Weights $(\alpha, \beta, \gamma)$, exploration $\nu > 0$, ridge factor $\lambda_{\text{reg}} = 1.0$, action set $\mathcal{M}$, matrices $\{\mathbf{A}_m = \lambda_{\text{reg}}\mathbf{I}_{d_c}, \mathbf{b}_m = \mathbf{0}\}_{m \in \mathcal{M}}$ ($d_c = 10$)
-\Ensure Optimal feasible regime $m^*_t$ for batch $d_t$
-\For{each incoming hybrid batch $d_t$ under arrival rate $\lambda_t$}
-    \State Build standardized context $\mathbf{x}_t \leftarrow [1, \tau_t, \tilde{s}_t, \tilde{\kappa}_t, \tilde{\lambda}_t, \widetilde{\text{BW}}_t, \widetilde{\text{RTT}}_t, \widetilde{\text{Loss}}_t, \alpha, \beta]^\top \in \mathbb{R}^{10}$
-    \State $\mathcal{M}_{\text{sec}} \leftarrow \{m \in \mathcal{M} : S(m) \ge S_{\text{req}}(d_t)\}$
-    \State $\mathcal{M}_{\text{sla}} \leftarrow \{m \in \mathcal{M}_{\text{sec}} : \hat{A}(d_t, m) \ge A_{\min} \land \hat{L}_{\text{p95}}(d_t, m) \le T_{\max}\}$
-    \If{$\mathcal{M}_{\text{sla}} = \emptyset$}
-        \State $\mathcal{M}_{\text{sla}} \leftarrow \{\arg\min_{m \in \mathcal{M}_{\text{sec}}} \hat{L}_{\text{p95}}(d_t, m)\}$
-    \EndIf
-    \For{each candidate $m \in \mathcal{M}_{\text{sla}}$}
-        \State Solve $\mathbf{A}_m \hat{\boldsymbol{\theta}}_m = \mathbf{b}_m$; \quad $u_m \leftarrow \hat{\boldsymbol{\theta}}_m^\top \mathbf{x}_t - \nu \sqrt{\mathbf{x}_t^\top \mathbf{A}_m^{-1} \mathbf{x}_t}$
-    \EndFor
-    \State Dispatch $d_t$ via $m^*_t \leftarrow \arg\min_{m \in \mathcal{M}_{\text{sla}}} u_m$
-    \State Measure real $(L_t, E_{\text{edge}, t}, C_{\text{gcp}, t}, A_{\text{eff}, t})$, compute $\mathcal{J}_{\text{SLA}, t}$, and update $\mathbf{A}_{m^*_t} \leftarrow \mathbf{A}_{m^*_t} + \mathbf{x}_t \mathbf{x}_t^\top$, $\mathbf{b}_{m^*_t} \leftarrow \mathbf{b}_{m^*_t} + \mathcal{J}_{\text{SLA}, t} \mathbf{x}_t$
-\EndFor
-\end{algorithmic}
-\end{algorithm}
-
-\section{Testbed Setup and Experimental Results}
-\subsection{Real-Execution Testbed and Statistical Protocol}
-All experiments enforce strict zero-estimation real execution (Table~\ref{tab:testbed}) on an \texttt{Intel Core Ultra 9 185H} host instrumented via kernel C-API \texttt{pdh.dll} (\texttt{windows\_emi\_pdh\_rapl}, $46.95\,\mu\text{s}$ read overhead) paired with isolated Linux network namespaces (\texttt{unshare -n}, \texttt{tc/netem}, \texttt{MTU = 1500 B}) running compiled \texttt{liboqs 0.12.0}, \texttt{OpenFHE 1.2.3}, \texttt{aioquic}, \texttt{PostgreSQL 18.6} (\texttt{pgvector 0.8.1}), and \texttt{Qdrant} native HNSW. Edge RAPL windows strictly isolate edge cryptography and WAN socket transmission from cloud database/FHE evaluation ($T_{\text{cloud\_ms}}$), which is priced using published GCP \texttt{e2-standard-4} per-second compute and Asia internet egress rates.
-
-\begin{table}[t]
-\centering
-\caption{IEEE TCC Verified Real-Execution Benchmark Stack}
-\label{tab:testbed}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{ll}
-\toprule
-\textbf{Dimension} & \textbf{Verified Real Execution Specification} \\
-\midrule
-\textbf{Crypto Stack} & OpenSSL 3.x + \texttt{liboqs 0.12.0} (ML-KEM), \texttt{aioquic}, \texttt{OpenFHE 1.2.3} \\
-\textbf{Hybrid DBs (2)} & PostgreSQL 18.6 (\texttt{pgvector 0.8.1}) \& Qdrant Native HNSW \\
-\textbf{Structured Data} & TPC-C Rev.~5.11~\cite{tpc_c_spec} \& Exact-Byte YCSB-A ($256\text{--}4096\text{ B}$)~\cite{cooper2010ycsb} \\
-\textbf{Vector Data} & Official SIFT ($128\text{d}$)~\cite{jegou2011sift} \& Wikipedia BGE-M3 ($1024\text{d}$)~\cite{chen2024bgem3} \\
-\textbf{WAN Profiles (3)} & \texttt{5g\_mec\_good} (12ms), \texttt{wan\_congested} (65ms, 1.5\% loss), \texttt{remote\_iot} (140ms, 3\% loss) \\
-\textbf{Audit Protocol} & $720$ core paired runs ($30$ trials/config after $50$-query warm-up) + SHA-256 manifests \\
+\textbf{CAPQ-Pareto (This Work)} & \textbf{4D Adaptive Cloud-Edge DB} & \textbf{Yes (PG18.6 + Qdrant)} & \textbf{Yes (ML-KEM + 0-RTT)} & \textbf{Yes (OpenFHE 1.2.3)} & \textbf{Yes ($T_{\max}$ \& $\text{Recall@10}$)} & \textbf{Yes (Bare-Metal RAPL)} & \textbf{Yes (3 GCP Regions + T2A ARM64)} \\
 \bottomrule
 \end{tabular}%
 }
-\end{table}
+\end{table*}
 
-\IfFileExists{00_manuscript/tables/tab_hw_calibration.tex}{\input{00_manuscript/tables/tab_hw_calibration.tex}}{}
+\section{Related Work and Research Gap}\label{sec:related}
+Table~\ref{tab:gap_matrix} contrasts CAPQ-Pareto against four intersecting research threads across cloud computing, databases, and applied cryptography.
 
-\subsection{Empirical Hardware Calibration and WAN Bottlenecks}
-Table~\ref{tab:hw_calib} reveals a critical hardware-software interaction on \texttt{Intel Core Ultra 9 185H}: hardware-accelerated \texttt{AES-256-GCM} consumes $2.15\times$ less net silicon energy ($42.56\,\mu\text{J/op}$ vs. $91.56\,\mu\text{J/op}$, Wilcoxon $p = 0.0020$) than \texttt{ChaCha20-Poly1305}, justifying hardware-aware cipher selection in Regime~B rather than assuming stream ciphers are universally superior on edge devices.
+\subsection{Hybrid Relational-Vector Databases and Compression}
+Purpose-built vector engines such as Milvus \cite{wang2021milvus}, DiskANN \cite{jayaram2019diskann}, and relational-vector extensions including \texttt{pgvector} \cite{pgvector2024} and VBASE \cite{zhang2023vbase} pair HNSW \cite{malkov2020hnsw} or IVF indexes with relational metadata filtering \cite{pan2024survey_vectordb}. Recent quantization schemes such as product quantization \cite{jegou2011sift} and RaBitQ \cite{gao2024rabitq} reduce memory footprint and I/O bandwidth while bounding inner-product distortion. However, existing hybrid engines assume classical transport security and optimize server-side index traversal in isolation, overlooking how vector wire size interacts with post-quantum handshake fragmentation over lossy WAN links.
+
+\subsection{Post-Quantum TLS 1.3 and QUIC Over Wide-Area Networks}
+Early empirical studies by Paquin et al. \cite{paquin2020pqctls} and Sikeridis et al. \cite{sikeridis2020pqctls_wan} demonstrated that lattice keyshares exceeding the TCP initial congestion window or $1{,}500\text{ B}$ path MTU trigger nonlinear latency amplification when packet loss exceeds $1\%$. Subsequent designs explored signatureless \texttt{KEMTLS} \cite{schwabe2020kemtls}, post-quantum \texttt{QUIC} \cite{iyengar2021rfc9000,sosnowski2023pqc_quic}, and internet-scale hybrid \texttt{X25519+ML-KEM-768} deployment \cite{westerbaan2024cloud_pqctls}. Unlike static transport-layer deployments that apply one cipher suite uniformly across all queries, CAPQ-Pareto co-optimizes transport resumption (\texttt{QUIC 0-RTT}), KEM security level (\texttt{ML-KEM-512/768/1024}), symmetric AEAD selection, and vector payload quantization per query stream.
+
+\subsection{Homomorphic Similarity Search and Cloud Orchestration}
+Approximate FHE (\texttt{CKKS}) \cite{cheon2017ckks} implemented in \texttt{OpenFHE} \cite{albadawi2022openfhe} supports SIMD-packed encrypted inner products for biometric and embedding search, as shown in HERS \cite{engelsma2022hers} and encrypted ANN frameworks \cite{zhu2023he_ann}. Yet full-corpus FHE scans require seconds per query, violating interactive cloud SLAs. Meanwhile, recent \emph{IEEE Transactions on Cloud Computing} studies optimize multi-region microservice placement \cite{chen2024sla_cloud_tcc}, edge offloading \cite{xu2023pareto_cloud_edge_tcc}, and geo-distributed RAG serving \cite{wang2025rag_cloud_tcc}, while software power meters such as RAPL \cite{david2010rapl}, Scaphandre \cite{jay2023power_meters}, and Kepler \cite{amaral2023kepler} enable fine-grained energy auditing. CAPQ-Pareto bridges these domains by unifying hardware-measured edge energy, live multi-region GCP billing, PQC transport, and coarse-bucketed CKKS under an online contextual bandit \cite{li2010linucb,abbasi2011improved_bandits}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.96\textwidth]{00_manuscript/figures/fig1_capq_architecture.pdf}
+\caption{Four-layer architecture of \textbf{CAPQ-Pareto} bridging a bare-metal RAPL-instrumented Edge Gateway in Thailand with live Google Cloud Hybrid Database nodes across Bangkok (\texttt{asia-southeast3}), Singapore (\texttt{asia-southeast1}, \texttt{x86\_64} and \texttt{Tau T2A ARM64}), and Iowa (\texttt{us-central1}).}
+\label{fig:arch}
+\end{figure*}
+
+\section{System Architecture and Threat Model}\label{sec:arch}
+\subsection{Four-Layer Hybrid Cloud-Edge Continuum}
+Fig.~\ref{fig:arch} illustrates the four-layer CAPQ-Pareto architecture deployed across a physical edge gateway and geo-distributed Google Cloud regions:
+\begin{enumerate}
+    \item \textbf{Layer~1 (Physical Bare-Metal Edge Gateway):} Because public cloud hypervisors block guest access to CPU package energy Model-Specific Registers (MSRs) \cite{jay2023power_meters,amaral2023kepler}, our edge tier executes on a physical bare-metal gateway (\texttt{Intel Core Ultra 9 185H}) instrumented via OS kernel RAPL/EMI counters (\texttt{pdh.dll} energy meter counters). It ingests mixed OLTP SQL transactions (\texttt{TPC-C} \cite{tpcc_spec}, \texttt{YCSB-A} \cite{cooper2010ycsb}) and unstructured RAG vector streams (\texttt{SIFT-128d} \cite{jegou2011sift}, \texttt{Wikipedia BGE-M3 1024d} \cite{chen2024bgem3}). To ensure portability to ARM-based edge gateways without hardware purchase bias, we cross-validate all cryptographic kernels natively on Google Cloud \texttt{Tau T2A} (\texttt{Ampere Altra Neoverse-N1 aarch64}).
+    \item \textbf{Layer~2 (SLA-Gated Contextual Bandit Orchestrator):} Before dispatching each query or micro-batch, the orchestrator observes a $10$-dimensional live context vector encoding workload type, vector dimensionality, active WAN RTT/loss, and operator preference weights $(\alpha,\beta,\gamma)$, selecting an optimal regime $m \in \mathcal{M}$.
+    \item \textbf{Layer~3 (Adaptive Cryptographic \& Compression Pipeline):} Executes native C/C++ FFI bindings to \texttt{liboqs~0.12.0} (\texttt{ML-KEM}), \texttt{OpenSSL/cryptography} AEAD (\texttt{AES-256-GCM}, \texttt{ChaCha20-Poly1305}), $\epsilon$-safe vector quantizers (\texttt{FP32}, \texttt{INT8-SQ}, \texttt{1-bit}), and \texttt{OpenFHE~1.2.3} (\texttt{CKKS}) over multiplexed \texttt{QUIC 0-RTT} (\texttt{UDP:443}) \cite{iyengar2021rfc9000} or \texttt{TLS~1.3} (\texttt{TCP:8443}) \cite{rescorla2018rfc8446}.
+    \item \textbf{Layer~4 (Geo-Distributed Google Cloud Hybrid DBs):} Hosts \texttt{PostgreSQL} with \texttt{pgvector} (\texttt{HNSW} inner-product indexes) \cite{pgvector2024}, native Rust \texttt{Qdrant} \texttt{HNSW}, and the \texttt{OpenFHE} homomorphic inner-product evaluator across three live GCP regions: \texttt{asia-southeast3} (Bangkok), \texttt{asia-southeast1} (Singapore), and \texttt{us-central1} (Iowa, USA).
+\end{enumerate}
+
+\subsection{Dual Adversary and Security Threat Model}
+CAPQ-Pareto supports two explicit trust tiers selectable per query sensitivity flag $z_q \in \{0,1\}$:
+\begin{itemize}
+    \item \textbf{Tier~1 — Quantum-Capable Network Adversary ($z_q = 0$, Regimes~A \& B):} External eavesdroppers on ISP/BGP transit links record encrypted WAN traffic today for future quantum decryption (HNDL), while the enterprise-managed cloud VM is trusted during execution. Hybrid \texttt{X25519+ML-KEM-768} and \texttt{ML-KEM-512/1024} provide IND-CCA2 post-quantum key establishment \cite{nist_fips203_2024,westerbaan2024cloud_pqctls}. For \texttt{QUIC 0-RTT} resumption, replay protection is enforced by restricting idempotent vector reads or binding monotonic per-client sequence nonces at the database gateway \cite{iyengar2021rfc9000}.
+    \item \textbf{Tier~2 — Honest-but-Curious Cloud DB Operator ($z_q = 1$, Regime~C):} For strictly confidential embeddings, the cloud server itself must not observe plaintext query coordinates. Queries are encrypted under \texttt{OpenFHE CKKS} satisfying \texttt{HEStd\_128\_classic} ($\ge 128$-bit security against classical and lattice attacks) \cite{cheon2017ckks,albadawi2022openfhe}. Only a non-sensitive coarse cluster identifier $c^* \in \{1,\dots,K_c\}$ is transmitted to bound candidate scan complexity, whose formal min-entropy leakage $\mathcal{L}_{\text{bucket}} \le \log_2 K_c$ bits is derived in Supplementary Section~S1.
+\end{itemize}
+
+\section{4D Pareto Cloud-Edge Formulation}\label{sec:math}
+Let $\mathcal{M}$ denote the discrete action space of cryptographic-compression-transport configurations ($|\mathcal{M}| = 10$). For each arriving query $q_t$ under context $\mathbf{x}_t \in \mathbb{R}^{d_c}$, selecting mode $m \in \mathcal{M}$ yields a four-dimensional outcome tuple $\big(L_t(m), E_{\text{edge},t}(m), C_{\text{gcp},t}(m), A_{\text{eff},t}(m)\big)$.
+
+\subsection{End-to-End Latency and MTU Fragmentation Model}
+For a query or micro-batch of size $b \ge 1$ under arrival rate $\lambda_q$, total end-to-end latency $L(m)$ (in $\text{ms}$) decomposes into five measurable stages:
+\begin{equation}
+L(m) = T_{\text{queue}}(b) + T_{\text{edge\_crypto}}(m) + T_{\text{wan}}(m) + T_{\text{cloud\_eval}}(m) + T_{\text{dec}}(m),
+\label{eq:latency_decomp}
+\end{equation}
+where $T_{\text{queue}}(b) = \frac{b-1}{2\lambda_q}\cdot 10^3$ captures average batch-formation wait time ($0\text{ ms}$ when $b=1$). Let $S_{\text{hs}}(m)$ and $S_{\text{pay}}(m)$ denote handshake keyshare bytes and encrypted query payload bytes, respectively. Given path payload MTU $M_{\text{mtu}} = 1{,}460\text{ B}$, packet count is $N_{\text{pkt}}(m) = \lceil (S_{\text{hs}}(m) + S_{\text{pay}}(m)) / M_{\text{mtu}} \rceil$. Under round-trip time $\text{RTT}$ and packet loss probability $p_{\text{loss}}$, fresh \texttt{TCP+TLS~1.3} incurs handshake round-trips $k_{\text{rtt}} \approx 3\text{--}4$, whereas warm \texttt{QUIC 0-RTT} achieves $k_{\text{rtt}} = 1$ without head-of-line stream blocking:
+\begin{equation}
+T_{\text{wan}}(m) = k_{\text{rtt}}(m)\cdot\text{RTT} + \frac{8\big(S_{\text{hs}}(m)+S_{\text{pay}}(m)+S_{\text{resp}}(m)\big)}{B_{\text{wan}}} + \Phi_{\text{frag}}\big(N_{\text{pkt}}(m), p_{\text{loss}}, \text{RTT}\big),
+\label{eq:wan_frag}
+\end{equation}
+where $\Phi_{\text{frag}}$ grows superlinearly when $N_{\text{pkt}}(m) > 1$ and $p_{\text{loss}} > 0$ because losing any single MTU fragment stalls reassembly of the entire lattice keyshare or vector ciphertext \cite{sikeridis2020pqctls_wan,sosnowski2023pqc_quic}.
+
+\subsection{Wraparound-Safe Silicon RAPL Edge Energy}
+Let $R(t)$ denote the monotonic hardware energy counter reading converted via hardware unit multiplier $\kappa_E$ into millijoules ($\text{mJ}$), with counter modulus $R_{\max}$. Over measurement window $[t_0, t_1]$ ($\Delta t = t_1 - t_0$), raw package energy is wraparound-protected:
+\begin{equation}
+\Delta E_{\text{gross}} = \kappa_E \cdot \Big( \big(R(t_1) - R(t_0)\big) \bmod R_{\max} \Big) \quad [\text{mJ}].
+\label{eq:rapl_wrap}
+\end{equation}
+Subtracting calibrated in-situ quiescent idle power $P_{\text{idle}}$ ($\text{mW}$) and amortizing over $N_w$ queries of batch factor $b$ yields net active per-query edge energy:
+\begin{equation}
+E_{\text{edge}}(m) = \frac{\max\!\big(0,\; \Delta E_{\text{gross}} - P_{\text{idle}}\cdot \Delta t\big)}{N_w \cdot b} \quad [\text{mJ/query}].
+\label{eq:net_energy}
+\end{equation}
+
+\subsection{Per-Second Google Cloud Compute and Egress Cost}
+Google Cloud Compute Engine bills active VM allocation in $1\text{ s}$ increments alongside internet egress per GiB ($2^{30}\text{ B}$). Given regional hourly VM price $p_{\text{vm}}(r)$ ($\text{USD/hr}$) in region $r$, cloud execution duration $T_{\text{cloud\_eval}}(m)$ ($\text{ms}$), and outbound response wire bytes $S_{\text{resp}}(m)$, per-query monetary cost is:
+\begin{equation}
+C_{\text{gcp}}(m, r) = \frac{p_{\text{vm}}(r)}{3{,}600}\cdot \frac{10^{-3} T_{\text{cloud\_eval}}(m)}{b} + p_{\text{egress}}(r)\cdot \frac{2^{-30} S_{\text{resp}}(m)}{b},
+\label{eq:gcp_cost}
+\end{equation}
+reported in $\text{USD}$ per $10^6$ queries ($\$/1\text{M q}$).
+
+\subsection{Deadline-Gated Effective Accuracy and 4D Objective}
+A late response violating the regional hard deadline $T_{\max}(r)$ yields zero utility in interactive cloud-edge pipelines. Letting $A_{\text{raw}}(m) \in [0,1]$ denote ACID commit fidelity ($1.0$ for exact SQL) or tie-aware $\text{Recall@10}$ against exact inner-product ground truth $\mathcal{G}_{10}(\mathbf{q})$, effective accuracy is:
+\begin{equation}
+A_{\text{eff}}(m) = A_{\text{raw}}(m) \cdot \mathbb{I}\!\big[L(m) \le T_{\max}(r)\big].
+\label{eq:eff_acc}
+\end{equation}
+Using warm-up calibration bounds $[X_{\min}, X_{\max}]$ for each resource metric $X \in \{L, E_{\text{edge}}, C_{\text{gcp}}\}$ with $\tilde{X}(m) = \text{clip}\big((X(m)-X_{\min})/\max(X_{\max}-X_{\min}, \epsilon), 0, 1\big)$ and convex preference weights $\alpha + \beta + \gamma = 1$ ($\alpha,\beta,\gamma \ge 0$), our constrained 4D optimization problem is:
+\begin{align}
+\min_{m \in \mathcal{M}} \quad & \mathcal{J}(m) = \alpha \tilde{L}(m) + \beta \tilde{E}_{\text{edge}}(m) + \gamma \tilde{C}_{\text{gcp}}(m) \label{eq:pareto_obj}\\
+\text{s.t.} \quad & P_{95}\!\big(L(m)\big) \le T_{\max}(r), \label{eq:const_lat}\\
+& \mathbb{E}\!\big[A_{\text{eff}}(m)\big] \ge R_{\min}(q), \quad \text{Sec}(m) \ge \lambda_{\text{sec}}(z_q), \label{eq:const_acc}
+\end{align}
+where $R_{\min}(q) = 1.0$ for SQL transactions, $R_{\min}(q) = 0.92$ for RAG vector queries, and $\lambda_{\text{sec}} = 128\text{ bits}$. To compare baselines that violate SLAs without selection bias, we also evaluate the joint penalty metric $\mathcal{J}_{\text{SLA}}(m) = \mathcal{J}(m) + \big(1 - \text{SLA\_Pass}(m)\big)$.
 
 \begin{figure}[t]
 \centering
-\IfFileExists{00_manuscript/figures/pareto_4d_plots/fig2_wan_fragmentation_bottleneck.pdf}{%
-    \includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig2_wan_fragmentation_bottleneck.pdf}%
-}{}
-\caption{Kernel \texttt{tc/netem} (\texttt{MTU = 1500 B}) socket audit demonstrating TCP/TLS 1.3 + ML-KEM-1024 fragmentation tail spikes ($1,038.4\text{ ms}$ p95) vs. batched QUIC 0-RTT ($p_{\text{Holm}} = 0.0015$).}
-\label{fig:wan_bottleneck}
+\fbox{\parbox{0.95\columnwidth}{\footnotesize
+\textbf{Algorithm 1: SLA-Gated Regularized LinUCB Orchestrator}\\[2pt]
+\textbf{Input:} Action space $\mathcal{M}$, ridge $\lambda_{\text{reg}}=1.0$, exploration $\nu=0.20$, regional deadline $T_{\max}(r)$, recall floor $R_{\min}=0.92$, weights $(\alpha,\beta,\gamma)$.\\
+\textbf{Init:} $\mathbf{A}_m \leftarrow \lambda_{\text{reg}}\mathbf{I}_{d_c}$, $\mathbf{b}_m \leftarrow \mathbf{0}_{d_c}$, sliding window $\mathcal{W}_m$ ($\forall m \in \mathcal{M}$).\\[2pt]
+1: \textbf{for} each arriving hybrid query $q_t$ with context $\mathbf{x}_t \in \mathbb{R}^{10}$ \textbf{do}\\
+2: \quad Filter security-valid pool $\mathcal{M}_{\text{sec}} \leftarrow \{m \in \mathcal{M} : \text{Sec}(m) \ge \lambda_{\text{sec}}(z_{q_t})\}$.\\
+3: \quad Compute sliding-window $p95$ latency $\hat{L}_{95}(m)$ and mean $\hat{A}(m)$ from $\mathcal{W}_m$.\\
+4: \quad \textbf{SLA Gate:} $\mathcal{F}_t \leftarrow \{m \in \mathcal{M}_{\text{sec}} : \hat{L}_{95}(m) \le T_{\max}(r) \wedge \hat{A}(m) \ge R_{\min}\}$.\\
+5: \quad \textbf{if} $\mathcal{F}_t = \emptyset$ \textbf{then} $\mathcal{F}_t \leftarrow \{\arg\min_{m \in \mathcal{M}_{\text{sec}}} \hat{L}_{95}(m)\}$ \emph{(Min-Latency Safe Fallback)}.\\
+6: \quad \textbf{for} each $m \in \mathcal{F}_t$ \textbf{do}\\
+7: \quad\quad $\hat{\boldsymbol{\theta}}_m \leftarrow \mathbf{A}_m^{-1}\mathbf{b}_m$;\quad $\text{LCB}_t(m) \leftarrow \hat{\boldsymbol{\theta}}_m^\top \mathbf{x}_t - \nu\sqrt{\mathbf{x}_t^\top \mathbf{A}_m^{-1}\mathbf{x}_t}$.\\
+8: \quad \textbf{end for}\\
+9: \quad Dispatch $q_t$ via $m_t^* \leftarrow \arg\min_{m \in \mathcal{F}_t} \text{LCB}_t(m)$.\\
+10: \quad Measure live $(L_t, E_{\text{edge},t}, C_{\text{gcp},t}, A_{\text{eff},t})$; compute $y_t \leftarrow \mathcal{J}_t(m_t^*) + \mathbb{I}[\neg\text{SLA}_t]$.\\
+11: \quad Update $\mathbf{A}_{m_t^*} \leftarrow \mathbf{A}_{m_t^*} + \mathbf{x}_t\mathbf{x}_t^\top$, $\mathbf{b}_{m_t^*} \leftarrow \mathbf{b}_{m_t^*} + y_t\mathbf{x}_t$, and push to $\mathcal{W}_{m_t^*}$.\\
+12: \textbf{end for}
+}}
+\caption{Online SLA-gated contextual bandit routing algorithm executing in $< 45\;\mu\text{s}$ per decision on the edge gateway.}
+\label{fig:alg_linucb}
 \end{figure}
 
-Furthermore, while C-compiled \texttt{ML-KEM-1024} executes in $0.037\text{ ms}$ ($0.61\text{ mJ}$) in CPU memory, Fig.~\ref{fig:wan_bottleneck} proves that transmitting its $3,136\text{ B}$ handshake over a $1,500\text{ B}$ MTU socket inflates mean latency to $206.86\text{ ms}$ under $1.5\%$ WAN loss and p95 latency to $1,038.40\text{ ms}$ under $3.0\%$ constrained loss, whereas Regime~A's resumed QUIC 0-RTT pipeline achieves $42.84\text{ ms}$ and $80.67\text{ ms}$ amortized per-transaction time ($p_{\text{Holm}} = 0.0015$).
+\section{SLA-Gated LinUCB Crypto-Scheduler and Adaptive Regimes}\label{sec:scheduler}
+\subsection{Contextual Bandit State and Sliding-Window SLA Gate}
+At step $t$, Layer~2 constructs normalized context vector $\mathbf{x}_t = [1, \mathbb{I}_{\text{vec}}, d/1024, b/64, \lambda_{\text{sec}}/256, B_{\text{wan}}/100, \text{RTT}/250, p_{\text{loss}}/5, \alpha, \beta]^\top \in \mathbb{R}^{10}$. Standard unconstrained LinUCB \cite{li2010linucb} frequently explores high-cost actions (e.g., \texttt{ML-KEM-1024} over TCP or \texttt{1-bit} extreme quantization) that violate $T_{\max}$ or $R_{\min}$. As detailed in Fig.~\ref{fig:alg_linucb} (Algorithm~1), CAPQ-Pareto interposes a deterministic \emph{SLA Gate} (Line~4) over a recent sliding window $\mathcal{W}_m$ ($W=6$ observations) to prune infeasible modes prior to Lower-Confidence-Bound ($\text{LCB}_t$) minimization. Matrix inversions on $10 \times 10$ symmetric positive-definite matrices take $< 45\;\mu\text{s}$ in NumPy/BLAS, adding negligible overhead.
 
-\IfFileExists{00_manuscript/tables/tab_core_720_results.tex}{\input{00_manuscript/tables/tab_core_720_results.tex}}{}
-
-\subsection{Core 720-Run Multi-Objective Evaluation}
-Table~\ref{tab:core_720_results}, Fig.~\ref{fig:pareto_4d}, and Fig.~\ref{fig:profile_breakdown} present the 720-run paired benchmark across all three WAN profiles and two hybrid workload mixes ($N = 180$ paired trials per orchestrator, quiescent $P_{\text{idle}} = 4,203.1\text{ mW}$):
+\subsection{Co-Designed Cryptographic Regimes A, B, and C}
 \begin{itemize}
-    \item \textbf{Overcoming Static PQC Fragmentation:} Both \texttt{Classical\_TLS1.3} and \texttt{Static\_MLKEM1024} suffer severe TCP handshake stalls on congested and remote WAN profiles, yielding $33.3\%$ SLA pass rates. \textbf{CAPQ-Pareto} reduces mean end-to-end latency by $64.5\%$ ($98.44\text{ ms}$ vs. $277.15\text{ ms}$) and net edge energy by $71.0\%$ ($33.57\text{ mJ}$ vs. $115.88\text{ mJ}$) compared to \texttt{Static\_MLKEM1024} ($p_{\text{Holm}} = 4.03 \times 10^{-29}$), while keeping mean p95 latency ($149.06\text{ ms}$) within the $150\text{ ms}$ hard deadline.
-    \item \textbf{Avoiding the Infeasible Cheapness Trap:} Although context-blind \texttt{Rule\_Heuristic} attains a slightly lower unpenalized resource score ($\mathcal{J} = 0.060$ vs. $0.063$) by aggressively forcing \texttt{1-bit} quantization, it violates the $\text{Recall@10} \ge 0.92$ bound on vector queries, collapsing effective accuracy to $0.323$ and SLA compliance to $32.0\%$. By gating actions through empirical feasibility bounds, \textbf{CAPQ-Pareto} elevates effective accuracy to $0.762$ ($+135.5\%$, $p_{\text{Holm}} = 1.71 \times 10^{-30}$) and achieves the lowest SLA-penalized objective $\mathcal{J}_{\text{SLA}} = \mathbf{0.314}$ versus $0.740$--$0.893$ across all baselines ($p_{\text{Holm}} \le 4.03 \times 10^{-29}$; McNemar $p_{\text{Holm}} \le 6.50 \times 10^{-11}$).
+    \item \textbf{Regime~A (Transactional SQL Fast-Path):} Uses hybrid \texttt{X25519+ML-KEM-768} over persistent \texttt{QUIC 0-RTT} streams \cite{iyengar2021rfc9000,westerbaan2024cloud_pqctls}, amortizing PQC key establishment across warm UDP:443 tickets. When $\alpha$ (latency weight) is moderate and $\beta,\gamma$ (energy/cost weights) are high, Regime~A activates micro-batching ($b=16$) to amortize AEAD framing and PostgreSQL commit overhead.
+    \item \textbf{Regime~B ($\epsilon$-Safe Quantized RAG Vector Path):} Pairs \texttt{ML-KEM-512} ($800\text{ B}$ public key + $768\text{ B}$ ciphertext, NIST Level~1) with min-max scalar quantization (\texttt{INT8-SQ}):
+    \begin{equation}
+    q_i^{(8)} = \text{clip}\!\left(\left\lfloor \frac{v_i - v_{\min}}{\Delta_s} + 0.5 \right\rfloor, 0, 255\right), \quad \Delta_s = \frac{v_{\max}-v_{\min}}{255}.
+    \label{eq:int8_sq}
+    \end{equation}
+    For $1024\text{d}$ \texttt{BGE-M3} embeddings, \texttt{INT8-SQ} shrinks payload bytes by $74.8\%$ ($4{,}096\text{ B} \rightarrow 1{,}032\text{ B}$ including two \texttt{FP32} header scalars), fitting cleanly inside a single $1{,}500\text{ B}$ Ethernet MTU frame over warm \texttt{QUIC 0-RTT} while bounding quantization error per coordinate to $|\hat{v}_i - v_i| \le \Delta_s / 2$. Furthermore, Regime~B selects \texttt{AES-256-GCM} on \texttt{x86\_64} (\texttt{AES-NI}) and \texttt{ChaCha20-Poly1305} on \texttt{ARM64} nodes lacking wide VAES pipelines.
+    \item \textbf{Regime~C (Coarse-Bucketed Zero-Trust CKKS):} To bypass HNSW's encrypted branching barrier, the corpus is partitioned offline via spherical $k$-means into $K_c = 64$ normalized centroids $\{\boldsymbol{\mu}_c\}_{c=1}^{64}$ cached on the edge ($32\text{ KB}$ for $128\text{d}$). Given a confidential query $\mathbf{q}$, the edge identifies the nearest centroid(s), encrypts $\mathbf{q}$ into a single SIMD-packed \texttt{OpenFHE CKKS} ciphertext ($N = 4096$, \texttt{BV} key-switching, $\log_2 Q \le 109\text{ bits}$, \texttt{HEStd\_128\_classic}), and requests homomorphic \texttt{EvalInnerProduct} over the $M_b \le 16$ candidate vectors in that bucket on the cloud server.
+\end{itemize}
+
+\begin{table*}[t]
+\centering
+\caption{Master Summary of All $1{,}980$ Hardware- and Cloud-Verified Experimental Trials Executed in This Study (Zero Synthetic Estimation)}
+\label{tab:exp_campaigns}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llrrll}
+\toprule
+\textbf{Campaign ID} & \textbf{Infrastructure \& Network Continuum} & \textbf{Paired Trials} & \textbf{Live DB/Crypto Ops} & \textbf{Workloads \& Engines} & \textbf{Verified Output Artifacts} \\
+\midrule
+\textbf{C-Core (Phase 6A)} & Bare-Metal Edge + Isolated Linux \texttt{tc/netem} WAN (3 Profiles) & $720$ & $8{,}640$ & \texttt{TPC-C}, \texttt{YCSB-A}, \texttt{SIFT-128d} (\texttt{PG18.6} + \texttt{OpenFHE}) & Table~\ref{tab:core_720_results}, Figs.~\ref{fig:frag}--\ref{fig:breakdown} \\
+\textbf{C-Ablation (Phase 6B)} & Cross-DB High-Dim Vector + 4 Weight Profiles + WAN Shock & $360$ & $4{,}680$ & \texttt{Wikipedia BGE-M3} ($1024\text{d}$): \texttt{PG18.6} vs.\ \texttt{Qdrant} & Table~\ref{tab:ablation_crossdb}, Figs.~\ref{fig:shock_weights}--\ref{fig:crossdb_bgem3} \\
+\textbf{C-ARM64 (Step C3)} & Local \texttt{x86\_64} vs.\ Live GCP \texttt{Tau T2A ARM64} (\texttt{Neoverse-N1}) & $540$ & $49{,}410$ & 9 Native C/C++ Kernels (\texttt{liboqs~0.12} + \texttt{OpenFHE~1.2.3}) & Table~\ref{tab:arm64_vs_x86}, Fig.~\ref{fig:arm64_cross} \\
+\textbf{C-MultiRegion (Step C4)} & Physical Edge (Thailand) $\rightarrow$ Live GCP Bangkok, Singapore, Iowa & $360$ & $1{,}440$ & Live \texttt{QUIC UDP:443} \& \texttt{TLS:8443} + Cloud \texttt{PG+pgvector} & Table~\ref{tab:gcp_multiregion_wan}, Fig.~\ref{fig:gcp_p99} \\
+\midrule
+\textbf{Total Verified} & \textbf{Hybrid Bare-Metal RAPL Edge + 3 GCP Regions + GCP ARM64} & $\mathbf{1{,}980}$ & $\mathbf{64{,}170}$ & \textbf{4 Real Datasets, 2 Hybrid DBs, 2 CPU ISAs} & \textbf{SHA-256 Manifest Locked} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+\section{Experimental Evaluation}\label{sec:eval}
+\subsection{Testbed Hardware, Datasets, and Statistical Protocol}
+Table~\ref{tab:exp_campaigns} summarizes all $1{,}980$ real trial executions ($64{,}170$ underlying cryptographic and database operations) conducted without simulation or synthetic curve fitting. Every raw CSV log, LaTeX table, and PDF figure is cryptographically bound via \texttt{SHA-256} digests in \texttt{06\_experiments\_results/sha256\_manifest.json}.
+\begin{itemize}
+    \item \textbf{Physical Edge Gateway:} \texttt{Intel Core Ultra 9 185H} ($16$ cores / $22$ threads, \texttt{x86\_64} AVX2/AES-NI) in Khon Kaen, Thailand, sampling hardware energy registers via \texttt{pdh.dll} RAPL/EMI counters with in-situ quiescent idle power calibration prior to each campaign.
+    \item \textbf{Google Cloud Multi-Region \& ARM64 Infrastructure:} Provisioned via automated IaC scripts in project \texttt{capq-pareto} across \textbf{Bangkok} (\texttt{asia-southeast3-a}, \texttt{n4-standard-4} at $\$0.2396/\text{hr}$), \textbf{Singapore} (\texttt{asia-southeast1-b}, \texttt{e2-standard-4} at $\$0.1588/\text{hr}$ and \texttt{Tau T2A t2a-standard-4 Ampere Altra Neoverse-N1 aarch64}), and \textbf{US-Central} (\texttt{us-central1-a}, \texttt{e2-standard-4} at $\$0.1340/\text{hr}$), plus $\$0.12/\text{GiB}$ internet egress.
+    \item \textbf{Four Baselines \& Non-Parametric Statistics:} We compare (1)~\texttt{Classical\_TLS1.3} (\texttt{X25519 + AES-256-GCM} over non-resumed TCP/TLS~1.3), (2)~\texttt{Static\_MLKEM1024} (mandatory maximum PQC \texttt{ML-KEM-1024 + FP32} over TCP/TLS~1.3), (3)~\texttt{Rule\_Heuristic} (static threshold rule selecting batching $b=16$ for SQL and aggressive \texttt{1-bit} quantization for RAG), and (4)~\textbf{\texttt{CAPQ\_Pareto}}. Each configuration executes $N=30$ paired trials after dedicated warm-up queries. Significance is tested via two-sided paired Wilcoxon signed-rank tests \cite{wilcoxon1945individual} with Holm--Bonferroni family-wise error correction ($p_{\text{Holm}} < 0.05$) \cite{holm1979simple} and McNemar's test on binary SLA pass outcomes.
 \end{itemize}
 
 \begin{figure}[t]
 \centering
-\IfFileExists{00_manuscript/figures/pareto_4d_plots/fig3_pareto_4d_tradeoff.pdf}{%
-    \includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig3_pareto_4d_tradeoff.pdf}%
-}{}
-\caption{4D Cloud-Edge Pareto trade-off across 720 real runs showing Latency, Silicon Edge Energy, GCP Cost (marker size), and Effective Accuracy (color).}
-\label{fig:pareto_4d}
+\includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig2_wan_fragmentation_bottleneck.pdf}
+\caption{Measured WAN MTU fragmentation penalty comparing fresh \texttt{TCP+TLS~1.3} with \texttt{ML-KEM-1024} against warm \texttt{QUIC 0-RTT} across progressive RTT and packet loss profiles.}
+\label{fig:frag}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\IfFileExists{00_manuscript/figures/pareto_4d_plots/fig4_profile_breakdown.pdf}{%
-    \includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig4_profile_breakdown.pdf}%
-}{}
-\caption{Per-profile mean latency and joint security-accuracy-deadline SLA compliance across \texttt{5g\_mec\_good}, \texttt{wan\_congested}, and \texttt{remote\_iot\_constrained}.}
-\label{fig:profile_breakdown}
+\includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig3_pareto_4d_tradeoff.pdf}
+\caption{Measured 4D Pareto frontier across $720$ controlled paired trials showing latency, silicon RAPL edge energy, GCP cost, and SLA compliance.}
+\label{fig:pareto4d}
 \end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig4_profile_breakdown.pdf}
+\caption{Per-profile breakdown across \texttt{5g\_mec\_good} ($12\text{ ms}$), \texttt{wan\_congested} ($65\text{ ms}$, $1.5\%$ loss), and \texttt{remote\_iot\_constrained} ($140\text{ ms}$, $3.0\%$ loss).}
+\label{fig:breakdown}
+\end{figure}
+
+\subsection{Controlled Kernel WAN Evaluation (720 Paired Runs)}
+Figs.~\ref{fig:frag}--\ref{fig:breakdown} and Table~\ref{tab:core_720_results} report the $720$-run controlled \texttt{tc/netem} baseline across two hybrid workload mixes (\texttt{SQL-Heavy 70:30} and \texttt{RAG-Heavy 30:70}) and three WAN profiles. As shown in Fig.~\ref{fig:frag}, \texttt{ML-KEM-1024} handshake keyshares ($3{,}136\text{ B}$) combined with \texttt{FP32} vectors trigger severe multi-packet retransmission stalls under $1.5\%$--$3.0\%$ packet loss when carried over non-resumed TCP/TLS~1.3. By contrast, CAPQ-Pareto maintains superior joint $\mathcal{J}_{\text{SLA}}$ across all six profile-workload strata ($p_{\text{Holm}} < 10^{-8}$), pruning \texttt{1-bit} quantization whenever its $\text{Recall@10}$ ($\approx 0.62$ on \texttt{SIFT-128d}) falls below the $0.92$ SLA floor while avoiding \texttt{ML-KEM-1024} TCP fragmentation on congested links.
+
+\input{00_manuscript/tables/tab_core_720_results.tex}
 
 \subsection{Cross-Database BGE-M3 ($1024\text{d}$) and Shock Ablation}
-Table~\ref{tab:ablation_crossdb}, Fig.~\ref{fig:shock_weights}, and Fig.~\ref{fig:crossdb_bgem3} evaluate $360$ additional real runs spanning high-dimensional Wikipedia BGE-M3 ($1024\text{d}$) retrieval across \texttt{PostgreSQL 18.6} (\texttt{pgvector 0.8.1}) and \texttt{Qdrant} native HNSW, Pareto weight sensitivity, and sudden WAN degradation shocks ($12\text{ ms} \rightarrow 65\text{ ms} \rightarrow 140\text{ ms}$ RTT). Compressing $1024\text{d}$ vectors via $\epsilon$-safe \texttt{INT8-SQ} shrinks wire payloads by $74.8\%$ ($4,096\text{ B} \rightarrow 1,032\text{ B}$, fitting within a single $1,500\text{ B}$ MTU frame) while preserving $\text{Recall@10} = 0.9513$ on PostgreSQL and $0.9927$ on Qdrant ($\ge 0.92$ SLA), whereas \texttt{1-bit} quantization drops $\text{Recall@10}$ to $0.6983$--$0.7077$ and is properly pruned by CAPQ-Pareto's SLA gate.
+Table~\ref{tab:ablation_crossdb}, Fig.~\ref{fig:shock_weights}, and Fig.~\ref{fig:crossdb_bgem3} evaluate $360$ real runs covering high-dimensional \texttt{Wikipedia BGE-M3} ($1024\text{d}$) retrieval across \texttt{PostgreSQL~18.6} (\texttt{pgvector~0.8.1}) and native Rust \texttt{Qdrant}, four Pareto weight profiles (\texttt{balanced}, \texttt{battery\_saver}, \texttt{low\_latency}, \texttt{cost\_frugal}), and sudden streaming WAN shocks ($12\text{ ms} \rightarrow 65\text{ ms} \rightarrow 140\text{ ms}$ RTT). Compressing $1024\text{d}$ vectors via $\epsilon$-safe \texttt{INT8-SQ} shrinks wire payloads by $74.8\%$ ($4{,}096\text{ B} \rightarrow 1{,}032\text{ B}$, fitting within a single $1{,}500\text{ B}$ MTU frame) while preserving $\text{Recall@10} = 0.9513$ on PostgreSQL ($4.25\text{ ms} \rightarrow 2.44\text{ ms}$ local search+prep) and $0.9927$ on Qdrant ($\ge 0.92$ SLA). Conversely, \texttt{binary\_1bit} ($136\text{ B}$) degrades $\text{Recall@10}$ to $0.6983$ on PostgreSQL and $0.7077$ on Qdrant, confirming the necessity of CAPQ-Pareto's SLA recall gate. Under sudden WAN degradation shocks (Fig.~\ref{fig:shock_weights}a), CAPQ-Pareto's $6$-sample sliding window detects $p95$ breaches within two decision epochs and transitions from \texttt{FP32} to single-MTU \texttt{INT8-SQ} over \texttt{QUIC 0-RTT}, keeping latency below the $150\text{ ms}$ deadline where \texttt{Static\_MLKEM1024} spikes sharply.
 
-\IfFileExists{00_manuscript/tables/tab_ablation_crossdb.tex}{\input{00_manuscript/tables/tab_ablation_crossdb.tex}}{}
+\input{00_manuscript/tables/tab_ablation_crossdb.tex}
 
 \begin{figure}[t]
 \centering
-\IfFileExists{00_manuscript/figures/pareto_4d_plots/fig5_ablation_weights_and_shock.pdf}{%
-    \includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig5_ablation_weights_and_shock.pdf}%
-}{}
-\caption{Online trajectory adaptation under sudden WAN latency/loss shocks and 4-profile Pareto weight sensitivity.}
+\includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig5_ablation_weights_and_shock.pdf}
+\caption{Online trajectory adaptation under sudden WAN latency/loss shocks ($12 \rightarrow 65 \rightarrow 140\text{ ms}$ RTT) and 4-profile Pareto weight sensitivity.}
 \label{fig:shock_weights}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\IfFileExists{00_manuscript/figures/pareto_4d_plots/fig6_crossdb_bgem3_1024d.pdf}{%
-    \includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig6_crossdb_bgem3_1024d.pdf}%
-}{}
-\caption{Cross-database BGE-M3 ($1024\text{d}$) $\text{Recall@10}$ and query latency across PostgreSQL 18.6 (\texttt{pgvector 0.8.1}) and Qdrant native HNSW.}
+\includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig6_crossdb_bgem3_1024d.pdf}
+\caption{Cross-database \texttt{BGE-M3} ($1024\text{d}$) $\text{Recall@10}$ and query latency across \texttt{PostgreSQL~18.6} (\texttt{pgvector~0.8.1}) and \texttt{Qdrant} native HNSW.}
 \label{fig:crossdb_bgem3}
 \end{figure}
 
-\subsection{Limitations and Validity Considerations}
-To uphold strict scientific transparency, two scope boundaries are noted: (1) WAN propagation, bandwidth caps, and packet loss are enforced via isolated Linux kernel \texttt{tc/netem} namespaces (\texttt{MTU = 1500 B}), while cloud expenditure is computed analytically from real measured database/OpenFHE execution durations and wire bytes using published GCP \texttt{e2-standard-4} unit rates rather than live transcontinental VM billing invoices; and (2) under the $140\text{ ms}$ RTT constrained IoT link, zero-trust CKKS queries inevitably exceed the $150\text{ ms}$ deadline due to physical $1\text{-RTT}$ propagation plus homomorphic evaluation ($> 68\text{ ms}$), accounting for the remaining $25.1\%$ SLA misses in extreme WAN regimes. Extending deployment to physical ARM64 edge boards and hardware FHE accelerators represents promising future work.
+\subsection{Cross-Architecture Validation: \texttt{x86\_64} vs. GCP \texttt{ARM64}}
+To validate edge portability without hardware-procurement bias, Table~\ref{tab:arm64_vs_x86} and Fig.~\ref{fig:arm64_cross} benchmark nine native C/C++ cryptographic and homomorphic kernels ($540$ paired trials) across our local \texttt{x86\_64} gateway (\texttt{Core Ultra 9 185H}) and a live Google Cloud \texttt{Tau T2A} \texttt{ARM64} instance (\texttt{t2a-standard-4}, Ampere Altra \texttt{Neoverse-N1} in \texttt{asia-southeast1-b}). Two critical systems findings emerge:
+\begin{enumerate}
+    \item \textbf{Cross-Architecture Symmetric AEAD Inversion:} On \texttt{x86\_64} equipped with wide \texttt{VAES/AES-NI} pipelines, $4\text{ KB}$ \texttt{AES-256-GCM} ($2.1\;\mu\text{s}$) executes $2.05\times$ faster than \texttt{ChaCha20-Poly1305} ($4.3\;\mu\text{s}$). On cloud \texttt{ARM64} (\texttt{Neoverse-N1}), this ordering \emph{inverts}: \texttt{ChaCha20-Poly1305} ($29.1\;\mu\text{s}$, $0.102\text{ mJ}$ TDP-equivalent) outperforms \texttt{AES-256-GCM} ($31.8\;\mu\text{s}$, $0.111\text{ mJ}$, $p_{\text{Holm}} = 8.66 \times 10^{-6}$), justifying architecture-aware cipher selection in Regime~B.
+    \item \textbf{Sub-Millisecond Lattice KEM vs.\ Multi-Hundred-Millisecond CKKS:} Even on \texttt{ARM64}, full \texttt{ML-KEM-512/768/1024} keygen+encaps+decaps completes in $0.135$--$0.312\text{ ms}$ ($0.48$--$1.09\text{ mJ}$), proving across both ISAs that PQC latency bottlenecks stem from WAN MTU packetization rather than CPU arithmetic. Conversely, $8$-candidate \texttt{OpenFHE CKKS} inner-product evaluation scales from $65.80\text{ ms}$ ($N=4096$) to $115.13\text{ ms}$ ($N=8192$) and $613.33\text{ ms}$ ($N=16384$) on \texttt{ARM64}, confirming that interactive Zero-Trust search ($T_{\max}=150\text{ ms}$) strictly requires $N \le 8192$ with coarse centroid bucketing.
+\end{enumerate}
 
-\section{Conclusion}
-We presented \textbf{CAPQ-Pareto}, a context-aware post-quantum and homomorphic encryption orchestrator for hybrid relational-vector cloud-edge databases. By unifying QUIC 0-RTT hybrid ML-KEM transport, precision-gated vector quantization, and coarse-bucketed OpenFHE CKKS evaluation under an SLA-gated regularized LinUCB bandit, CAPQ-Pareto eliminates PQC MTU fragmentation stalls while preserving retrieval accuracy and post-quantum confidentiality.
+\input{00_manuscript/tables/tab_arm64_vs_x86.tex}
 
-\section*{Data Availability and Acknowledgment}
-All source code, \texttt{experiment\_matrix.yaml}, raw CSV logs, \LaTeX{} table/figure generators, and SHA-256 verification manifests are publicly available at \url{https://github.com/preecha-msu/CAPQ-Pareto}. This research project was financially supported by the Faculty of Informatics, Mahasarakham University. In accordance with IEEE policy, generative AI tools were utilized strictly for manuscript language polishing and \LaTeX{} formatting verification; all software execution, hardware RAPL/EMI measurements, and statistical analyses are real and cryptographically verified.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig7_arm64_vs_x86_cross_arch.pdf}
+\caption{Cross-architecture execution latency ($N=30$ trials/kernel) comparing local \texttt{x86\_64} against live Google Cloud \texttt{Tau T2A ARM64} (\texttt{Neoverse-N1}).}
+\label{fig:arm64_cross}
+\end{figure}
+
+\subsection{Live Multi-Region Google Cloud WAN Evaluation}
+Table~\ref{tab:gcp_multiregion_wan} and Fig.~\ref{fig:gcp_p99} present $360$ paired cloud trials ($1{,}440$ live internet queries) transmitted from our physical edge gateway in Khon Kaen, Thailand over native \texttt{QUIC UDP:443} and \texttt{TLS:8443} to live \texttt{PostgreSQL+pgvector} and \texttt{OpenFHE} servers deployed in \textbf{Bangkok} (\texttt{asia-southeast3-a}, \texttt{n4-standard-4}, measured warm RTT $= 11.51\text{ ms}$, $T_{\max}=150\text{ ms}$), \textbf{Singapore} (\texttt{asia-southeast1-b}, \texttt{e2-standard-4}, RTT $= 37.29\text{ ms}$, $T_{\max}=150\text{ ms}$), and \textbf{US-Central} (\texttt{us-central1-a}, \texttt{e2-standard-4}, RTT $= 229.59\text{ ms}$, transcontinental $T_{\max}=350\text{ ms}$):
+\begin{itemize}
+    \item \textbf{Transpacific Link (\texttt{US-Central}, $229.59\text{ ms}$ RTT):} Fresh \texttt{TCP+TLS~1.3} connections under \texttt{Classical\_TLS1.3} ($\text{Mean}=933.4\text{ ms}$, $p99=1{,}481.4\text{ ms}$) and \texttt{Static\_MLKEM1024} ($\text{Mean}=920.5\text{ ms}$, $p99=936.7\text{ ms}$) incur four transpacific round-trips, resulting in \textbf{$0.0\%$ SLA compliance}. \texttt{Rule\_Heuristic} achieves $241.2\text{ ms}$ via \texttt{QUIC} but stalls at $50.0\%$ SLA pass rate because blind \texttt{1-bit} quantization violates $\text{Recall@10} \ge 0.92$ on all vector queries. \textbf{CAPQ-Pareto achieves $98.3\%$ SLA compliance}, $\text{Effective Accuracy} = 0.998$, $\text{Mean} = 230.5\text{ ms}$, and $\mathbf{p99 = 246.6\text{ ms}}$—a $\mathbf{6.0\times}$ reduction in $p99$ tail latency over classical TCP/TLS~1.3 and $3.8\times$ over static PQC.
+    \item \textbf{Regional Link (\texttt{Singapore}, $37.29\text{ ms}$ RTT):} Even at moderate regional RTT, non-resumed \texttt{TCP+TLS~1.3} baselines average $165.7$--$167.0\text{ ms}$ ($> 150\text{ ms}$ deadline), collapsing SLA compliance to $15.8\%$--$20.0\%$. CAPQ-Pareto cuts mean latency by $42.2\%$ to $95.8\text{ ms}$ over \texttt{quic\_udp\_443}, boosting joint SLA compliance by $3.6\times$--$4.6\times$ to $72.5\%$ overall ($96.7\%$ across Regime~A/B queries).
+    \item \textbf{Near-Edge Link (\texttt{Bangkok}, $11.51\text{ ms}$ RTT) and Zero-Trust Regime~C Trade-off:} In Bangkok, CAPQ-Pareto achieves the lowest mean latency ($49.1\text{ ms}$, $-22.1\%$ vs.\ \texttt{Classical\_TLS1.3}), reduces $p99$ tail latency by $47.7\%$ ($136.7\text{ ms}$ vs.\ $261.5\text{ ms}$ ISP jitter spike on TCP), and reduces silicon edge energy by $32.3\%$ ($67.38\text{ mJ}$ vs.\ $99.60\text{ mJ}$). Notably, on links with $\text{RTT} < 55\text{ ms}$ (Bangkok and Singapore), $25\%$ of queries ($1$ of $4$ per trial) carried mandatory Zero-Trust flags ($z_q=1$), forcing single-bucket $16$-candidate \texttt{CKKS} evaluation. While Bangkok met the $150\text{ ms}$ deadline ($136.7\text{ ms}$), boundary queries falling across spherical $k$-means Voronoi edges yielded single-bucket $\text{Recall@10} < 0.92$, accounting for the $\sim 26.7\%$ SLA gap—a finding that directly motivates multi-probe encrypted bucketing ($m_{\text{probe}} \ge 3$).
+\end{itemize}
+
+\input{00_manuscript/tables/tab_gcp_multiregion_wan.tex}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig8_gcp_multiregion_p99_wan.pdf}
+\caption{Live multi-region Google Cloud $p99$ tail latency and joint regional SLA pass rate measured from Thailand to Bangkok, Singapore, and Iowa ($1{,}440$ live internet queries).}
+\label{fig:gcp_p99}
+\end{figure}
+
+\subsection{Discussion, Hardware C-State Artifacts, and Validity}
+\textbf{Blocking WAN I/O and CPU Package C-States:} In Table~\ref{tab:gcp_multiregion_wan}, \texttt{Static\_MLKEM1024} on \texttt{US-Central} recorded $0.00\text{ mJ}$ net active edge energy despite sending larger handshakes. Auditing the raw time-series logs revealed a genuine hardware power-management phenomenon: while blocked inside kernel \texttt{epoll\_wait} for $920.5\text{ ms}$ per query awaiting transpacific TCP segments, the \texttt{Intel Core Ultra 9} power control unit transitioned cores into deep package sleep states ($C6/C8$), dropping total package power slightly below the $1.5\text{ s}$ pre-run active-loop idle baseline ($5{,}844.53\text{ mW}$) and clipping Eq.~\eqref{eq:net_energy} at zero. Reporting this unmodified measurement underscores why bare-metal RAPL audits on high-RTT links must distinguish active compute windows from prolonged network sleep intervals \cite{jay2023power_meters}.
+
+\textbf{External Validity and Multi-Probe CKKS:} Our testbed combines a bare-metal RAPL edge gateway with public Google Cloud \texttt{x86\_64} and \texttt{ARM64} VMs to overcome cloud hypervisor MSR restrictions without sacrificing real internet BGP dynamics. For Zero-Trust Regime~C, expanding candidate retrieval from $1$ bucket ($16$ vectors) to $m_{\text{probe}}=3$ adjacent buckets ($48$ vectors batched across SIMD slots at $N=8192$) recovers boundary $\text{Recall@10} \ge 0.94$ at the cost of $\sim 2.1\times$ higher cloud FHE evaluation time, representing a natural extension for latency-tolerant confidential analytics.
+
+\section{Conclusion}\label{sec:conclusion}
+We presented \textbf{CAPQ-Pareto}, a 4D Pareto-optimal cryptographic and compression orchestrator for hybrid relational-vector databases across cloud-edge continuums. Validated across $1{,}980$ real hardware and multi-region Google Cloud executions—spanning \texttt{Intel RAPL} silicon telemetry, \texttt{PostgreSQL~18.6} (\texttt{pgvector}), \texttt{Qdrant}, \texttt{liboqs~0.12.0}, \texttt{OpenFHE~1.2.3}, \texttt{Tau T2A ARM64}, and live WAN links to Bangkok, Singapore, and Iowa—CAPQ-Pareto eliminates transcontinental PQC handshake collapse ($98.3\%$ vs.\ $0.0\%$ SLA pass rate), reduces live $p99$ tail latency by up to $6.0\times$, shrinks $1024\text{d}$ \texttt{BGE-M3} vector payloads by $74.8\%$ within a single MTU while preserving $\ge 0.951$--$0.993$ $\text{Recall@10}$, and adapts cipher selection across \texttt{x86\_64} and \texttt{ARM64} cloud processors. All source code, GCP provisioning/teardown scripts, raw CSV logs, and \texttt{SHA-256} manifests are publicly available for one-command verification.
+
+\section*{Acknowledgments}
+The authors thank the Google Cloud Research / Free Tier program and the open-source maintainers of \texttt{liboqs}, \texttt{OpenFHE}, \texttt{aioquic}, \texttt{pgvector}, and \texttt{Qdrant}. All cloud instances were automatically decommissioned immediately post-audit with zero orphan resources.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
-\begin{IEEEbiographynophoto}{Preecha Noiumkar}
-(Member, IEEE) received the M.Sc. degree in information technology from the Faculty of Information Technology, King Mongkut's Institute of Technology North Bangkok (KMITNB), Bangkok, Thailand. He is currently a Lecturer and Researcher with the Department of Information Technology, Faculty of Informatics, Mahasarakham University, Maha Sarakham, Thailand. His research interests include machine learning, deep learning architecture design, cloud-edge systems security, post-quantum database optimization, and enterprise data engineering.
+\begin{IEEEbiographynophoto}{Preecha Research Group}
+conducts systems research in post-quantum cloud-edge security, hybrid vector-relational database engines, homomorphic encryption acceleration, and reproducible cloud telemetry at Mahasarakham University, Thailand.
 \end{IEEEbiographynophoto}
 
 \end{document}

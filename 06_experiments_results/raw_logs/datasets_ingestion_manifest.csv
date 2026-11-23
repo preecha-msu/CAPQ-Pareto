@@ -1,0 +1,5 @@
+dataset,modality,records,dim_or_bytes,pg18_metric,qdrant_metric,cluster_entropy_bits,artifact_sha256
+TPC-C_Rev5.11_SQL,Structured_SQL,1000,7_cols_ACID,1.0000,N/A,N/A,14e31d40111d1eadf19ac6dcb77903479c3e6d75508adf4f52635f717e64cbe8
+YCSB_WorkloadA_JSON,Structured_JSON,1800,256/1024/4096B,1.0000,N/A,N/A,d51a5f9b7a3891ffef521d79528118e65bec45698bcde57d438d6a16eecb4af9
+SIFT_128d_OfficialSplit,Vector_ANN,5200,128d_FP32,1.0000,1.0000,4.9585,99268367c01b006ea1b97d19155221a664c7e98e999b0a5bbe7862f552d184df
+Wikipedia_BGE_M3_1024d,Vector_RAG,5200,1024d_FP32,0.9630,1.0000,4.8970,7646d7c0bb1ac3a7f5ed25c902d54716caf96d5ff26f5c2740481616c369384c

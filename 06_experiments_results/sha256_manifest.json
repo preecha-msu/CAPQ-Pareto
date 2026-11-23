@@ -83,6 +83,30 @@
       "measured_rows": 360,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_ablation_crossdb.tex",
       "latex_table_sha256": "1c9b6cd286cf4271176bbaae82c12d0339cc9ddc00b615ac47e8f22e7028ab63"
+    },
+    {
+      "experiment_id": "gcp_arm64_vs_x86_cross_arch_540",
+      "timestamp_utc": "2026-11-23T21:36:13Z",
+      "host": "PREECHA-IT",
+      "platform": "Windows-10-10.0.26300-SP0",
+      "python_version": "3.11.9",
+      "raw_csv_path": "D:\\Research\\CAPQ-Pareto\\06_experiments_results\\raw_logs\\arm64_vs_x86_real_cloud_audit.csv",
+      "raw_csv_sha256": "aef35746b4a61f413d8b85fcf5254a521e3a56a00d3fd0a06de4e8e5d87fc38f",
+      "measured_rows": 540,
+      "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_arm64_vs_x86.tex",
+      "latex_table_sha256": "e58804d71e18ea4cbb7af4b795d651c056fc8b436bab3e98965a2f4b252ddcb3"
+    },
+    {
+      "experiment_id": "gcp_multiregion_360_real_wan",
+      "timestamp_utc": "2026-11-23T22:45:54Z",
+      "host": "PREECHA-IT",
+      "platform": "Windows-10-10.0.26300-SP0",
+      "python_version": "3.11.9",
+      "raw_csv_path": "D:\\Research\\CAPQ-Pareto\\06_experiments_results\\raw_logs\\gcp_multiregion_360_real_wan.csv",
+      "raw_csv_sha256": "feb30c8fb2369424877a9d945cea53aa2a921587f24abd2da2280d6e51a1e085",
+      "measured_rows": 360,
+      "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_gcp_multiregion_wan.tex",
+      "latex_table_sha256": "813b4a3a591e5e9fbd1dbd14d1d7b2bfd0015c974fd2ab5ec3e851d5aa74b577"
     }
   ]
 }

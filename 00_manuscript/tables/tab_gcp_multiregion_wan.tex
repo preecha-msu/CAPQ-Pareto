@@ -1,0 +1,31 @@
+% Auto-generated strictly from 1,440 live internet queries (360 paired trials) across 3 GCP Regions
+% Source CSV SHA-256: feb30c8fb2369424877a9d945cea53aa2a921587f24abd2da2280d6e51a1e085
+\begin{table*}[t]
+\centering
+\caption{Live Multi-Region Google Cloud WAN Audit From Physical Edge Gateway (Thailand) to Bangkok (\texttt{asia-southeast3}), Singapore (\texttt{asia-southeast1}), and Iowa (\texttt{us-central1}) ($N=30$ Paired Trials/Region/Scheduler)}
+\label{tab:gcp_multiregion_wan}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccccc}
+\toprule
+\textbf{GCP Region (VM)} & \textbf{Orchestrator} & \textbf{Mean / p95 / p99 Lat. [ms]} & \textbf{Edge RAPL [mJ/q]} & \textbf{GCP [\$/1M q]} & \textbf{Eff. Acc.} & \textbf{SLA Pass} & \textbf{$\mathcal{J}_{\text{SLA}}\downarrow$} \\
+\midrule
+Bangkok (\texttt{n4-standard-4}) & \texttt{Classical\_TLS1.3} & $63.0$ / $61.6$ / $\mathbf{261.5}$ & $99.60$ & $0.073$ & $0.981$ & $95.8\%$ & $0.260$ \\
+Bangkok (\texttt{n4-standard-4}) & \texttt{Static\_MLKEM1024} & $61.1$ / $66.1$ / $\mathbf{96.6}$ & $121.90$ & $0.070$ & $0.989$ & $96.7\%$ & $0.266$ \\
+Bangkok (\texttt{n4-standard-4}) & \texttt{Rule\_Heuristic} & $50.5$ / $134.7$ / $\mathbf{138.6}$ & $59.58$ & $1.772$ & $0.528$ & $50.0\%$ & $0.726$ \\
+Bangkok (\texttt{n4-standard-4}) & \textbf{CAPQ\_Pareto} & $49.1$ / $132.8$ / $\mathbf{136.7}$ & $67.38$ & $1.751$ & $0.777$ & $73.3\%$ & $0.495$ \\
+\midrule
+Singapore (\texttt{e2-standard-4}) & \texttt{Classical\_TLS1.3} & $167.0$ / $170.0$ / $\mathbf{180.8}$ & $19.73$ & $0.065$ & $0.158$ & $15.8\%$ & $1.223$ \\
+Singapore (\texttt{e2-standard-4}) & \texttt{Static\_MLKEM1024} & $165.7$ / $167.0$ / $\mathbf{174.5}$ & $25.52$ & $0.064$ & $0.200$ & $20.0\%$ & $1.228$ \\
+Singapore (\texttt{e2-standard-4}) & \texttt{Rule\_Heuristic} & $97.1$ / $240.3$ / $\mathbf{246.5}$ & $28.10$ & $2.004$ & $0.500$ & $50.0\%$ & $0.915$ \\
+Singapore (\texttt{e2-standard-4}) & \textbf{CAPQ\_Pareto} & $95.8$ / $239.1$ / $\mathbf{244.4}$ & $25.55$ & $1.981$ & $0.748$ & $72.5\%$ & $0.666$ \\
+\midrule
+US-Central (\texttt{e2-standard-4}) & \texttt{Classical\_TLS1.3} & $933.4$ / $930.1$ / $\mathbf{1481.4}$ & $15.90$ & $0.064$ & $0.000$ & $0.0\%$ & $1.336$ \\
+US-Central (\texttt{e2-standard-4}) & \texttt{Static\_MLKEM1024} & $920.5$ / $929.6$ / $\mathbf{936.7}$ & $0.00$ & $0.064$ & $0.000$ & $0.0\%$ & $1.327$ \\
+US-Central (\texttt{e2-standard-4}) & \texttt{Rule\_Heuristic} & $241.2$ / $252.5$ / $\mathbf{271.9}$ & $3.10$ & $0.063$ & $0.500$ & $50.0\%$ & $0.508$ \\
+US-Central (\texttt{e2-standard-4}) & \textbf{CAPQ\_Pareto} & $230.5$ / $238.7$ / $\mathbf{246.6}$ & $65.22$ & $0.065$ & $0.998$ & $98.3\%$ & $0.029$ \\
+\midrule
+\multicolumn{8}{l}{\footnotesize Overall Paired Wilcoxon $p_{\text{Holm}}$ vs. Classical / Static-PQC / Heuristic: $5.82e-08$ / $5.82e-08$ / $7.29e-12$. Raw CSV SHA-256: \texttt{feb30c8fb2369424877a9d945cea53aa2a921587f24abd2da2280d6e51a1e085}} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
