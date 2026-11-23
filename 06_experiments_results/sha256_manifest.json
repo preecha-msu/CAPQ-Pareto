@@ -26,15 +26,15 @@
     },
     {
       "experiment_id": "openfhe_hestd128_and_qdrant_audit",
-      "timestamp_utc": "2026-11-23T11:05:15Z",
+      "timestamp_utc": "2026-11-23T11:14:46Z",
       "host": "PREECHA-IT",
       "platform": "Windows-10-10.0.26300-SP0",
       "python_version": "3.11.9",
       "raw_csv_path": "D:\\Research\\CAPQ-Pareto\\06_experiments_results\\raw_logs\\openfhe_qdrant_verified_audit.csv",
-      "raw_csv_sha256": "fe55f63d310fc10a62db8ff628ee58d95f842a0ffb58d53a743a750f2bf252c0",
+      "raw_csv_sha256": "bf7c05de4c32ba1f5035d096da9d70eb00daabc2d3496744ebd2668d99363a92",
       "measured_rows": 40,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_openfhe_qdrant_audit.tex",
-      "latex_table_sha256": "4c45fe7e251c707e6e47d3628a3938ed16e39ea5f9c6b62eafda3d8e1c553813"
+      "latex_table_sha256": "da653aa98e7a24582d5ba9ca09c368c09f5e3358ed47ab719db61b9894ad299e"
     }
   ]
 }
