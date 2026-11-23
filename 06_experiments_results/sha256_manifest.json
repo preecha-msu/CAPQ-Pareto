@@ -11,6 +11,18 @@
       "measured_rows": 20,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_hw_calibration.tex",
       "latex_table_sha256": "d958b6716e11a9284181445aaf4d62b02d901cc2820507fa8345c2b344ce19a8"
+    },
+    {
+      "experiment_id": "stack_primitives_smoke_audit",
+      "timestamp_utc": "2026-11-23T10:00:55Z",
+      "host": "PREECHA-IT",
+      "platform": "Windows-10-10.0.26300-SP0",
+      "python_version": "3.11.9",
+      "raw_csv_path": "D:\\Research\\CAPQ-Pareto\\06_experiments_results\\raw_logs\\stack_integration_smoke_audit.csv",
+      "raw_csv_sha256": "5960410307286e382a8ccea9759942770c7e202a16a1d5400c9a92f0b6af9acf",
+      "measured_rows": 90,
+      "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_stack_smoke_audit.tex",
+      "latex_table_sha256": "842899e71420cab259136aab91c0eeb9033772afe8e2f074bf9ca5ef6f293560"
     }
   ]
 }

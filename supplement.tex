@@ -35,6 +35,8 @@ p_{\text{Holm},(k)} = \max_{j \le k} \min\!\left(1.0,\, (M - j + 1)p_{(j)}\right
 \end{equation}
 For paired binary SLA outcomes with discordant counts $(n_{01}, n_{10})$, $p_{\text{McNemar}} = 1.0$ if $n_{01}+n_{10}=0$, exact two-sided binomial probability if $0 < n_{01}+n_{10} < 25$, and continuity-corrected $\chi^2 = \frac{(|n_{01}-n_{10}|-1)^2}{n_{01}+n_{10}}$ if $n_{01}+n_{10} \ge 25$. Every table generated into \texttt{00\_manuscript/tables/} records the SHA-256 digest of its source raw CSV log.
 
+\IfFileExists{00_manuscript/tables/tab_stack_smoke_audit.tex}{\input{00_manuscript/tables/tab_stack_smoke_audit.tex}}{}
+
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 \end{document}
