@@ -42,7 +42,7 @@ def sanitize_all_tables_and_sync_manifest() -> tuple[dict, list[str]]:
         if r"\begin{table*}" in txt and r"\resizebox" not in txt and r"\adjustbox" not in txt:
             txt = re.sub(
                 r"(\\begin\{tabular\}\{[^}]+\})",
-                r"\\adjustbox{max width=\\textwidth}{%\n\1",
+                lambda m: "\\adjustbox{max width=\\textwidth}{%\n" + m.group(1),
                 txt,
                 count=1,
             )
@@ -51,7 +51,7 @@ def sanitize_all_tables_and_sync_manifest() -> tuple[dict, list[str]]:
         elif r"\begin{table}[" in txt and r"\resizebox" not in txt and r"\adjustbox" not in txt:
             txt = re.sub(
                 r"(\\begin\{tabular\}\{[^}]+\})",
-                r"\\adjustbox{max width=\\columnwidth}{%\n\1",
+                lambda m: "\\adjustbox{max width=\\columnwidth}{%\n" + m.group(1),
                 txt,
                 count=1,
             )
@@ -115,7 +115,7 @@ def compute_stats_summary() -> dict[str, str]:
     bs_cls  = diff_cls[idx_b].mean(axis=1)
 
     capq_pass = np.array([int(q["sla_pass"]) for q in gcp_q if q["scheduler"] == "CAPQ_Pareto"])
-    stat_pass = np.array([int(q["sla_pass"]) for q in gcp_q if r_q := q] if False else [int(q["sla_pass"]) for q in gcp_q if q["scheduler"] == "Static_MLKEM1024"])
+    stat_pass = np.array([int(q["sla_pass"]) for q in gcp_q if q["scheduler"] == "Static_MLKEM1024"])
     b_win = int(np.sum((capq_pass == 1) & (stat_pass == 0)))
     c_lose = int(np.sum((capq_pass == 0) & (stat_pass == 1)))
     chi2 = ((abs(b_win - c_lose) - 1.0) ** 2) / max(float(b_win + c_lose), 1.0)
@@ -210,7 +210,7 @@ def build_clean_main_tex(lbl_core: str, lbl_abl: str, lbl_arm: str, lbl_gcp: str
 
 \emergencystretch=2em
 \hbadness=10000
-\extrafloats{24}
+% extrafloats handled by placeins
 \setcounter{topnumber}{3}
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{6}
@@ -607,7 +607,7 @@ def build_complete_supplement_tex(manifest_json: dict, supp_tables: list[str], s
 
 \emergencystretch=2em
 \hbadness=10000
-\extrafloats{24}
+% extrafloats handled by placeins
 \renewcommand{\thesection}{S\arabic{section}}
 \renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\thefigure}{S\arabic{figure}}
@@ -689,7 +689,7 @@ Table~\ref{tab:supp_sha256} records all nine immutable \texttt{SHA-256} digests 
 \caption{Complete Cryptographic \texttt{SHA-256} Provenance Manifest Across All Nine Verified Experimental Artifacts}
 \label{tab:supp_sha256}
 \adjustbox{max width=\textwidth}{%
-\begin{tabular}{llrlr}
+\begin{tabular}{llrll}
 \toprule
 \textbf{Experiment Campaign ID} & \textbf{Generated LaTeX Table} & \textbf{Measured Rows} & \textbf{Raw Telemetry CSV SHA-256} & \textbf{LaTeX Table SHA-256} \\
 \midrule
