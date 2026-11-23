@@ -71,6 +71,18 @@
       "measured_rows": 720,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_core_720_results.tex",
       "latex_table_sha256": "8590d21586f70fb0380ca4ae914e174bf18a5a08efbefcfe708bab04e74f72f8"
+    },
+    {
+      "experiment_id": "ablation_360_crossdb_and_weights",
+      "timestamp_utc": "2026-11-23T13:51:02Z",
+      "host": "PREECHA-IT",
+      "platform": "Windows-10-10.0.26300-SP0",
+      "python_version": "3.11.9",
+      "raw_csv_path": "D:\\Research\\CAPQ-Pareto\\06_experiments_results\\raw_logs\\ablation_360_real_audit.csv",
+      "raw_csv_sha256": "43e16210a2d1128520f523b5a9d7bbf3fea6bd04a8b01af12c02fa44d5443c7c",
+      "measured_rows": 360,
+      "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_ablation_crossdb.tex",
+      "latex_table_sha256": "7bb4ef4c08842afeab7e464c6b5acbba1bc1cface620d6fd9a35af493c0ae49b"
     }
   ]
 }

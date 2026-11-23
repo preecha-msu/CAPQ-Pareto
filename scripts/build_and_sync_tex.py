@@ -385,6 +385,29 @@ Table~\ref{tab:core_720_results}, Fig.~\ref{fig:pareto_4d}, and Fig.~\ref{fig:pr
 \label{fig:profile_breakdown}
 \end{figure}
 
+\subsection{Cross-Database BGE-M3 ($1024\text{d}$) and Shock Ablation}
+Table~\ref{tab:ablation_crossdb}, Fig.~\ref{fig:shock_weights}, and Fig.~\ref{fig:crossdb_bgem3} evaluate $360$ additional real runs spanning high-dimensional Wikipedia BGE-M3 ($1024\text{d}$) retrieval across \texttt{PostgreSQL 18.6} (\texttt{pgvector 0.8.1}) and \texttt{Qdrant} native HNSW, Pareto weight sensitivity, and sudden WAN degradation shocks ($12\text{ ms} \rightarrow 65\text{ ms} \rightarrow 140\text{ ms}$ RTT). Compressing $1024\text{d}$ vectors via $\epsilon$-safe \texttt{INT8-SQ} shrinks wire payloads by $74.8\%$ ($4,096\text{ B} \rightarrow 1,032\text{ B}$, fitting within a single $1,500\text{ B}$ MTU frame) while preserving $\text{Recall@10} = 0.9513$ on PostgreSQL and $0.9927$ on Qdrant ($\ge 0.92$ SLA), whereas \texttt{1-bit} quantization drops $\text{Recall@10}$ to $0.6983$--$0.7077$ and is properly pruned by CAPQ-Pareto's SLA gate.
+
+\IfFileExists{00_manuscript/tables/tab_ablation_crossdb.tex}{\input{00_manuscript/tables/tab_ablation_crossdb.tex}}{}
+
+\begin{figure}[t]
+\centering
+\IfFileExists{00_manuscript/figures/pareto_4d_plots/fig5_ablation_weights_and_shock.pdf}{%
+    \includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig5_ablation_weights_and_shock.pdf}%
+}{}
+\caption{Online trajectory adaptation under sudden WAN latency/loss shocks and 4-profile Pareto weight sensitivity.}
+\label{fig:shock_weights}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\IfFileExists{00_manuscript/figures/pareto_4d_plots/fig6_crossdb_bgem3_1024d.pdf}{%
+    \includegraphics[width=\columnwidth]{00_manuscript/figures/pareto_4d_plots/fig6_crossdb_bgem3_1024d.pdf}%
+}{}
+\caption{Cross-database BGE-M3 ($1024\text{d}$) $\text{Recall@10}$ and query latency across PostgreSQL 18.6 (\texttt{pgvector 0.8.1}) and Qdrant native HNSW.}
+\label{fig:crossdb_bgem3}
+\end{figure}
+
 \subsection{Limitations and Validity Considerations}
 To uphold strict scientific transparency, two scope boundaries are noted: (1) WAN propagation, bandwidth caps, and packet loss are enforced via isolated Linux kernel \texttt{tc/netem} namespaces (\texttt{MTU = 1500 B}), while cloud expenditure is computed analytically from real measured database/OpenFHE execution durations and wire bytes using published GCP \texttt{e2-standard-4} unit rates rather than live transcontinental VM billing invoices; and (2) under the $140\text{ ms}$ RTT constrained IoT link, zero-trust CKKS queries inevitably exceed the $150\text{ ms}$ deadline due to physical $1\text{-RTT}$ propagation plus homomorphic evaluation ($> 68\text{ ms}$), accounting for the remaining $25.1\%$ SLA misses in extreme WAN regimes. Extending deployment to physical ARM64 edge boards and hardware FHE accelerators represents promising future work.
 
@@ -487,7 +510,7 @@ def main() -> None:
     if ZIP_TARGET.exists():
         ZIP_TARGET.unlink()
 
-    include_files = ["main.tex", "supplement.tex", "references.bib", "README_OVERLEAF.md"]
+    include_files = ["main.tex", "supplement.tex", "references.bib", "WORKFLOW_CHECKLIST.md", "README_OVERLEAF.md"]
     with zipfile.ZipFile(ZIP_TARGET, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         for fname in include_files:
             fpath = REPO_ROOT / fname
@@ -507,7 +530,7 @@ def main() -> None:
     subprocess.run(
         [
             "git", "add", "-A",
-            ".gitattributes", ".gitignore", "main.tex", "supplement.tex", "references.bib",
+            ".gitattributes", ".gitignore", "main.tex", "supplement.tex", "references.bib", "WORKFLOW_CHECKLIST.md",
             "configs/", "00_manuscript/", "01_workloads/", "02_orchestrator/",
             "05_telemetry_audit/", "06_experiments_results/plotting_scripts/",
             "06_experiments_results/sha256_manifest.json", "scripts/", "tests/",

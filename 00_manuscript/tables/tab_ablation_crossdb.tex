@@ -1,0 +1,27 @@
+% Auto-generated strictly from 360 real ablation & 1024d cross-DB runs (Zero Estimation)
+% Source CSV SHA-256: 43e16210a2d1128520f523b5a9d7bbf3fea6bd04a8b01af12c02fa44d5443c7c
+\begin{table}[t]
+\centering
+\caption{Cross-Database BGE-M3 ($1024\text{d}$) Quantization \& Pareto Weight Sensitivity Audit ($30$ Real Trials/Variant)}
+\label{tab:ablation_crossdb}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Engine / Weight Profile} & \textbf{Wire (B)} & \textbf{Lat. (ms)} & \textbf{Edge E. (mJ)} & \textbf{Recall@10 / Acc.} \\
+\midrule
+\texttt{PG18.6\_fp32} & 4,096.0 & $4.25$ & $0.44$ & $0.9567$ \\
+\texttt{PG18.6\_int8\_sq} & 1,032.0 & $2.44$ & $1.32$ & $0.9513$ \\
+\texttt{PG18.6\_binary\_1bit} & 136.0 & $2.89$ & $0.58$ & $0.6983$ \\
+\texttt{Qdrant\_fp32} & 4,096.0 & $4.55$ & $0.44$ & $1.0000$ \\
+\texttt{Qdrant\_int8\_sq} & 1,032.0 & $4.50$ & $1.32$ & $0.9927$ \\
+\texttt{Qdrant\_binary\_1bit} & 136.0 & $5.26$ & $0.58$ & $0.7077$ \\
+\texttt{balanced} & 407.9 & $38.98$ & $8.43$ & $0.9953$ \\
+\texttt{battery\_saver} & 566.0 & $37.74$ & $6.98$ & $1.0000$ \\
+\texttt{low\_latency} & 496.9 & $29.97$ & $13.85$ & $0.9990$ \\
+\texttt{cost\_frugal} & 496.4 & $37.08$ & $6.37$ & $0.9990$ \\
+\midrule
+\multicolumn{5}{l}{\footnotesize Raw CSV SHA-256: \texttt{43e16210a2d11285...2c02fa44d5443c7c}} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
