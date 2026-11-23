@@ -23,6 +23,18 @@
       "measured_rows": 90,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_stack_smoke_audit.tex",
       "latex_table_sha256": "842899e71420cab259136aab91c0eeb9033772afe8e2f074bf9ca5ef6f293560"
+    },
+    {
+      "experiment_id": "openfhe_hestd128_and_qdrant_audit",
+      "timestamp_utc": "2026-11-23T11:05:15Z",
+      "host": "PREECHA-IT",
+      "platform": "Windows-10-10.0.26300-SP0",
+      "python_version": "3.11.9",
+      "raw_csv_path": "D:\\Research\\CAPQ-Pareto\\06_experiments_results\\raw_logs\\openfhe_qdrant_verified_audit.csv",
+      "raw_csv_sha256": "fe55f63d310fc10a62db8ff628ee58d95f842a0ffb58d53a743a750f2bf252c0",
+      "measured_rows": 40,
+      "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_openfhe_qdrant_audit.tex",
+      "latex_table_sha256": "4c45fe7e251c707e6e47d3628a3938ed16e39ea5f9c6b62eafda3d8e1c553813"
     }
   ]
 }

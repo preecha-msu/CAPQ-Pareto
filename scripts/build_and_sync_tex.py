@@ -202,8 +202,8 @@ Evaluation adheres strictly to zero-estimation real execution across (1) Hardwar
 \toprule
 \textbf{Dimension} & \textbf{Real Execution Specification} \\
 \midrule
-\textbf{Crypto Stack} & OpenSSL 3.x + \texttt{liboqs 0.12.0} (ML-KEM), QUIC, CKKS FHE \\
-\textbf{Hybrid DBs (2)} & PostgreSQL 18.6 + \texttt{pgvector 0.8.1}; Milvus v2.6+ \\
+\textbf{Crypto Stack} & OpenSSL 3.x + \texttt{liboqs 0.12.0} (ML-KEM), QUIC, \texttt{OpenFHE 1.2.3} (CKKS) \\
+\textbf{Hybrid DBs (2)} & PostgreSQL 18.6 (\texttt{pgvector 0.8.1}) \& Qdrant Native HNSW \\
 \textbf{Structured Data} & TPC-C~\cite{tpc_c_spec} \& YCSB-A JSON ($256\text{ B}$--$4\text{ KB}$)~\cite{cooper2010ycsb} \\
 \textbf{Vector Data} & SIFT1M ($128\text{d}$)~\cite{jegou2011sift} \& RAG BGE-M3 ($1024\text{d}$)~\cite{chen2024bgem3} \\
 \textbf{Baselines (4)} & Classical TLS 1.3, Static ML-KEM-1024, Rule-Heuristic, \textbf{CAPQ-Pareto} \\
@@ -252,7 +252,7 @@ SUPPLEMENT_TEX = r"""\documentclass[10pt,journal,compsoc]{IEEEtran}
 \maketitle
 
 \section{Security and Entropy Leakage Bounds of Coarse-Bucketed CKKS (Regime C)}
-In Regime~C, query embeddings $\mathbf{q} \in \mathbb{R}^\kappa$ are encrypted under the Ring-Learning-With-Errors (RLWE) assumption using CKKS across $N_{\text{poly}} \in \{4096, 8192, 16384\}$ strictly parameterized within Homomorphic Encryption Standard $\ge 128$-bit post-quantum security bounds~\cite{cheon2017ckks, badawi2022openfhe}: $Q_{4096}=[38,28,38]$ bits ($\sum=104 \le 109$, $\Delta=2^{28}$), $Q_{8192}=[60,40,60]$ bits ($\sum=160 \le 218$, $\Delta=2^{40}$), and $Q_{16384}=[60,50,50,60]$ bits ($\sum=220 \le 438$, $\Delta=2^{50}$). Under uniform cluster balance across $K_c$ edge centroids ($1 \le r \le K_c$), revealing $r$ candidate bucket indices yields worst-case Shannon entropy reduction bounded by:
+In Regime~C, query embeddings $\mathbf{q} \in \mathbb{R}^\kappa$ are encrypted under the Ring-Learning-With-Errors (RLWE) assumption using CKKS across $N_{\text{poly}} \in \{4096, 8192, 16384\}$ strictly parameterized within Homomorphic Encryption Standard $\ge 128$-bit post-quantum security bounds~\cite{cheon2017ckks, badawi2022openfhe}: $Q_{4096}=[38,30]$ bits (\texttt{BV}, $\sum=68 \le 109$, \texttt{HEStd\_128\_classic}), $Q_{8192}=[60,40,60]$ bits ($\sum=160 \le 218$, $\Delta=2^{40}$), and $Q_{16384}=[60,50,50,60]$ bits ($\sum=220 \le 438$, $\Delta=2^{50}$). Under uniform cluster balance across $K_c$ edge centroids ($1 \le r \le K_c$), revealing $r$ candidate bucket indices yields worst-case Shannon entropy reduction bounded by:
 \begin{equation}
 \Delta H = \log_2\!\left(\frac{K_c}{r}\right) \text{ bits}, \quad \text{with } \Delta H = 0 \text{ when } r = K_c.
 \end{equation}
@@ -266,6 +266,8 @@ p_{\text{Holm},(k)} = \max_{j \le k} \min\!\left(1.0,\, (M - j + 1)p_{(j)}\right
 For paired binary SLA outcomes with discordant counts $(n_{01}, n_{10})$, $p_{\text{McNemar}} = 1.0$ if $n_{01}+n_{10}=0$, exact two-sided binomial probability if $0 < n_{01}+n_{10} < 25$, and continuity-corrected $\chi^2 = \frac{(|n_{01}-n_{10}|-1)^2}{n_{01}+n_{10}}$ if $n_{01}+n_{10} \ge 25$. Every table generated into \texttt{00\_manuscript/tables/} records the SHA-256 digest of its source raw CSV log.
 
 \IfFileExists{00_manuscript/tables/tab_stack_smoke_audit.tex}{\input{00_manuscript/tables/tab_stack_smoke_audit.tex}}{}
+
+\IfFileExists{00_manuscript/tables/tab_openfhe_qdrant_audit.tex}{\input{00_manuscript/tables/tab_openfhe_qdrant_audit.tex}}{}
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
@@ -321,7 +323,7 @@ def main() -> None:
     print(f"[SHA-256] Overleaf ZIP      : {sha256_file(ZIP_TARGET)}")
 
     # 3. Replace on GitHub directly without backup files
-    subprocess.run(["git", "add", "-A", "main.tex", "supplement.tex", "configs/", "00_manuscript/tables/", "06_experiments_results/sha256_manifest.json", "scripts/", "02_orchestrator/", "05_telemetry_audit/", "tests/"], check=True)
+    subprocess.run(["git", "add", "-A", "main.tex", "supplement.tex", "configs/", "00_manuscript/tables/", "06_experiments_results/sha256_manifest.json", "scripts/", "01_workloads/", "02_orchestrator/", "05_telemetry_audit/", "tests/"], check=True)
     status = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True, check=True)
     if status.stdout.strip():
         subprocess.run(
