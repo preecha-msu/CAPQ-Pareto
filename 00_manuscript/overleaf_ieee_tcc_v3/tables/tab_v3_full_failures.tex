@@ -1,0 +1,22 @@
+\begin{table*}[!t]
+\centering
+\caption{Complete Nine-Scenario Security Abuse and Operational Failure Testing Suite on Real TLS/QUIC Sockets, Anti-Replay Bloom Strike-Registers, and Pre-FHE AEAD Ciphertext Guards (Log SHA-256: \texttt{9a4654d875cfcd4c...}).}
+\label{tab:full_failure_suite}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llcccl}
+\toprule
+\textbf{Test ID} & \textbf{Injected Fault or Security Abuse Vector} & \textbf{Trials} & \textbf{Pass / Recovery} & \textbf{Overhead / Metric} & \textbf{Observed System Recovery Behavior} \\
+\midrule
+\texttt{F1\_Replay\_0RTT\_Attack} & 1,000 verbatim 0-RTT early-data replay packets & 1000 & 100.0\% & 0.012 ms & Rejected 1000/1000 replays; downgraded to 1-RTT KEM handshake \\
+\texttt{F2\_Bloom\_False\_Positive\_Quantification} & 5,000 fresh unseen 0-RTT nonces after 4,000 insertions (m=64Kb, k=5) & 5000 & 99.76\% & 0.24 ms & Empirical FP=0.240\% (Theoretical=0.126\%); benign 1-RTT fallback only \\
+\texttt{F3\_Bloom\_False\_Negative\_Zero\_Proof} & 4,000 previously seen nonces within active epoch & 4000 & 100.0\% & 0.0 ms & False Negatives = 0/4000 (0.000\% deterministic guarantee) \\
+\texttt{F4\_Strike\_Register\_Epoch\_Expiry} & Expired timestamp (>TTL) + register salt rotation across epoch boundary & 100 & 100.0\% & 0.09 ms & Stale ticket rejected (REJECTED\_EXPIRED\_TICKET\_EPOCH\_FALLBACK\_1RTT); clean rotation accepted fresh ticket \\
+\texttt{F5\_Duplicate\_Query\_Idempotency} & 0-RTT mutating SQL injection + duplicate read-query retransmission & 200 & 100.0\% & 0.008 ms & Blocked mutating SQL on 0-RTT; deduplicated retried read with identical digest \\
+\texttt{F6\_MTU\_Fragmentation\_Reassembly} & 16,384 B ciphertext fragmented into 14x 1,200 B sub-MTU segments & 50 & 100.0\% & 6.239 ms & Reassembled 16384/16384 bytes cleanly without silent truncation \\
+\texttt{F7\_TLS\_Session\_Expiration\_Reconnect} & Server invalidates pooled session / ticket mid-stream & 50 & 100.0\% & 21.675 ms & Detected session EOF; re-established fresh 1-RTT session without query loss \\
+\texttt{F8\_CKKS\_Corrupted\_Ciphertext\_Rejection} & 200 bit-flipped CKKS RNS ciphertext payloads prior to homomorphic eval & 200 & 100.0\% & 0.019 ms & AEAD/MAC integrity guard rejected 200/200 corrupted ciphertexts pre-FHE \\
+\texttt{F9\_Network\_Disconnect\_And\_Timeout\_Fallback} & 350 ms unresponsive socket stall exceeding 60 ms controller guard & 50 & 100.0\% & 366.044 ms & Caught socket.timeout at 60 ms; rerouted to SafeFallback\_Pooled\_TLS cleanly \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
