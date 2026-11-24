@@ -1,0 +1,26 @@
+\begin{table*}[!t]
+\centering
+\caption{Clean-Room Environment Re-Execution Audit Across All Six Core Benchmarks (SHA-256: \texttt{f8fa782182a9...}) and Cross-ISA Continuum Summary (SHA-256: \texttt{493413edd978...}).}
+\label{tab:cleanroom_and_isa}
+\scriptsize
+\setlength{\tabcolsep}{3.6pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllc}
+\toprule
+\textbf{Benchmark / Continuum Scope} & \textbf{V2 Reference (SHA-256 Prefix)} & \textbf{Clean-Room V3 Measured Reproduction \& Continuum Metrics} & \textbf{Status} \\
+\midrule
+Exp1\_CKKS\_Ring\_Scaling & \texttt{28632e4b7eca9865} & log2QP=(101,170,300)b; med\_ms=(4.14,21.37,45.57) & \textbf{PASS} \\
+Exp2\_Boundary\_Replication\_Recall & \texttt{7e2d5c898fbd4456} & r=1\_Disjoint=0.4600 $\to$ r=2\_SPANN\_BoundaryRep=0.9500 (V2 ref=0.9688) & \textbf{PASS} \\
+Exp3\_Controlled\_Ablation\_And\_Factorial & \texttt{2d4044824059e5e6} & V2 Full SLA=90.6-93.8\% vs V3 Clean-Room Full(1,1,1,1,1)=93.75\% (FreshStatic=17.19\%) & \textbf{PASS} \\
+Exp4\_Bandit\_NonStationary\_Regret & \texttt{6e0151250a95bf0e} & Outage Regret: CAPQ\_Full=12.93 $\ll$ Static\_Best=44.98 & \textbf{PASS} \\
+Exp5\_WAN\_Statistical\_Recomputation & \texttt{7457faee41c40c8b} & Bangkok MeanLat=48.35ms, Strict150=78.12\%, DualSLA=85.42\% & \textbf{PASS} \\
+Exp6\_Native\_C\_AEAD\_Throughput & \texttt{08c90ad777a10d19} & 4KB C-EVP: AES-256-GCM=0.628us (6.52 GB/s) < ChaCha20=1.641us (2.50 GB/s) & \textbf{PASS} \\
+\midrule
+C1\_x86\_Edge\_to\_x86\_Cloud & \texttt{493413edd978bfd2} & Mean=49.0 ms (p95=85.31 ms), SLA150=93.75\%, \$/1M\_SLA=\$0.5454, EdgeE=21.56 & \textbf{VERIFIED} \\
+C2\_x86\_Edge\_to\_ARM64\_Cloud & \texttt{493413edd978bfd2} & Mean=55.25 ms (p95=108.75 ms), SLA150=93.75\%, \$/1M\_SLA=\$0.6786, EdgeE=24.31 & \textbf{VERIFIED} \\
+C3\_ARM64\_Edge\_to\_ARM64\_Cloud & \texttt{493413edd978bfd2} & Mean=55.25 ms (p95=108.75 ms), SLA150=93.75\%, \$/1M\_SLA=\$0.6786, EdgeE=N/A\_VM\_NO\_HOST\_RAPL & \textbf{VERIFIED} \\
+C4\_ARM64\_Edge\_to\_x86\_Cloud & \texttt{493413edd978bfd2} & Mean=49.0 ms (p95=85.31 ms), SLA150=93.75\%, \$/1M\_SLA=\$0.5454, EdgeE=N/A\_VM\_NO\_HOST\_RAPL & \textbf{VERIFIED} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
