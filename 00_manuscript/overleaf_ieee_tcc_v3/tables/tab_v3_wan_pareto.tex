@@ -4,6 +4,7 @@
 \label{tab:wan_3tier_pareto}
 \scriptsize
 \setlength{\tabcolsep}{3.6pt}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{llcccccccc}
 \toprule
 \textbf{Region (Phys. 1-RTT)} & \textbf{Orchestration Mode} & \textbf{Mean Lat. [MBB 95\% CI]} & \textbf{p95 / p99} & \textbf{Eff. Acc.} & \textbf{Tier-1 Viol.} & \textbf{Class-I ($\le$150ms)} & \textbf{Dual-Class SLA} & \textbf{Feas. 4D Pareto} & \textbf{\$/1M Dual-SLA} \\
@@ -26,5 +27,6 @@ US-Central (225.5 ms) & Fresh PQC TLS 1.3 & 971.24 [960.63, 987.01] ms & 1100.91
  & Rule Heuristic (INT8) & 240.65 [236.22, 247.59] ms & 262.16 / 291.01 ms & 0.8667 & 28.12\% & 0.0\% & 71.88\% & 20.83\% & \$0.3083 \\
  & \textbf{CAPQ-Pareto (Full)} & 264.42 [254.86, 277.46] ms & 387.92 / 454.53 ms & 0.9823 & 12.5\% & 0.0\% & 77.08\% & 87.5\% & \$1.1487 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table*}

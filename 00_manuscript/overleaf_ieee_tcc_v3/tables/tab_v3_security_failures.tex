@@ -4,6 +4,7 @@
 \label{tab:security_leakage_failures}
 \scriptsize
 \setlength{\tabcolsep}{2.8pt}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Attack / Fault Scenario} & \textbf{MI / Metric} & \textbf{Adv. / Pass} & \textbf{Prior} & \textbf{Bounded Verdict} \\
@@ -18,5 +19,6 @@ Bloom FP / FN (9,000x) & 0.24\% / 0\% & 100.0\% Safe & --- & Zero Replay Leak \\
 Corrupt CKKS CT (200x) & AEAD+MAC & 100.0\% Rej. & --- & Pre-FHE Blocked \\
 Timeout / MTU / EOF & 60 ms Guard & 100.0\% Rec. & --- & Safe Fallback \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}

@@ -4,6 +4,7 @@
 \label{tab:prop1_validation}
 \scriptsize
 \setlength{\tabcolsep}{2.8pt}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccccc}
 \toprule
 \textbf{Corpus \& Quantizer (8-bit)} & \textbf{Pred. $\sigma$} & \textbf{Emp. $\sigma$} & \textbf{Var. Err.} & \textbf{CLT95 Cov.} & \textbf{Rec@10} \\
@@ -14,5 +15,6 @@ BGE-M3 1024d (Det.) & 0.000326 & 0.000311 & 9.2\% & 96.03\% & 0.9935 \\
 BGE-M3 1024d (Stoch. SR) & 0.000459 & 0.000446 & 5.6\% & 95.63\% & 0.9918 \\
 Student-$t_{2.5}$ 1024d Outlier & 0.000703 & 0.000691 & 3.26\% & 95.72\% & 0.9805 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}

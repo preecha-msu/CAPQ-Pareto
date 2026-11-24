@@ -4,6 +4,7 @@
 \label{tab:cleanroom_and_isa}
 \scriptsize
 \setlength{\tabcolsep}{3.6pt}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lllc}
 \toprule
 \textbf{Benchmark / Continuum Scope} & \textbf{V2 Reference (SHA-256 Prefix)} & \textbf{Clean-Room V3 Measured Reproduction \& Continuum Metrics} & \textbf{Status} \\
@@ -20,5 +21,6 @@ C2\_x86\_Edge\_to\_ARM64\_Cloud & \texttt{493413edd978bfd2} & Mean=55.25 ms (p95
 C3\_ARM64\_Edge\_to\_ARM64\_Cloud & \texttt{493413edd978bfd2} & Mean=55.25 ms (p95=108.75 ms), SLA150=93.75\%, \$/1M\_SLA=\$0.6786, EdgeE=N/A\_VM\_NO\_HOST\_RAPL & \textbf{VERIFIED} \\
 C4\_ARM64\_Edge\_to\_x86\_Cloud & \texttt{493413edd978bfd2} & Mean=49.0 ms (p95=85.31 ms), SLA150=93.75\%, \$/1M\_SLA=\$0.5454, EdgeE=N/A\_VM\_NO\_HOST\_RAPL & \textbf{VERIFIED} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table*}
