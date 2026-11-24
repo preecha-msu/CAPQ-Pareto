@@ -10,7 +10,7 @@
       "raw_csv_sha256": "d239bc98284b07e56cf8fb1cb0e2a7dea0a80857a667336e06d40a500ef2393b",
       "measured_rows": 20,
       "latex_table_path": "D:\\Research\\CAPQ-Pareto\\00_manuscript\\tables\\tab_hw_calibration.tex",
-      "latex_table_sha256": "ee4577487c3b4644caa1b01d7ce46f07848cd4dd3c19b11e358aa5d473025264"
+      "latex_table_sha256": "cde23751acbeae1238a66aea66b91a3604f892198ce09e01a9196359ac435902"
     },
     {
       "experiment_id": "stack_primitives_smoke_audit",
