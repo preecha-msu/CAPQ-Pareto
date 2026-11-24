@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto")
+REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto-V2")
 sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit"))
 sys.path.insert(0, str(REPO_ROOT / "02_orchestrator" / "pareto_math_model"))
 
@@ -51,7 +51,7 @@ def main() -> None:
         img_family = "ubuntu-2204-lts-arm64"
     print(f"[STEP C3] Project={proj} | Image Family={img_family}")
     print("[PRE-FLIGHT x86_64] Validating all 9 C/C++ kernels (N=4096, 8192, 16384) locally BEFORE Cloud VM creation...")
-    subprocess.run(["wsl", "-u", "root", "-e", "bash", "/mnt/d/Research/CAPQ-Pareto/04_testbed_infra/bench_arch_node.sh"], check=True)
+    subprocess.run(["wsl", "-u", "root", "-e", "bash", "/mnt/d/Research/CAPQ-Pareto-V2/04_testbed_infra/bench_arch_node.sh"], check=True)
     x86_json = json.loads(wsl_run(["cat", "/tmp/capq_arch_bench.json"]).stdout)
 
     try:
@@ -139,7 +139,7 @@ def main() -> None:
         if active_zone:
             print(f"[AUTO-TEARDOWN] Deleting GCP ARM64 VM '{vm_name}' in {active_zone} immediately...")
             wsl_run(["gcloud", "compute", "instances", "delete", vm_name, f"--zone={active_zone}", f"--project={proj}", "--quiet"], check=False)
-        wsl_run(["bash", "/mnt/d/Research/CAPQ-Pareto/04_testbed_infra/teardown_all_gcp.sh"], check=False)
+        wsl_run(["bash", "/mnt/d/Research/CAPQ-Pareto-V2/04_testbed_infra/teardown_all_gcp.sh"], check=False)
 
     # Local x86_64 pre-validated prior to Cloud VM launch
 

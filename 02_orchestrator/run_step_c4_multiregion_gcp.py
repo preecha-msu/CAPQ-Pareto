@@ -11,7 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto")
+REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto-V2")
 sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit"))
 sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit" / "energy_rapl_scaphandre"))
 sys.path.insert(0, str(REPO_ROOT / "02_orchestrator" / "pareto_math_model"))
@@ -237,7 +237,7 @@ def main() -> None:
     try:
         err_f = open(REPO_ROOT / "06_experiments_results/raw_logs/multiregion_edge_stderr.log", "w", encoding="utf-8")
         edge_proc = subprocess.Popen(
-            ["wsl", "-u", "root", "-e", "env", "OMP_WAIT_POLICY=PASSIVE", "python3", "-u", "/mnt/d/Research/CAPQ-Pareto/04_testbed_infra/edge_multiregion_client.py"],
+            ["wsl", "-u", "root", "-e", "env", "OMP_WAIT_POLICY=PASSIVE", "python3", "-u", "/mnt/d/Research/CAPQ-Pareto-V2/04_testbed_infra/edge_multiregion_client.py"],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=err_f, text=True,
         )
         assert edge_proc.stdin is not None and edge_proc.stdout is not None
@@ -418,7 +418,7 @@ def main() -> None:
                 pass
             edge_proc.terminate()
         meter.close()
-        wsl_cmd(["bash", "/mnt/d/Research/CAPQ-Pareto/04_testbed_infra/teardown_all_gcp.sh"], check=False)
+        wsl_cmd(["bash", "/mnt/d/Research/CAPQ-Pareto-V2/04_testbed_infra/teardown_all_gcp.sh"], check=False)
 
     assert len(trial_rows) == 360 and len(query_rows) == 1440
     out_csv = REPO_ROOT / "06_experiments_results/raw_logs/gcp_multiregion_360_real_wan.csv"

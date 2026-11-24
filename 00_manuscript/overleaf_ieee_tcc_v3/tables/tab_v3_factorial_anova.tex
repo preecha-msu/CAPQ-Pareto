@@ -1,0 +1,23 @@
+\begin{table}[!t]
+\centering
+\caption{Orthogonal $2^5=32$ Controlled Factorial ANOVA ($N=256$ Real Testbed Blocks; Log SHA-256: \texttt{4b228fd5a35de1b2...}).}
+\label{tab:factorial_anova}
+\scriptsize
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Factor / Interaction} & \textbf{SLA Effect (\%)} & \textbf{95\% CI} & \textbf{Var. (\%)} & \textbf{Partial $\eta_p^2$} & \textbf{$p$-value} \\
+\midrule
+A\_PQC\_Transport & +52.15\% & [+46.08, +58.21] & 51.73\% & 0.5445 & 7.28e-43 \\
+B\_Boundary\_Rep & +4.49\% & [-1.57, +10.56] & 0.38\% & 0.0088 & 0.1459 \\
+C\_SIMD\_PreEnc & +3.32\% & [-2.75, +9.38] & 0.21\% & 0.0048 & 0.2819 \\
+D\_Disc\_Bandit & +8.40\% & [+2.33, +14.46] & 1.34\% & 0.0301 & 0.0068 \\
+E\_SLA\_Gate & +8.01\% & [+1.94, +14.07] & 1.22\% & 0.0274 & 0.0099 \\
+AxB\_Interaction & +2.15\% & [-3.92, +8.21] & 0.09\% & 0.002 & 0.4860 \\
+AxD\_Interaction & +6.05\% & [-0.01, +12.12] & 0.7\% & 0.0159 & 0.0504 \\
+AxE\_Interaction & +4.10\% & [-1.96, +10.17] & 0.32\% & 0.0073 & 0.1841 \\
+BxC\_Interaction & +3.32\% & [-2.75, +9.38] & 0.21\% & 0.0048 & 0.2819 \\
+DxE\_Interaction & -4.49\% & [-10.56, +1.57] & 0.38\% & 0.0088 & 0.1459 \\
+\bottomrule
+\end{tabular}
+\end{table}

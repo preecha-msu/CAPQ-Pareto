@@ -1,0 +1,18 @@
+\begin{table}[!t]
+\centering
+\caption{Proposition 1 Empirical Validation ($10,000$-Query Real Audit \& Heavy-Tailed Stress; Log SHA-256: \texttt{5df92a5b7cb7722f...}).}
+\label{tab:prop1_validation}
+\scriptsize
+\setlength{\tabcolsep}{2.8pt}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Corpus \& Quantizer (8-bit)} & \textbf{Pred. $\sigma$} & \textbf{Emp. $\sigma$} & \textbf{Var. Err.} & \textbf{CLT95 Cov.} & \textbf{Rec@10} \\
+\midrule
+SIFT1M 128d (Det.) & 0.000377 & 0.000373 & 2.16\% & 95.02\% & 0.9951 \\
+SIFT1M 128d (Stoch. SR) & 0.000532 & 0.000528 & 1.53\% & 95.18\% & 0.994 \\
+BGE-M3 1024d (Det.) & 0.000326 & 0.000311 & 9.2\% & 96.03\% & 0.9935 \\
+BGE-M3 1024d (Stoch. SR) & 0.000459 & 0.000446 & 5.6\% & 95.63\% & 0.9918 \\
+Student-$t_{2.5}$ 1024d Outlier & 0.000703 & 0.000691 & 3.26\% & 95.72\% & 0.9805 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,10 @@
+test_id,injected_fault_or_abuse,trials,detection_or_recovery_rate_pct,measured_latency_or_overhead_ms,observed_system_behavior,pass_verdict
+F1_Replay_0RTT_Attack,"1,000 verbatim 0-RTT early-data replay packets",1000,100.0,0.012,Rejected 1000/1000 replays; downgraded to 1-RTT KEM handshake,True
+F2_Bloom_False_Positive_Quantification,"5,000 fresh unseen 0-RTT nonces after 4,000 insertions (m=64Kb, k=5)",5000,99.76,0.24,Empirical FP=0.240% (Theoretical=0.126%); benign 1-RTT fallback only,True
+F3_Bloom_False_Negative_Zero_Proof,"4,000 previously seen nonces within active epoch",4000,100.0,0.0,False Negatives = 0/4000 (0.000% deterministic guarantee),True
+F4_Strike_Register_Epoch_Expiry,Expired timestamp (>TTL) + register salt rotation across epoch boundary,100,100.0,0.09,Stale ticket rejected (REJECTED_EXPIRED_TICKET_EPOCH_FALLBACK_1RTT); clean rotation accepted fresh ticket,True
+F5_Duplicate_Query_Idempotency,0-RTT mutating SQL injection + duplicate read-query retransmission,200,100.0,0.008,Blocked mutating SQL on 0-RTT; deduplicated retried read with identical digest,True
+F6_MTU_Fragmentation_Reassembly,"16,384 B ciphertext fragmented into 14x 1,200 B sub-MTU segments",50,100.0,6.239,Reassembled 16384/16384 bytes cleanly without silent truncation,True
+F7_TLS_Session_Expiration_Reconnect,Server invalidates pooled session / ticket mid-stream,50,100.0,21.675,Detected session EOF; re-established fresh 1-RTT session without query loss,True
+F8_CKKS_Corrupted_Ciphertext_Rejection,200 bit-flipped CKKS RNS ciphertext payloads prior to homomorphic eval,200,100.0,0.019,AEAD/MAC integrity guard rejected 200/200 corrupted ciphertexts pre-FHE,True
+F9_Network_Disconnect_And_Timeout_Fallback,350 ms unresponsive socket stall exceeding 60 ms controller guard,50,100.0,366.044,Caught socket.timeout at 60 ms; rerouted to SafeFallback_Pooled_TLS cleanly,True

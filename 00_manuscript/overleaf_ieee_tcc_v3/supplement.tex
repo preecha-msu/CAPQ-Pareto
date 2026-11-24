@@ -1,0 +1,76 @@
+\documentclass[10pt,journal,compsoc]{IEEEtran}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref}
+
+\newtheorem{proposition}{Proposition}
+
+\begin{document}
+\title{Supplementary Material for CAPQ-Pareto (V3): Complete Mathematical Proofs, Threat Model Formalism, Statistical Diagnostics, and SHA-256 Reproducibility Manifest}
+\author{Preecha~Research~Group}
+\maketitle
+
+\section{Proof of Proposition 1 and Rounding Regimes}
+Let $\mathbf{q} \in \mathbb{R}^\kappa$ be quantized over $[q_{\min}, q_{\max}]$ with step $\Delta_q = (q_{\max}-q_{\min})/(2^b - 1)$, and let $\mathbf{x} \in \mathbb{R}^\kappa$ satisfy $\|\mathbf{x}\|_2 = 1$ (including non-isotropic embeddings). Writing $e_j = \hat{q}_j - q_j$, the inner-product error is $\varepsilon_{\text{ip}} = \sum_{j=1}^\kappa e_j x_j$.
+
+\subsection{Case 1: High-Resolution Deterministic Uniform Rounding}
+Under Bennett's high-resolution non-overload conditions, coordinate quantization errors satisfy $\mathbb{E}[e_j]\approx 0$, $\text{Var}(e_j)\approx \Delta_q^2/12$, and $\text{Cov}(e_j, e_\ell)\approx 0$ for $j \ne \ell$. Conditional on any fixed unit vector $\mathbf{x}$:
+\begin{equation}
+\text{Var}(\varepsilon_{\text{ip}} \mid \mathbf{x}) = \sum_{j=1}^\kappa x_j^2 \text{Var}(e_j) = \frac{\Delta_q^2}{12}\sum_{j=1}^\kappa x_j^2 = \frac{\Delta_q^2}{12}\|\mathbf{x}\|_2^2 = \frac{\Delta_q^2}{12}.
+\end{equation}
+Crucially, no isotropy assumption on $\mathbf{x}$ is required because $\sum_{j=1}^\kappa x_j^2 = 1$ holds identically for every unit-norm vector regardless of directional concentration. Since $e_j x_j \in [-\frac{\Delta_q}{2}|x_j|, +\frac{\Delta_q}{2}|x_j|]$ has span $c_j = \Delta_q |x_j|$, Hoeffding's inequality yields:
+\begin{equation}
+\Pr(|\varepsilon_{\text{ip}}| \ge t \mid \mathbf{x}) \le 2\exp\!\left(-\frac{2t^2}{\sum_{j=1}^\kappa \Delta_q^2 x_j^2}\right) = 2\exp\!\left(-\frac{2t^2}{\Delta_q^2}\right).
+\end{equation}
+
+\subsection{Case 2: Unbiased Stochastic Rounding (Exact Zero Mean Without Smooth-Density Assumption)}
+Let $s_j = (q_j - q_{\min})/\Delta_q = \lfloor s_j \rfloor + u_j$ with $u_j \in [0,1)$. Stochastic rounding sets $\hat{s}_j = \lfloor s_j \rfloor + \text{Bernoulli}(u_j)$ independently across coordinates $j=1,\dots,\kappa$. Conditional on $(\mathbf{q}, \mathbf{x})$, $\mathbb{E}[e_j \mid \mathbf{q}] = \Delta_q(u_j(1-u_j) - (1-u_j)u_j) = 0$ identically, and $\text{Var}(e_j \mid u_j) = u_j(1-u_j)\Delta_q^2 \le \Delta_q^2/4$. Taking expectation over $u_j \sim \mathcal{U}(0,1)$ gives $\mathbb{E}[u_j(1-u_j)] = \int_0^1 (u - u^2)\,du = \frac{1}{6}$, whence:
+\begin{equation}
+\text{Var}_{\text{SR}}(\varepsilon_{\text{ip}} \mid \mathbf{x}) = \frac{\Delta_q^2}{6}\|\mathbf{x}\|_2^2 = \frac{\Delta_q^2}{6}, \qquad \sup_{\mathbf{q}} \text{Var}_{\text{SR}}(\varepsilon_{\text{ip}} \mid \mathbf{q}, \mathbf{x}) \le \frac{\Delta_q^2}{4}.
+\end{equation}
+Across $10,000$ real SIFT1M and BGE-M3 queries (`v3_prop1_10k_theory_validation.csv`), this exact $\Delta_q^2/6$ formula matches empirical stochastic-rounding variance within $1.53\%$ and $5.60\%$, respectively.
+
+\section{Proof of Proposition 2 and Formal Leakage Bound}
+Let $B_k$ denote the $k$-th inverted bucket ($k \in \{1,\dots,K_c\}$) with raw cardinality $|B_k|$. Offline constant-size padding appends $B_{\max} - |B_k|$ zero vectors $\mathbf{0} \in \mathbb{R}^\kappa$ prior to RNS-CKKS plaintext slot packing, so $|B_k^{\text{pad}}| = B_{\max}$ for every $k$. Because $\langle \mathbf{q}, \mathbf{0}\rangle = 0$ (masked below top-$K$ cosine similarity thresholds or flagged via encrypted slot metadata), decryption correctness is preserved while the discrete random variable $S = |B_{b(Q)}^{\text{pad}}|$ has point-mass entropy $H(S) = 0$, proving $I(Q; S) = H(S) - H(S \mid Q) = 0$. Conversely, for an $r$-probe routing tuple $\mathcal{I}_r(Q) = (b_1,\dots,b_r)$ that is deterministic given $Q$, $H(\mathcal{I}_r(Q) \mid Q) = 0$, so $I(Q; \mathcal{I}_r(Q)) = H(\mathcal{I}_r(Q)) = -\sum_{\mathbf{b}} p(\mathbf{b})\log_2 p(\mathbf{b})$ ($4.4348\text{ bits}$ empirically under Zipf($1.15$) on $K_c=64$).
+
+\section{Positive-Definiteness Proof for Stabilized Discounted LinUCB}
+From $\mathbf{A}_{m,0} = \lambda_{\text{reg}}\mathbf{I}_d \succeq \lambda_{\text{reg}}\mathbf{I}_d$ and $\mathbf{x}_{t^-}\mathbf{x}_{t^-}^\top \succeq \mathbf{0}$, assume $\mathbf{A}_{m,t-1} \succeq \lambda_{\text{reg}}\mathbf{I}_d$. Then for any $\gamma \in (0,1)$:
+\begin{equation}
+\mathbf{A}_{m,t} = \gamma \mathbf{A}_{m,t-1} + \mathbf{x}_{t^-}\mathbf{x}_{t^-}^\top + (1-\gamma)\lambda_{\text{reg}}\mathbf{I}_d \succeq \gamma \lambda_{\text{reg}}\mathbf{I}_d + (1-\gamma)\lambda_{\text{reg}}\mathbf{I}_d = \lambda_{\text{reg}}\mathbf{I}_d.
+\end{equation}
+Hence $\sigma_{\min}(\mathbf{A}_{m,t}) \ge \lambda_{\text{reg}} = 1.0$ for all $t \ge 0$, preventing numerical singularity over arbitrarily long non-stationary horizons.
+
+\section{Complete V3 Clean-Room SHA-256 Artifact Verification Table}
+Every table and figure in CAPQ-Pareto V3 is generated directly from real execution logs without synthetic estimation. Table~\ref{tab:sha_manifest} archives the cryptographic SHA-256 digests of all V3 raw logs.
+
+\begin{table*}[!h]
+\centering
+\caption{Cryptographic SHA-256 Integrity Manifest of All V3 Real-Execution CSV and JSON Artifacts.}
+\label{tab:sha_manifest}
+\scriptsize
+\begin{tabular}{ll}
+\toprule
+\textbf{V3 Artifact Filename} & \textbf{Full SHA-256 Digest} \\
+\midrule
+\texttt{v3\_adversarial\_leakage\_attacks.csv} & \texttt{47bd5a901b818e80826181b1f5bd3622495d4af38c7085bd9a066e8d18727778} \\
+\texttt{v3\_baseline\_reference\_inventory.json} & \texttt{7bd5e69f60bdeb64733283f8229843ec208c21714926701b941d8c9f941e85df} \\
+\texttt{v3\_cleanroom\_reexecution\_matrix.csv} & \texttt{f8fa782182a93dbda0280edd4ff305b252d1fd107fc4f2b42b4eb173d52f5e6a} \\
+\texttt{v3\_cloud\_budget\_economics\_audit.csv} & \texttt{0875848691015779b28aa1d8c326d764b8e0d8e215bcaee7f54ba82adf46d17d} \\
+\texttt{v3\_cross\_isa\_e2e\_continuum.csv} & \texttt{493413edd978bfd2dc777f5d97f80511d6b0e88c3d7411f872332f831e214347} \\
+\texttt{v3\_factorial\_anova\_effects.csv} & \texttt{4b228fd5a35de1b22e5367f563dab9745292d6948230da064cf30b93b14def4f} \\
+\texttt{v3\_full\_2pow5\_factorial\_raw.csv} & \texttt{4cdbdc13f07df9eba8cc7c116fed915f781e04bc72453a154c8f35537ed73413} \\
+\texttt{v3\_n7\_outage\_recovery\_trajectory.csv} & \texttt{7587b2452c42bea81f1097e8350f24d33dd5a9d3417d76ee51303ce86356f886} \\
+\texttt{v3\_network\_shock\_matrix\_n0\_n7.csv} & \texttt{7101be0c0b3ea0158d8fb552518e92facdaefa704571277de69e2b4df23b6c0c} \\
+\texttt{v3\_objective\_independent\_pareto\_audit.csv} & \texttt{cc948bc461e4b69b0a25142708d3d73ade5a6a8eb71f4c3506d1c3ee9e36d7e1} \\
+\texttt{v3\_operational\_failure\_abuse\_audit.csv} & \texttt{9a4654d875cfcd4c59a0e8ffebb6d38eac5fde0fadff0c297a4d565dd650a325} \\
+\texttt{v3\_prop1\_10k\_theory\_validation.csv} & \texttt{5df92a5b7cb7722f42cd0b8ff7c86c8e93af559827fe33d3226dfafcd74a71a6} \\
+\texttt{v3\_wan\_3tier\_sla\_pareto\_economics.csv} & \texttt{ede29504a13ba499f667d98b1445ad809d21eaa173d2fb1452852f7e02d858be} \\
+\texttt{v3\_wan\_mbb\_paired\_holm\_stats.csv} & \texttt{c0e98712a374369aa3e16fc30e78c80843abbd27f4bc7002cc011ac0535728f7} \\
+\texttt{v3\_wan\_multicampaign\_temporal\_mbb.csv} & \texttt{9dfb4218a716d78c4c393ebd47b8daa643550e7d3590945cdb8f2ccebef00828} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\end{document}

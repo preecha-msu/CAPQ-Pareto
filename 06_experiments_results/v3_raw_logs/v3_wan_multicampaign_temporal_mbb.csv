@@ -1,0 +1,16 @@
+region,mode,n_independent_epochs,total_wan_transactions,epoch_mean_lat_ms,between_epoch_sd_ms,mbb_ci95_lo_ms,mbb_ci95_hi_ms,lag1_temporal_autocorr,epoch_mean_dual_sla_pct,between_epoch_sla_sd_pct
+Bangkok,M1_Fresh_TLS13_PQC,4,126,110.43,42.52,109.23,147.95,0.045,78.12,14.32
+Bangkok,M2_Pooled_TLS13_Classical,4,126,33.62,20.1,18.47,28.48,0.2,68.75,3.12
+Bangkok,M3_Pooled_TLS13_Hybrid768,3,96,26.92,4.87,23.21,30.72,-0.046,70.83,4.77
+Bangkok,M4_Rule_Heuristic_Pooled_INT8,4,126,32.02,13.29,21.32,32.34,0.086,68.75,3.12
+Bangkok,M5_CAPQ_V2_Adaptive,4,126,48.53,8.6,41.66,56.38,-0.275,85.42,4.77
+Singapore,M1_Fresh_TLS13_PQC,4,126,241.17,58.02,226.11,280.51,0.006,12.5,5.41
+Singapore,M2_Pooled_TLS13_Classical,4,126,78.77,58.83,44.14,52.62,0.2,70.83,4.77
+Singapore,M3_Pooled_TLS13_Hybrid768,3,96,60.23,3.22,54.84,66.13,0.096,72.92,6.51
+Singapore,M4_Rule_Heuristic_Pooled_INT8,4,126,71.1,18.05,53.79,71.94,0.199,68.75,3.12
+Singapore,M5_CAPQ_V2_Adaptive,4,126,82.18,9.6,69.84,85.98,-0.227,86.46,6.51
+US-Central,M1_Fresh_TLS13_PQC,4,126,958.57,26.36,960.63,987.01,0.024,0.0,0.0
+US-Central,M2_Pooled_TLS13_Classical,4,126,405.23,352.15,228.3,229.88,0.031,70.83,1.8
+US-Central,M3_Pooled_TLS13_Hybrid768,3,96,239.15,3.2,236.41,242.3,-0.031,71.88,3.12
+US-Central,M4_Rule_Heuristic_Pooled_INT8,4,126,240.79,4.18,236.22,247.59,-0.049,71.88,3.12
+US-Central,M5_CAPQ_V2_Adaptive,4,126,255.94,19.06,254.86,277.46,-0.133,77.08,4.77

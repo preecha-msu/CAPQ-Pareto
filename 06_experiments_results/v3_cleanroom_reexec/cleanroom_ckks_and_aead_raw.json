@@ -1,0 +1,31 @@
+{
+  "isolated_python": "3.11.9|Windows-10-10.0.26300-SP0",
+  "measurements": {
+    "aead": {
+      "aes_4k_us": 0.6282,
+      "cha_4k_us": 1.6409,
+      "aes_64k_us": 8.6936,
+      "cha_64k_us": 23.4611
+    },
+    "ckks": {
+      "4096": {
+        "rc": 0,
+        "log2_qp": 101.0,
+        "upload_bytes": 131905,
+        "median_ms": 4.1387220000000005
+      },
+      "8192": {
+        "rc": 0,
+        "log2_qp": 170.0,
+        "upload_bytes": 394539,
+        "median_ms": 21.366729
+      },
+      "16384": {
+        "rc": 0,
+        "log2_qp": 300.0,
+        "upload_bytes": 1050093,
+        "median_ms": 45.571381
+      }
+    }
+  }
+}
