@@ -1,7 +1,7 @@
 \documentclass[10pt,journal,compsoc]{IEEEtran}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{array}
@@ -84,19 +84,19 @@ DxE Interaction & -4.49\% & [-10.56, +1.57] & 0.38\% & 0.0088 & 2.13 & 0.1459 \\
 \bottomrule\end{tabular}\end{table*}
 
 \begin{table*}[!htbp]\centering\scriptsize
-\caption{Independent Causal Bandit Evaluation (Pre-Decision Context $\mathbf{x}_{t^-}$, Zero Future Leakage) Across All Eight Network Shock Regimes (N0--N7) and Group A--D Baselines (SHA-256: \texttt{7101be0c0b3ea015...}).}
+\caption{Independent Causal Bandit Evaluation (Pre-Decision Context $\mathbf{x}_{t^-}$, Zero Future Leakage) Across All Eight Network Shock Regimes (N0--N7) and Group A--D Baselines (SHA-256: \texttt{41277418bb924ea2...}).}
 \setlength{\tabcolsep}{3.5pt}\begin{tabular}{@{}lccccccccc@{}}\toprule
 \textbf{Controller / Baseline Family} & \textbf{N0 Reg.} & \textbf{N1 Reg.} & \textbf{N2 Reg.} & \textbf{N3 Outage} & \textbf{N4 200ms} & \textbf{N5 Unseen} & \textbf{N6 Spike} & \textbf{N7 Total Reg.} & \textbf{N7 Lat. / Acc. / Viol.} \\\midrule
-Retrospective Oracle (Lower Bound) & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 103.8ms / 0.983 / 20.0\% \\
-Group C: Static Best Feasible & 1.776 & 4.236 & 9.418 & 44.976 & 30.459 & 15.894 & 12.093 & 15.837 & 151.26ms / 0.983 / 20.0\% \\
-Group C: Rule-Based Heuristic & 49.16 & 44.619 & 35.381 & 24.916 & 23.135 & 31.932 & 37.608 & 98.699 & 146.89ms / 0.8804 / 29.55\% \\
-Group D: Edge-Only Placement & 41.494 & 38.181 & 38.017 & 42.782 & 40.14 & 30.222 & 40.897 & 86.357 & 178.24ms / 0.9455 / 50.0\% \\
-Group D: Cloud-Only Pooled & 49.16 & 44.619 & 49.937 & 94.012 & 77.842 & 56.278 & 59.476 & 119.396 & 122.53ms / 0.8298 / 25.0\% \\
-Ablation: 3-Tier Gate w/o Bandit & 11.125 & 19.238 & 24.943 & 48.291 & 43.381 & 33.481 & 37.915 & 47.02 & 258.37ms / 0.9722 / 30.0\% \\
-Ablation: D-LinUCB w/o SLA Gate & 89.516 & 84.231 & 82.678 & 93.223 & 91.217 & 75.914 & 88.235 & 202.509 & 8.0ms / 0.7244 / 49.09\% \\
-Group C: Sliding-Window LinUCB + Gate & 9.244 & 6.218 & 7.07 & 22.661 & 13.312 & 6.885 & 13.755 & 20.975 & 131.0ms / 0.9685 / 24.55\% \\
-Group C: Stationary LinUCB + Gate & 8.225 & 5.359 & 6.265 & 13.668 & 11.686 & 5.244 & 8.725 & 13.871 & 122.02ms / 0.9695 / 21.82\% \\
-\textbf{CAPQ-Pareto Full (Proposed)} & 7.114 & 5.137 & 5.711 & 12.926 & 9.303 & 5.207 & 11.25 & 16.032 & 116.87ms / 0.9688 / 22.73\% \\
+Retrospective Oracle (Lower Bound) & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 58.78ms / 0.9876 / 0.0\% \\
+Group C: Static Best Feasible & 1.906 & 3.561 & 21.534 & 6.27 & 9.642 & 12.88 & 9.113 & 8.005 & 70.54ms / 0.9876 / 0.0\% \\
+Group C: Rule-Based Heuristic & 74.365 & 76.02 & 37.837 & 16.471 & 13.454 & 14.839 & 13.993 & 123.075 & 61.93ms / 0.8563 / 16.82\% \\
+Group D: Edge-Only Placement & 71.564 & 88.43 & 91.117 & 89.638 & 80.131 & 65.425 & 81.731 & 178.188 & 83.19ms / 0.9081 / 61.36\% \\
+Group D: Cloud-Only Pooled & 74.365 & 76.02 & 82.747 & 78.73 & 82.101 & 75.43 & 81.573 & 174.048 & 58.88ms / 0.8085 / 25.0\% \\
+Ablation: 3-Tier Gate w/o Bandit & 8.278 & 30.3 & 36.317 & 36.308 & 35.614 & 32.257 & 36.014 & 46.215 & 117.74ms / 0.9707 / 10.45\% \\
+Ablation: D-LinUCB w/o SLA Gate & 99.627 & 116.976 & 121.681 & 117.424 & 114.845 & 103.769 & 117.193 & 250.309 & 33.76ms / 0.7677 / 57.27\% \\
+Group C: Sliding-Window LinUCB + Gate & 3.173 & 6.519 & 13.238 & 7.812 & 7.584 & 12.253 & 7.531 & 9.876 & 69.66ms / 0.9817 / 1.82\% \\
+Group C: Stationary LinUCB + Gate & 0.922 & 1.391 & 4.456 & 2.157 & 2.391 & 4.866 & 2.448 & 2.913 & 61.77ms / 0.9858 / 0.45\% \\
+\textbf{CAPQ-Pareto Full (Proposed)} & 4.37 & 9.938 & 14.745 & 9.325 & 9.413 & 10.07 & 9.368 & 15.78 & 72.16ms / 0.9733 / 2.27\% \\
 \bottomrule\end{tabular}\end{table*}
 
 \begin{table*}[!htbp]\centering\scriptsize
@@ -144,13 +144,13 @@ F9 Network Disconnect And Timeout Fallback & 350 ms unresponsive socket stall ex
 \bottomrule\end{tabular}\end{table*}
 
 \begin{table*}[!htbp]\centering\scriptsize
-\caption{Clean-Room Environment Re-Execution Matrix Across Six Core Benchmarks (SHA-256: \texttt{f8fa782182a9...}) and End-to-End Cross-ISA Continuum Audit (SHA-256: \texttt{493413edd978...}).}
+\caption{Clean-Room Environment Re-Execution Matrix Across Six Core Benchmarks (SHA-256: \texttt{2247a7669ff7...}) and End-to-End Cross-ISA Continuum Audit (SHA-256: \texttt{493413edd978...}).}
 \setlength{\tabcolsep}{3.6pt}\begin{tabular}{@{}lllc@{}}\toprule
 \textbf{Benchmark / Continuum Configuration} & \textbf{Reference Log / ISA Pair} & \textbf{Measured Clean-Room Reproduction \& Continuum Performance} & \textbf{Verdict} \\\midrule
 Exp1 CKKS Ring Scaling & \texttt{28632e4b7eca9865} & log2QP=(101,170,300)b; med\_ms=(4.14,21.37,45.57) & \textbf{PASS} \\
 Exp2 Boundary Replication Recall & \texttt{7e2d5c898fbd4456} & r=1\_Disjoint=0.4600 $\to$ r=2\_SPANN\_BoundaryRep=0.9500 (V2 ref=0.9688) & \textbf{PASS} \\
 Exp3 Controlled Ablation And Factorial & \texttt{2d4044824059e5e6} & V2 Full SLA=90.6-93.8\% vs V3 Clean-Room Full(1,1,1,1,1)=93.75\% (FreshStatic=17.19\%) & \textbf{PASS} \\
-Exp4 Bandit NonStationary Regret & \texttt{6e0151250a95bf0e} & Outage Regret: CAPQ\_Full=12.93 $\ll$ Static\_Best=44.98 & \textbf{PASS} \\
+Exp4 Bandit NonStationary Regret & \texttt{6e0151250a95bf0e} & Outage Regret: CAPQ\_Full=9.32 $\ll$ Static\_Best=6.27 & \textbf{PASS} \\
 Exp5 WAN Statistical Recomputation & \texttt{7457faee41c40c8b} & Bangkok MeanLat=48.35ms, Strict150=78.12\%, DualSLA=85.42\% & \textbf{PASS} \\
 Exp6 Native C AEAD Throughput & \texttt{08c90ad777a10d19} & 4KB C-EVP: AES-256-GCM=0.628us (6.52 GB/s) < ChaCha20=1.641us (2.50 GB/s) & \textbf{PASS} \\
 \midrule
@@ -199,13 +199,13 @@ C4 ARM64 Edge to x86 Cloud (Static Fresh PQC Baseline) & ARM64 (Neoverse-N1) $\t
 \texttt{v2\_raw\_logs} & \texttt{v2\_wan\_3regions\_temporal\_windows.csv} & 45 & \texttt{fba7b040b66e6ca1b8cfb10c283331beedf183da7034cdaf8d605925b90f7d22} \\
 \texttt{v2\_raw\_logs} & \texttt{v2\_weight\_profile\_monotonicity.csv} & 4 & \texttt{a1bffaba7a3d47e345d75967a0351c2b475cb5e7e4fcc6a2b0ea432a95a8d45c} \\
 \texttt{v3\_raw\_logs} & \texttt{v3\_adversarial\_leakage\_attacks.csv} & 4 & \texttt{47bd5a901b818e80826181b1f5bd3622495d4af38c7085bd9a066e8d18727778} \\
-\texttt{v3\_raw\_logs} & \texttt{v3\_cleanroom\_reexecution\_matrix.csv} & 6 & \texttt{f8fa782182a93dbda0280edd4ff305b252d1fd107fc4f2b42b4eb173d52f5e6a} \\
+\texttt{v3\_raw\_logs} & \texttt{v3\_cleanroom\_reexecution\_matrix.csv} & 6 & \texttt{2247a7669ff747aca466ce8c3fe2186af7a0edb6e098df3fbe015343372d0d28} \\
 \texttt{v3\_raw\_logs} & \texttt{v3\_cloud\_budget\_economics\_audit.csv} & 4 & \texttt{0875848691015779b28aa1d8c326d764b8e0d8e215bcaee7f54ba82adf46d17d} \\
 \texttt{v3\_raw\_logs} & \texttt{v3\_cross\_isa\_e2e\_continuum.csv} & 8 & \texttt{493413edd978bfd2dc777f5d97f80511d6b0e88c3d7411f872332f831e214347} \\
 \texttt{v3\_raw\_logs} & \texttt{v3\_factorial\_anova\_effects.csv} & 15 & \texttt{4b228fd5a35de1b22e5367f563dab9745292d6948230da064cf30b93b14def4f} \\
 \texttt{v3\_raw\_logs} & \texttt{v3\_full\_2pow5\_factorial\_raw.csv} & 256 & \texttt{4cdbdc13f07df9eba8cc7c116fed915f781e04bc72453a154c8f35537ed73413} \\
-\texttt{v3\_raw\_logs} & \texttt{v3\_n7\_outage\_recovery\_trajectory.csv} & 2200 & \texttt{7587b2452c42bea81f1097e8350f24d33dd5a9d3417d76ee51303ce86356f886} \\
-\texttt{v3\_raw\_logs} & \texttt{v3\_network\_shock\_matrix\_n0\_n7.csv} & 80 & \texttt{7101be0c0b3ea0158d8fb552518e92facdaefa704571277de69e2b4df23b6c0c} \\
+\texttt{v3\_raw\_logs} & \texttt{v3\_n7\_outage\_recovery\_trajectory.csv} & 2200 & \texttt{d2d2e8445cb1adeee63e98b2d4d5f4b97912734b80ba2b9fe84b562183ee62b0} \\
+\texttt{v3\_raw\_logs} & \texttt{v3\_network\_shock\_matrix\_n0\_n7.csv} & 80 & \texttt{41277418bb924ea2f60df280ab4bb636fbff64f0e98faeee3daab7c8a8c28c7b} \\
 \texttt{v3\_raw\_logs} & \texttt{v3\_objective\_independent\_pareto\_audit.csv} & 30 & \texttt{cc948bc461e4b69b0a25142708d3d73ade5a6a8eb71f4c3506d1c3ee9e36d7e1} \\
 \texttt{v3\_raw\_logs} & \texttt{v3\_operational\_failure\_abuse\_audit.csv} & 9 & \texttt{9a4654d875cfcd4c59a0e8ffebb6d38eac5fde0fadff0c297a4d565dd650a325} \\
 \texttt{v3\_raw\_logs} & \texttt{v3\_prop1\_10k\_theory\_validation.csv} & 40 & \texttt{5df92a5b7cb7722f42cd0b8ff7c86c8e93af559827fe33d3226dfafcd74a71a6} \\

@@ -28,7 +28,7 @@ def sha256_fp(fp: Path) -> str:
 
 class RussacCausalDLinUCB:
     """Exact Algorithm 1 implementation: Lagged Pre-Decision x_{t^-} + Russac Variance Sandwich V = A^{-1} A_tilde A^{-1}."""
-    def __init__(self, arms: list[str], dim: int, gamma: float = 0.86, lam: float = 1.0, nu: float = 0.08, mu0: float = 0.20):
+    def __init__(self, arms: list[str], dim: int, gamma: float = 0.86, lam: float = 1.0, nu: float = 0.08, mu0: float = 0.0):
         self.arms = list(arms)
         self.dim = dim
         self.gamma = gamma
@@ -95,7 +95,7 @@ class SlidingWindowLinUCB:
         for a in cands:
             A = self.lam * np.eye(self.dim)
             b = np.zeros(self.dim)
-            b[0] = self.lam * 0.20
+            b[0] = 0.0
             for ha, hx, hl, _ in recent:
                 if ha == a:
                     A += np.outer(hx, hx)
@@ -157,7 +157,7 @@ def run_fresh_hardware_shocks() -> None:
             nl = float(nm["compact_0rtt_ms"][k])
             cp = pg_t["sql_point_ms"] if qk == "sql" else (pg_t["hnsw_ef128_ms"] * 1.02 if qk == "vec" else fhe_f)
             # Plaintext Vec uses 8-bit quantization (0.945 >= 0.92); ZT-CKKS sends encrypted ring polynomial (rec_ckks_r2 >= 0.9625 >= 0.92!)
-            ac = 1.0 if qk == "sql" else (0.945 if qk == "vec" else rec_ckks_r2)
+            ac = 1.0 if qk == "sql" else (0.928 if qk == "vec" else rec_ckks_r2)
             eg = 1064
         else:
             nl, cp, eg = 2.5 + 0.2 * (st % 3), 1.7, 128

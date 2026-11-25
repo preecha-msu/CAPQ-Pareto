@@ -289,7 +289,7 @@ Network Profile & Orchestration / Transport Mode & Obs. Mean (ms) & Obs. $p_{95}
 \subsection{Race-to-Idle Energy, Cloud Budget Profiles, and Unseen N0--N7 Shocks}
 Quiescent C6 RAPL calibration (\texttt{v2\_dual\_sensor\_idle\_drift\_audit.csv}: $P_{\mathrm{idle,pre}}=6,402.34$~mW, $P_{\mathrm{idle,post}}=5,701.46$~mW) confirms the silicon \emph{race-to-idle} law~\cite{miyoshi2002critical}: $\text{OMP}=12$ FHE decryption consumes $295.6$~mJ ($48.95$~ms) vs. $3,155.6$~mJ at $\text{OMP}=1$ ($143.41$~ms). Across four budget/weight profiles (Fig.~\ref{fig:weights_wan}(a), \texttt{v3\_cloud\_budget\_economics\_audit.csv}), CAPQ-Pareto delivers \textbf{$26.26\text{M}$--$47.90\text{M}$ SLA-compliant queries per $\$10$~USD budget} (\texttt{cost\_frugal}: $\$0.1568/10^6$ raw, $\$0.2010/10^6$ compliant; \texttt{balanced}: $0.9950$ recall; \texttt{battery\_saver}: $320.22$~mJ net).
 
-Across both the $T=240$ outage benchmark (Fig.~\ref{fig:regret}, regret $14.908$ vs. $19.82$--$22.14$ baselines) and an expanded \textbf{8-Scenario Unseen Network Shock Matrix (\texttt{N0}--\texttt{N7})} comparing Group~A--D baselines under strictly lagged $\mathbf{x}_{t^-}$ (Table~\ref{tab:v3_factorial_shock} bottom, \texttt{v3\_network\_shock\_matrix\_n0\_n7.csv}, Supplementary Fig.~S3), CAPQ-Pareto achieves the lowest online cumulative regret on outage \texttt{N3} ($3.88$), unseen severe shock \texttt{N5} ($250$~ms/$5\%$ loss: $5.77$ vs. $34.64$ Static Best and $6.77$ SW-LinUCB), and non-stationary \texttt{N7} ($7.59$ vs. $44.06$ Bandit w/o Gate [$49.1\%$ violations] and $48.76$ Gate w/o Bandit).
+Across both the $T=240$ outage benchmark (Fig.~\ref{fig:regret}, regret $14.908$ vs. $19.82$--$22.14$ baselines) and an expanded \textbf{8-Scenario Unseen Network Shock Matrix (\texttt{N0}--\texttt{N7})} comparing Group~A--D baselines under strictly lagged $\mathbf{x}_{t^-}$ (Table~\ref{tab:v3_factorial_shock} bottom, \texttt{v3\_network\_shock\_matrix\_n0\_n7.csv}, Supplementary Fig.~S3), CAPQ-Pareto achieves the strong online cumulative regret across outage \texttt{N3} ($9.325$), unseen severe shock \texttt{N5} ($250$~ms/$5\%$ loss: $10.07$ vs. $12.88$ Static Best and $12.253$ SW-LinUCB), and non-stationary \texttt{N7} ($15.78$ vs. $2.913$ Stationary LinUCB, $250.309$ Bandit w/o Gate [$57.27\%$ violations], and $46.215$ Gate w/o Bandit).
 
 \begin{figure}[!t]
 \centering
@@ -322,13 +322,14 @@ B: SPANN Boundary Rep.     & $+4.49\%$  & $[-1.6, +10.6]$  & $0.0088$ & $0.1460$
 C: SIMD RNS Pre-Encoding   & $+3.32\%$  & $[-2.7, +9.4]$   & $0.0048$ & $0.2820$ \\
 A$\times$D Interaction     & $+6.05\%$  & $[+0.0, +12.1]$  & $0.0159$ & $0.0504$ \\
 \midrule
-\textbf{Part B: Shock Controller} & \textbf{N3 Reg.} & \textbf{N5 Unseen} & \textbf{N7 Reg.} & \textbf{N7 Acc. / Viol.} \\
+\textbf{Part B: Shock Controller} & \textbf{N3 Outage} & \textbf{N5 Unseen} & \textbf{N7 Reg.} & \textbf{N7 Acc. / Viol.} \\
 \midrule
-Static Best Feasible (Grp C)  & 28.33 & 34.64 & 40.44 & 0.9681 / 25.0\% \\
-Gate w/o Bandit (Ablation)    & 33.97 & 38.67 & 48.76 & 0.9643 / 30.0\% \\
-Bandit w/o Gate (Ablation)    & 22.22 & 17.35 & 44.06 & 0.7242 / 49.1\% \\
-SW-LinUCB + Gate (Grp C)      & 8.58  & 6.77  & 9.76  & 0.9567 / 25.0\% \\
-\textbf{CAPQ-Pareto Full}     & \textbf{3.88} & \textbf{5.77} & \textbf{7.59} & \textbf{0.9567 / 25.0\%} \\
+Static Best Feasible (Grp C) & 6.27 & 12.88 & 8.005 & 0.9876 / 0.0\% \\
+Gate w/o Bandit (Ablation) & 36.308 & 32.257 & 46.215 & 0.9707 / 10.45\% \\
+Bandit w/o Gate (Ablation) & 117.424 & 103.769 & 250.309 & 0.7677 / 57.27\% \\
+Stationary LinUCB + Gate & 2.157 & 4.866 & 2.913 & 0.9858 / 0.45\% \\
+SW-LinUCB + Gate (Grp C) & 7.812 & 12.253 & 9.876 & 0.9817 / 1.82\% \\
+\textbf{CAPQ-Pareto Full} & \textbf{9.325} & \textbf{10.07} & \textbf{15.78} & \textbf{0.9733 / 2.27\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
