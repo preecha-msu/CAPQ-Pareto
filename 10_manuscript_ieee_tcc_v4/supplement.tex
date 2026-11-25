@@ -1,0 +1,118 @@
+\documentclass[10pt,journal,compsoc]{IEEEtran}
+
+\ifCLASSOPTIONcompsoc
+  \usepackage[nocompress]{cite}
+\else
+  \usepackage{cite}
+\fi
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{adjustbox}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\emergencystretch=1.5em
+
+\begin{document}
+
+\title{Supplementary Material for ``CAPQ-Pareto: SLA-Aware Causal Bandit Orchestration of Post-Quantum Transport, Boundary-Replicated SIMD Homomorphic Search, and Hybrid Cloud-Edge Databases''}
+
+\author{Preecha~Noiumkar,~\IEEEmembership{Member,~IEEE}%
+\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem P. Noiumkar is with the Department of Information Technology, Faculty of Informatics, Mahasarakham University, Maha Sarakham 44150, Thailand (e-mail: preecha.n@msu.ac.th).}}
+
+\maketitle
+
+\section{Complete Proof of Proposition 1 (Nearest \& Unbiased Stochastic Rounding)}
+Let $\mathbf{x} \in \mathbb{R}^d$ satisfy $\|\mathbf{x}\|_2 = 1$ and $\mathbf{q} \in \mathbb{R}^d$ have per-query dynamic range $[q_{\min}, q_{\max}]$ with step $\Delta_q = (q_{\max}-q_{\min})/255$. Define normalized coordinate $s_j = (q_j - q_{\min})/\Delta_q \in [0,255]$ and fractional part $p_j = s_j - \lfloor s_j \rfloor \in [0,1)$.
+
+\textbf{Case 1 (Deterministic Nearest Rounding):} Setting $Q_{\mathrm{det}}(s_j) = \lfloor s_j + 1/2 \rfloor$ yields coordinate error $\eta_j = \hat{q}_j - q_j \in [-\Delta_q/2, \Delta_q/2]$. By H\"{o}lder's inequality, $|\sum_{j=1}^d x_j \eta_j| \le \|\mathbf{x}\|_1 \|\boldsymbol{\eta}\|_\infty \le \frac{1}{2}\Delta_q \|\mathbf{x}\|_1$. Under Bennett's high-resolution quantization condition where $\eta_j \sim \mathcal{U}[-\Delta_q/2, \Delta_q/2]$ with negligible cross-coordinate covariance, $\mathbb{E}[\eta_j]=0$ and $\mathrm{Var}(\sum_{j=1}^d x_j \eta_j) = \sum_{j=1}^d x_j^2 \frac{\Delta_q^2}{12} = \frac{\Delta_q^2}{12}$.
+
+\textbf{Case 2 (Unbiased Stochastic Rounding \& Exact Hoeffding Multiplier):} Setting $Q_{\mathrm{sr}}(s_j) = \lfloor s_j \rfloor + B_j$ with independent $B_j \sim \mathrm{Bernoulli}(p_j)$ gives conditional error:
+\begin{equation}
+\eta_j \mid \mathbf{q} = \begin{cases} (1 - p_j)\Delta_q, & \text{with probability } p_j, \\ -p_j\Delta_q, & \text{with probability } 1 - p_j. \end{cases}
+\end{equation}
+Thus $\mathbb{E}[\eta_j \mid \mathbf{q}] = 0$ identically for \emph{any} input distribution (even heavy-tailed or non-isotropic embeddings), and $\mathrm{Var}(\eta_j \mid \mathbf{q}) = p_j(1-p_j)\Delta_q^2 \le \Delta_q^2/4$. Averaging over uniform fractional phases $p_j \sim \mathcal{U}[0,1)$ yields $\mathbb{E}[p_j(1-p_j)]\Delta_q^2 = \Delta_q^2/6$. Crucially, for each coordinate $j$, the random variable $Z_j = x_j \eta_j$ is strictly bounded within an interval $[a_j, b_j]$ of exact width $b_j - a_j = |x_j|\big((1-p_j)\Delta_q - (-p_j\Delta_q)\big) = |x_j|\Delta_q$. Summing squared widths gives $\sum_{j=1}^d (b_j - a_j)^2 = \Delta_q^2 \sum_{j=1}^d x_j^2 = \Delta_q^2$. Applying Hoeffding's two-sided inequality directly yields:
+\begin{equation}
+\Pr\!\left(\left|\sum_{j=1}^d x_j \eta_j\right| \ge \varepsilon \;\middle|\; \mathbf{q}\right) \le 2\exp\!\left(-\frac{2\varepsilon^2}{\sum_{j=1}^d (b_j-a_j)^2}\right) = 2\exp\!\left(-\frac{2\varepsilon^2}{\Delta_q^2}\right),
+\end{equation}
+establishing $\varepsilon_{1-\zeta} = \Delta_q \sqrt{\frac{1}{2}\ln(2/\zeta)}$ ($1.3581\,\Delta_q$ at $\zeta=0.05$). Using a halved interval width ($\Delta_q/2$) underestimates the stochastic-rounding tail radius by $2\times$ and achieves only $\approx 74\%$ empirical coverage, whereas the exact width $\Delta_q$ achieves $99.98\%$--$100.00\%$ coverage across all $10{,}000$ SIFT1M and BGE-M3 queries.
+
+\section{Mean-Centered Russac Discounted LinUCB Derivation}
+Following weighted linear bandit theory~\cite{russac2019dlinucb} and bias-corrected entropy estimation~\cite{miller1955note}, we formalize baseline residual centering below.
+In uncentered D-LinUCB, $\mathbf{V}_{m,t} = \sum_{s \le t} \gamma^{t-s}\mathbf{x}_s\mathbf{x}_s^\top + \lambda_t \mathbf{I}_d$ shrinks parameter vector $\hat{\boldsymbol{\theta}}_{m,t}$ toward $\mathbf{0} \in \mathbb{R}^d$. When scalarized costs $y_s \in [0.2, 1.5]$ have strictly positive mean $\mu_m > 0$, an unpulled arm experiences $\mathbf{b}_{m,t} \to \mathbf{0}$ while $\mathbf{V}_{m,t} \to \lambda_{\mathrm{reg}}\mathbf{I}_d$, causing $\hat{\boldsymbol{\theta}}_{m,t}^\top \mathbf{x}_{t^-} \to 0 < \mu_m$ (spurious optimism). By maintaining the exponentially weighted mean $\mu_{m,t} = (\sum_{s \le t, m_s=m} \gamma^{t-s} y_s) / w_{m,t}$ and regressing zero-mean residuals $\tilde{y}_s = y_s - \mu_{m,s}$ via $\mathbf{b}_{m,t} = \gamma \mathbf{b}_{m,t-1} + \tilde{y}_t \mathbf{x}_{t^-}$, unpulled arms decay smoothly back to their historical baseline cost $\mu_{m,t}$ rather than zero, while the uncertainty bonus $\nu \sqrt{\mathbf{x}_{t^-}^\top \mathbf{V}_{m,t}^{-1}\widetilde{\mathbf{V}}_{m,t}\mathbf{V}_{m,t}^{-1}\mathbf{x}_{t^-}}$ grows monotonically to drive controlled re-exploration after outage recovery.
+
+\section{Extended Multi-Seed Bandit, GLM, and High-Recall $\rho=3$ Tables}
+\begin{table*}[!t]
+\centering
+\caption{10-Seed Non-Stationary Bandit Benchmark Across Real \texttt{tc netem} Socket + OpenFHE Traces \& Latent Server Contention}
+\label{tab:supp_bandit}
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.10}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+\textbf{Scenario} & \textbf{Controller} & \textbf{Mean Regret} & \textbf{95\% CI} & \textbf{Mean Lat.\ (ms)} & \textbf{SLA Pass (\%)} & \textbf{Wilcoxon $p$ vs.\ CAPQ} \\
+\midrule
+\texttt{N5\_Severe\_Outage} & \textbf{CAPQ Mean-Centered D-LinUCB} & $\mathbf{4.85}$ & $[4.31, 5.39]$ & $82.4$ & $\mathbf{89.6\%}$ & --- \\
+\texttt{N5\_Severe\_Outage} & Uncentered D-LinUCB (Biased) & $12.64$ & $[11.40, 13.88]$ & $96.8$ & $78.1\%$ & $0.0020$ \\
+\texttt{N5\_Severe\_Outage} & Sliding-Window LinUCB ($W=32$) & $7.92$ & $[7.15, 8.69]$ & $86.9$ & $85.4\%$ & $0.0020$ \\
+\texttt{N5\_Severe\_Outage} & Stationary LinUCB ($\gamma=1.0$) & $10.48$ & $[9.62, 11.34]$ & $91.5$ & $81.2\%$ & $0.0020$ \\
+\midrule
+\texttt{N7\_3Phase\_Recovery} & \textbf{CAPQ Mean-Centered D-LinUCB} & $\mathbf{6.42}$ & $[5.84, 7.00]$ & $64.1$ & $\mathbf{92.8\%}$ & --- \\
+\texttt{N7\_3Phase\_Recovery} & Uncentered D-LinUCB (Biased) & $14.71$ & $[13.59, 15.83]$ & $79.3$ & $81.6\%$ & $0.0020$ \\
+\texttt{N7\_3Phase\_Recovery} & Sliding-Window LinUCB ($W=32$) & $9.34$ & $[8.58, 10.10]$ & $68.7$ & $89.1\%$ & $0.0039$ \\
+\texttt{N7\_3Phase\_Recovery} & Stationary LinUCB ($\gamma=1.0$) & $11.89$ & $[10.95, 12.83]$ & $73.2$ & $85.9\%$ & $0.0020$ \\
+\midrule
+\texttt{Latent\_CPU\_Shift} & \textbf{CAPQ Mean-Centered D-LinUCB} & $\mathbf{7.15}$ & $[6.48, 7.82]$ & $71.8$ & $\mathbf{90.4\%}$ & --- \\
+\texttt{Latent\_CPU\_Shift} & Stationary LinUCB ($\gamma=1.0$) & $18.64$ & $[17.21, 20.07]$ & $94.6$ & $74.5\%$ & $0.0020$ \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table*}
+
+\textbf{High-Recall SPANN $\rho=3$ Verification:} In \texttt{v4\_phase3\_high\_recall\_spann\_rho3\_verify.csv}, increasing boundary replication from $\rho=2$ to $\rho=3$ ($r=2$ probes) raises confidential CKKS $\text{Recall@10}$ further to $0.9912$ at $86.4$~ms median FHE latency, confirming smooth recall-latency tunability above the $0.92$ threshold.
+
+\section{Active V4 Artifact SHA-256 Manifest vs.\ Deprecated Legacy Logs}
+To guarantee zero ambiguity during independent replication, Table~\ref{tab:v4_manifest} records the complete 64-hexadecimal-character SHA-256 digests of all 16 active V4 verification artifacts in \texttt{09\_v4\_reviewer\_rebuttal\_audit/}. Legacy intermediate CSVs from earlier iterations that contained deprecated sensor or synthetic assumptions (\texttt{hw\_energy\_calibration\_audit.csv} using Windows \texttt{\_Total} counter, \texttt{v3\_cross\_isa\_e2e\_continuum.csv} using modeled ARM64 edge offsets, and \texttt{v3\_n7\_outage\_recovery\_trajectory.csv} using uncentered ridge updates) are formally archived as deprecated and excluded from all V4 claims, figures, and tables.
+
+\begin{table*}[!t]
+\centering
+\caption{Active CAPQ-Pareto V4 Verification Artifacts with Full 64-Character SHA-256 Digests}
+\label{tab:v4_manifest}
+\setlength{\tabcolsep}{5.0pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Active V4 Artifact Filename (\texttt{09\_v4\_reviewer\_rebuttal\_audit/})} & \textbf{Full SHA-256 Cryptographic Digest (64 Hex Characters)} \\
+\midrule
+\texttt{v4\_audit\_adaptive\_leakage\_mm.json} & \texttt{\scriptsize f048b7bd39a963415e07164124bcae89fd7f2e1694955037d44896a1a2826dd4} \\
+\texttt{v4\_audit\_bandit\_10seeds\_sanity.csv} & \texttt{\scriptsize 1149b4b000ea62fd2a33e9766244d82bf567755097fb9d737c6bec7131a81b4d} \\
+\texttt{v4\_audit\_prop1\_verified\_10k.csv} & \texttt{\scriptsize bbf91f8f50ea189cd963a9f1459734102aabb7d82e09ee93cf2213bc9084dbac} \\
+\texttt{v4\_phase2\_bandit\_10seeds\_raw.csv} & \texttt{\scriptsize 0d547f680d2396e59649fae043c2e6d88860beedc00013b1659014f7a17cb351} \\
+\texttt{v4\_phase2\_bandit\_10seeds\_summary.csv} & \texttt{\scriptsize fecccb33e1beab92b493c99c1617e40740b3caf1377034cc916a26b2c336c2ad} \\
+\texttt{v4\_phase2\_real\_netem\_socket\_traces.json} & \texttt{\scriptsize 21e3e2ea7ab54d28a9d5bd18f508bab1b1a2a86aa785060fb80ce8f44e1fc5d2} \\
+\texttt{v4\_phase3\_disjoint\_vs\_spann\_control.csv} & \texttt{\scriptsize 7bb7b8b30873b10fd59130f7d4024a0287a2f84f8474ae16205438eed319daae} \\
+\texttt{v4\_phase3\_enclave\_scaling\_5k\_25k\_100k.csv} & \texttt{\scriptsize 4a97737ee9bf84263af6e48ff5dd24c3f4e86542d783065d9f7481ff55f752aa} \\
+\texttt{v4\_phase3\_factorial\_logit\_glm\_multichannel.csv} & \texttt{\scriptsize c96789b68ebe8dd0ec43e81f2d043dd727877ac97be1d51cd652fd800ff15dbf} \\
+\texttt{v4\_phase3\_high\_recall\_spann\_rho3\_verify.csv} & \texttt{\scriptsize f6d23437f4e7853cbdd9f30e3edf526d3208e791ef19319c5682fb40796717f7} \\
+\texttt{v4\_phase3\_latent\_shift\_bandit\_10seeds.csv} & \texttt{\scriptsize c14ed34a56efe8f2babf95f5787f3db030eb68f2ed1e97c0a5b4d5fad72c6cf2} \\
+\texttt{v4\_phase3\_openfhe\_wire\_truth.json} & \texttt{\scriptsize f1cd9847fe185c98dfc1aadebca0c23992a7adede2f4a88610e8f8d485f9fd37} \\
+\texttt{v4\_phase4\_fair\_confidential\_wan\_dual\_strict\_sla.csv} & \texttt{\scriptsize 0a5a1d361b50722f96c7631ba552d6d18c3a511ee50040091de118fefd0ccce7} \\
+\texttt{v4\_phase4\_omp\_energy\_uncertainty\_real.csv} & \texttt{\scriptsize 3d1f06b450d0c23f5e4fb4a0560eda0b5fbf51a93fd8034c2de3e16838e1eef2} \\
+\texttt{v4\_phase4\_prop1\_unified\_sift\_bgem3\_10k.csv} & \texttt{\scriptsize 4c2ec5de12094cedc7d817177947259b94c366d3a0e1fe8764e8e99152e27b32} \\
+\texttt{v4\_phase4\_raw\_per\_query\_crypto\_socket\_audit.csv} & \texttt{\scriptsize 6b60a5e4c997b6e92ec1fb45f33c874f8b78e8cb8e41c4d943717fdb72a46b98} \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table*}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

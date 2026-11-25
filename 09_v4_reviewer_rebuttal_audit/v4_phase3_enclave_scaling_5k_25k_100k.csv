@@ -1,0 +1,4 @@
+enclave_vectors_N,centroids_Kc,client_centroid_ram_kb,padded_bucket_Bmax,probed_buckets_r,evaluated_cands_2Bmax,client_routing_med_ms,server_ckks_eval_med_ms,total_e2e_fhe_med_ms,total_e2e_fhe_p95_ms,ckks_recall_at_10,measured_req_wire_kb,measured_resp_wire_kb
+5000,64,32.0,112,2,224,0.055,60.7,83.12,85.52,0.755,128.81,1803.39
+25000,320,160.0,112,2,224,0.114,58.58,80.14,81.9,0.5825,128.81,1803.39
+100000,1250,625.0,112,2,224,0.18,52.31,72.04,78.57,0.6475,128.81,1803.39

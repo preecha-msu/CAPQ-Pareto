@@ -1,0 +1,6 @@
+controller,mean_regret,ci95_lo,ci95_hi,mean_sla_pct,wilcoxon_p_vs_capq
+Single_Global_Fixed_TCP_MP,94.417,93.096,95.738,63.33,0.00195
+Single_Global_Fixed_QUIC_MP,36.211,35.318,37.103,98.33,0.49219
+Stationary_LinUCB_Gated,58.141,52.697,63.584,85.12,0.00195
+SlidingWindow_LinUCB_Gated,36.803,32.347,41.26,93.71,0.625
+CAPQ_Lagged_DLinUCB_Gated,34.979,31.716,38.243,95.12,1.0

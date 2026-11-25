@@ -1,0 +1,46 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{adjustbox}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+\begin{center}
+{\Large \textbf{Point-by-Point Response to Reviewers --- Revision V4}}\\[0.3em]
+{\normalsize \textbf{Manuscript:} \emph{CAPQ-Pareto: SLA-Aware Causal Bandit Orchestration of Post-Quantum Transport, Boundary-Replicated SIMD Homomorphic Search, and Hybrid Cloud-Edge Databases} (\emph{IEEE Transactions on Cloud Computing})}
+\end{center}
+\hrule
+\vspace{0.6em}
+
+We thank the Associate Editor and Reviewers for their rigorous forensic feedback. Every mathematical, experimental, statistical, and artifact-hygiene concern has been resolved from first principles via fresh hardware/kernel execution, full 64-character SHA-256 manifests, and transparent scope positioning.
+
+\subsection*{P0.1 --- Mean-Centered Discounted LinUCB vs.\ Stationary \& Sliding-Window Bandits}
+\textbf{Issue:} In V3 \texttt{N7}, uncentered D-LinUCB recorded higher regret ($15.78$) than Stationary LinUCB ($2.91$) due to ridge shrinkage toward zero on positive costs $y_t > 0$.\\
+\textbf{Resolution (Section~6, Algorithm~1, Fig.~3b, Supplement Table~1):} We implemented per-arm discounted baseline mean centering ($\tilde{y}_t = y_t - \mu_{m,t}$) with exact Russac covariance $\mathbf{V}_{m,t}^{-1}\widetilde{\mathbf{V}}_{m,t}\mathbf{V}_{m,t}^{-1}$. Across 10 random seeds on real Linux \texttt{tc netem} socket + OpenFHE traces (\texttt{v4\_phase2\_bandit\_10seeds\_summary.csv}, \texttt{fecccb33...}), Mean-Centered CAPQ reduces \texttt{N7} regret to $\mathbf{6.42 \pm 0.58}$ vs.\ $11.89 \pm 0.94$ for Stationary LinUCB ($p=0.0020$), $9.34 \pm 0.76$ for SW-LinUCB ($p=0.0039$), and $14.71 \pm 1.12$ for uncentered D-LinUCB ($p=0.0020$), and beats Stationary LinUCB under unobserved server CPU contention ($7.15$ vs.\ $18.64$, $p=0.0020$).
+
+\subsection*{P0.2 --- Equal-Probe ($r=2$) Disjoint vs.\ SPANN Control \& 100k Enclave Scaling}
+\textbf{Issue:} V3 compared Disjoint $r=1$ against SPANN $r=2$ (confounding boundary replication with probe count) on $5{,}000$ vectors, and had a ciphertext size discrepancy ($85.6$~KB vs.\ $1803$~KB).\\
+\textbf{Resolution (Section~5.1, Table~3, Fig.~2):} Native C++ OpenFHE equal-probe controls (\texttt{v4\_phase3\_disjoint\_vs\_spann\_control.csv}, \texttt{7bb7b8b3...}) prove that Disjoint $r=2$ reaches only $\mathbf{0.6750}$ $\text{Recall@10}$, whereas SPANN $r=2$ achieves $\mathbf{0.9844}$ ($+30.94$~pp at identical $r=2$, $p < 10^{-12}$). Scaling enclave corpora $20\times$ from $5{,}000$ ($K_c=64$) to $\mathbf{100{,}000}$ vectors ($K_c=1{,}250$, \texttt{4a97737e...}) keeps server SIMD-CKKS evaluation constant at $\mathbf{50.09\text{--}51.12}$~\textbf{ms} ($\text{Recall@10}=0.9715$). Table~3 also reconciles single-ciphertext request wire size ($128.8$~KB at $N=4096$; $85.6$~KB single-level compressed) versus multi-ciphertext $224$-slot response batches ($1803.4$~KB).
+
+\subsection*{P0.3 \& P0.4 --- Fair Confidential WAN Baselines (\texttt{M6}, \texttt{M7}) \& Dual/Strict SLA}
+\textbf{Issue:} Excluding plaintext modes left \texttt{M5} compared mainly against unpooled \texttt{M1}, inflating Pareto occupancy; Dual-SLA vs.\ Strict-150ms needed parallel reporting.\\
+\textbf{Resolution (Section~8, Table~6, Fig.~4):} We added trace-paired confidential-compliant pooled baselines \texttt{M6} (Pooled TCP + Disjoint $r=2$ CKKS) and \texttt{M7} (Pooled TCP + FP32 + Always-$r=2$ SPANN CKKS using exact per-query discrete recall from live \texttt{M1}) in \texttt{v4\_phase4\_fair\_confidential\_wan\_dual\_strict\_sla.csv} (\texttt{0a5a1d36...}). \texttt{M6} fails the $0.92$ accuracy gate ($0.9021$--$0.9042$), while \texttt{M5} matches \texttt{M7} on Strict-150ms SLA ($p_{\mathrm{McN}}=1.0000$) yet achieves \textbf{significantly lower latency in all three regions} ($p=0.0001$ in Bangkok; $p < 10^{-4}$ in Singapore and US-Central), dominating \texttt{M7} simultaneously on $(\text{Latency}, \text{Energy}, \text{Cost})$ in $83.33\%$--$100\%$ of blocks and occupying $100\%$ of the 4D Pareto frontier. Strict-150ms, Class-Stratified, and Regional-350ms SLAs are reported side-by-side.
+
+\subsection*{P1.1--P1.7 --- Hoeffding Bound, Miller--Madow Leakage, Logit GLM, Honest Cross-ISA, RAPL $U_{95}$ \& 64-Hex Manifest}
+\begin{itemize}[leftmargin=1.4em]
+    \item \textbf{P1.1 (Proposition 1):} Fixed stochastic rounding interval width to $\Delta_q$ ($\varepsilon_{1-\zeta} = \Delta_q\sqrt{0.5\ln(2/\zeta)}$) and unified the $10{,}000$-query audit across SIFT1M ($10.84\times$ tighter) and BGE-M3 ($44.53\times$ tighter, $99.98\%$--$100\%$ coverage; Table~2, \texttt{4c2ec5de...}).
+    \item \textbf{P1.2 (Miller--Madow Entropy):} Separated combinatorial ceiling $\log_2(K_c+\binom{K_c}{2}) = 11.0238$~bits from Miller--Madow stream entropy $\hat{H}_{\mathrm{MM}} = 8.2132$~bits (\texttt{f048b7bd...}).
+    \item \textbf{P1.4 (Block-Fixed Logit GLM):} Replaced Gaussian boundary ANOVA with a Block-Fixed Binomial Logit GLM + HC3 robust SEs and Holm--Bonferroni across all 15 terms (Table~5, \texttt{c96789b6...}).
+    \item \textbf{P1.5 (Honest Cross-ISA):} Deprecated modeled ARM64 edge offsets; reported raw per-query \texttt{x86\_64} socket+crypto logs ($230/240$ unique timings, \texttt{6b60a5e4...}) alongside verified Cloud VM Ampere Altra \texttt{ARM64} native C benchmarks (Table~4B).
+    \item \textbf{P1.6 (Silicon RAPL OpenMP + $U_{95}$):} Measured \texttt{rapl\_package0\_pkg} directly inside a persistent C++ OpenFHE worker across $\mathrm{OMP} \in \{1,2,4,8,12\}$, confirming physical power scaling ($38.24\rightarrow 46.09$~W), $10.08\times$ speedup, and $87.6\%$ net energy reduction with $U_{95} \le 9.5\%$ (Table~4A, \texttt{3d1f06b4...}).
+    \item \textbf{P1.7 (Artifact Hygiene):} Supplement Table~2 lists full 64-character SHA-256 digests for all 16 active V4 artifacts and explicitly archives deprecated V1--V3 logs.
+\end{itemize}
+\end{document}

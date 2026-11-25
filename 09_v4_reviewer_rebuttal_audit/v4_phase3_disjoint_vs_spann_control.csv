@@ -1,0 +1,6 @@
+scheme,probe_policy,ring_N,log2_Q_bits,log2_QP_bits,mean_evaluated_cands,ckks_recall_at_10,median_total_fhe_ms,p95_total_fhe_ms,median_server_eval_ms,measured_req_wire_kb,measured_resp_wire_kb,bucket_size_leakage_bits
+Disjoint_KMeans,r=1,4096,101.0,101.0,98.8,0.4734,41.4,81.79,29.84,128.81,772.88,4.04
+Disjoint_KMeans,r=2,4096,101.0,101.0,186.9,0.675,70.31,131.62,51.76,128.81,1481.35,4.04
+SPANN_BoundaryRep_Padded,r=1,4096,101.0,101.0,112.0,0.6219,42.01,43.45,30.36,128.81,901.69,0.0
+SPANN_BoundaryRep_Padded,r=2,4096,101.0,101.0,224.0,0.7844,82.05,84.46,60.11,128.81,1803.39,0.0
+SPANN_BoundaryRep_Padded,Adaptive_Margin0048,4096,101.0,101.0,203.0,0.7828,81.32,87.04,59.44,128.81,1803.39,0.0

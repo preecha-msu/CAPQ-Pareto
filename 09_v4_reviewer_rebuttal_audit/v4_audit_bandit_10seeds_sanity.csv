@@ -1,0 +1,7 @@
+scenario,controller,n_seeds,mean_regret,ci95_lo,ci95_hi
+Stationary_Regional_Link,D_LinUCB_088,10,23.087,22.94,23.234
+Stationary_Regional_Link,Stationary_LinUCB_100,10,1.514,1.457,1.572
+Stationary_Regional_Link,Single_Global_Fixed,10,0.0,0.0,0.0
+Abrupt_HOL_Loss_Inversion_N7,D_LinUCB_088,10,28.371,27.895,28.847
+Abrupt_HOL_Loss_Inversion_N7,Stationary_LinUCB_100,10,9.281,8.004,10.558
+Abrupt_HOL_Loss_Inversion_N7,Single_Global_Fixed,10,11.886,11.704,12.068

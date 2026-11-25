@@ -1,0 +1,5 @@
+corpus,dim,n_queries,quant_scheme,rounding_mode,mean_delta_q,theo_sigma_envelope,emp_sigma_measured,worst_case_holder_bound,tightness_ratio_vs_holder,clt95_cov_pct,hoeffding95_exact_cov_pct
+SIFT1M_128d,128,10000,Asymmetric_MinMax_INT8,Deterministic_Nearest,0.0009377,0.0002711,0.0002908,0.003153,10.84,93.41,100.0
+SIFT1M_128d,128,10000,Asymmetric_MinMax_INT8,Stochastic_Unbiased,0.0009377,0.0003834,0.0003248,0.003153,9.7,97.77,99.98
+BGEM3_1024d,1024,10000,Asymmetric_MinMax_INT8,Deterministic_Nearest,0.0015246,0.0004411,0.0004226,0.018816,44.53,95.98,100.0
+BGEM3_1024d,1024,10000,Asymmetric_MinMax_INT8,Stochastic_Unbiased,0.0015246,0.0006239,0.0005928,0.018816,31.74,96.06,99.99

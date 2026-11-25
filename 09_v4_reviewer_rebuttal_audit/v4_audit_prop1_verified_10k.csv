@@ -1,0 +1,5 @@
+dataset,mode,n_queries,emp_mean_err,theo_std,emp_std,rel_var_err_pct,clt95_coverage_pct,hoeffding95_correct_cov_pct,hoeffding95_old_halved_cov_pct
+Anisotropic_UnitSphere_128d,Deterministic_Nearest,10000,-2.68e-06,0.0006248,0.0006134,3.612,95.57,100.0,98.35
+Anisotropic_UnitSphere_128d,Stochastic_Unbiased,10000,1.22e-05,0.0008836,0.0008781,1.239,94.92,99.94,90.61
+Real_SIFT1M_UnitNorm_128d,Deterministic_Nearest,10000,-4.637e-05,0.0002711,0.0002908,15.065,93.41,100.0,97.63
+Real_SIFT1M_UnitNorm_128d,Stochastic_Unbiased,10000,-2.97e-06,0.0003834,0.0003259,27.769,97.63,100.0,94.58

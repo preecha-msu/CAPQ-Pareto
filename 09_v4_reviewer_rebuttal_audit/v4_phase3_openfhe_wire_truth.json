@@ -1,0 +1,14 @@
+{
+  "so_path": "/opt/capq_bridge_v2/libcapq_openfhe_v2.so",
+  "corpus_source": "sift_128d_real_5k_200q.npz",
+  "N4096_log2Q": 101.0,
+  "N4096_log2QP": 101.0,
+  "N4096_req_kb_224cands": 128.81,
+  "N4096_resp_kb_224cands": 1803.39,
+  "N8192_log2Q": 110.0,
+  "N8192_log2QP": 110.0,
+  "N8192_req_kb_224cands": 384.92,
+  "N8192_resp_kb_224cands": 1799.66,
+  "N8192_total_ms": 64.34,
+  "paired_wilcoxon_p_spann_r2_vs_disjoint_r2": 0.00084584
+}

@@ -1,0 +1,10 @@
+{
+  "n_queries": 5000,
+  "kc_buckets": 64,
+  "combinatorial_h_max_adaptive_bits": 11.0224,
+  "margin_geometry_h_r_bits": 0.9842,
+  "plugin_entropy_bits": 6.553,
+  "miller_madow_entropy_bits": 6.5977,
+  "plugin_downward_bias_bits": 0.0447,
+  "observed_support_states": 311
+}

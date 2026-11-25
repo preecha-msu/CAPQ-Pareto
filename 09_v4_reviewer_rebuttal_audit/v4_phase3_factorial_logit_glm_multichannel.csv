@@ -1,0 +1,16 @@
+term,sla_diff_pp,sla_diff_ci95_lo,sla_diff_ci95_hi,logit_beta,logit_hc3_se,logit_p_raw,logit_p_holm_5main,logit_p_holm_15all,channel_lat_effect_ms,channel_lat_p_raw,channel_lat_p_holm5,channel_acc_effect,channel_acc_p_raw,channel_acc_p_holm5
+A_PQC_Pooling,52.15,26.18,78.11,2.9742,0.1988,0.0,0.0,0.0,-188.8,0.0,0.0,0.0,1.0,1.0
+B_SPANN_BoundaryRep,4.49,0.34,8.65,0.2805,0.1329,0.034804,0.069609,0.417654,3.53,0.688178,0.8066,0.0333,0.0,0.0
+C_SIMD_PreEncoding,3.32,0.67,5.97,0.2184,0.1337,0.102508,0.102508,0.820065,-21.53,0.014886,0.059545,-0.0,1.0,1.0
+D_Lagged_Bandit,8.4,5.89,10.91,0.4848,0.1331,0.00027,0.000987,0.003511,-9.73,0.268867,0.8066,-0.0133,0.0,0.0
+E_Dual_SLA_Gate,8.01,2.81,13.21,0.4865,0.1327,0.000247,0.000987,0.003455,7.57,0.389131,0.8066,0.0573,0.0,0.0
+AxB_Interaction,2.15,0.31,3.99,0.0991,0.1309,0.448895,Secondary_Interaction,1.0,-0.0,1.0,Secondary,0.0,1.0,Secondary
+AxC_Interaction,0.98,-1.53,3.49,0.0359,0.1303,0.782786,Secondary_Interaction,1.0,-0.0,0.999999,Secondary,0.0,1.0,Secondary
+AxD_Interaction,6.05,1.73,10.38,0.272,0.1298,0.036048,Secondary_Interaction,0.417654,-7.12,0.417686,Secondary,0.0,1.0,Secondary
+AxE_Interaction,4.1,0.76,7.45,0.159,0.1316,0.226818,Secondary_Interaction,1.0,-0.0,0.999999,Secondary,-0.0,1.0,Secondary
+BxC_Interaction,3.32,0.67,5.97,0.2273,0.1286,0.077218,Secondary_Interaction,0.694964,-2.02,0.817832,Secondary,0.0,1.0,Secondary
+BxD_Interaction,-0.98,-2.82,0.86,-0.0436,0.127,0.731235,Secondary_Interaction,1.0,-2.6,0.767166,Secondary,-0.0192,0.0,Secondary
+BxE_Interaction,1.76,0.46,3.05,0.1293,0.1276,0.310931,Secondary_Interaction,1.0,-1.68,0.848666,Secondary,-0.005,0.000212,Secondary
+CxD_Interaction,-0.59,-1.97,0.8,-0.0241,0.1277,0.850537,Secondary_Interaction,1.0,1.49,0.86507,Secondary,-0.0,1.0,Secondary
+CxE_Interaction,1.37,0.53,2.2,0.0999,0.1282,0.435711,Secondary_Interaction,1.0,-3.95,0.653232,Secondary,0.0,1.0,Secondary
+DxE_Interaction,-4.49,-7.24,-1.75,-0.2617,0.1252,0.036647,Secondary_Interaction,0.417654,2.6,0.767164,Secondary,0.0133,0.0,Secondary
