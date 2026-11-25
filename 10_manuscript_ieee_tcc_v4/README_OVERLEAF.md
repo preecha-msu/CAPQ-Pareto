@@ -1,6 +1,3 @@
-# CAPQ-Pareto (IEEE Transactions on Cloud Computing — V4 Camera-Ready / Revision Package)
-- Main Manuscript (`IEEEtran` `compsoc`, <= 12 pages): `main.tex`
-- Electronic Supplementary Material: `supplement.tex`
-- Bibliography: `references.bib`
-- Vector Figures: `figures/`
-- Full 64-Hex Artifact Digest Manifest: `SHA256SUMS_V4.txt`
+# CAPQ-Pareto IEEE TCC V4 Overleaf Package
+- Main Paper: `main.tex` (8 fresh V4 vector figures)
+- Supplement: `supplement.tex` (6 fresh V4 vector figures, Tables S1-S12, 55-file 64-hex SHA-256 manifest)
