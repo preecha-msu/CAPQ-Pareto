@@ -1,0 +1,28 @@
+\begin{table*}[t]
+\centering
+\caption{Table S4: Proposition~1 Extended Multi-Bit-Width ($b\in\{4,6,8,10\}$) and Anisotropic Distribution Audit (\nolinkurl{v3_prop1_10k_theory_validation.csv})}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllrrrr@{}}
+\toprule
+\textbf{Audit Group} & \textbf{Distribution} & \textbf{Rounding} & \textbf{Dim / Bits} & \textbf{Queries $N_q$} & \textbf{Theory $\sigma$} & \textbf{Measured $\sigma_{\text{emp}}$} \\
+\midrule
+\texttt{10k\_Real\_Corpus\_Audit} & \texttt{Real\_SIFT1M\_128d\_NonNeg} & Deterministic\_Nearest & 128d / 8b & 10,000 & 0.000377 & 0.000373 \\
+\texttt{10k\_Real\_Corpus\_Audit} & \texttt{Real\_SIFT1M\_128d\_NonNeg} & Stochastic\_Unbiased & 128d / 8b & 10,000 & 0.000532 & 0.000528 \\
+\texttt{10k\_Real\_Corpus\_Audit} & \texttt{Real\_BGEM3\_1024d\_Anisotropic} & Deterministic\_Nearest & 1024d / 8b & 10,000 & 0.000326 & 0.000311 \\
+\texttt{10k\_Real\_Corpus\_Audit} & \texttt{Real\_BGEM3\_1024d\_Anisotropic} & Stochastic\_Unbiased & 1024d / 8b & 10,000 & 0.000459 & 0.000446 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 128d / 4b & 2,500 & 0.008890 & 0.008754 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 128d / 6b & 2,500 & 0.002113 & 0.002109 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 128d / 8b & 2,500 & 0.000523 & 0.000521 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 128d / 10b & 2,500 & 0.000130 & 0.000130 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 256d / 4b & 2,500 & 0.006824 & 0.006805 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 256d / 6b & 2,500 & 0.001631 & 0.001656 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 256d / 8b & 2,500 & 0.000402 & 0.000409 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 256d / 10b & 2,500 & 0.000100 & 0.000099 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 512d / 4b & 2,500 & 0.005197 & 0.005068 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 512d / 6b & 2,500 & 0.001236 & 0.001238 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 512d / 8b & 2,500 & 0.000306 & 0.000302 \\
+\texttt{Dim\_Bit\_Distribution\_Sweep} & \texttt{Isotropic\_Gaussian} & Deterministic\_Nearest & 512d / 10b & 2,500 & 0.000076 & 0.000078 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

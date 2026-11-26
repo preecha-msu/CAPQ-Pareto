@@ -1,0 +1,16 @@
+term,sla_diff_pp,sla_ci95_lo,sla_ci95_hi,logit_beta,logit_hc3_se,logit_p_raw,logit_p_holm5,logit_p_holm15,block_perm10k_p_sla,block_perm10k_p_holm5,lat_effect_ms,block_perm10k_p_lat,overall_mix_acc_effect,implied_conf_subset_acc_effect,block_perm10k_p_acc
+A_PQC_Session_Pooling,52.15,26.18,78.11,2.9742,0.1988,0.0,0.0,0.0,0.0001,0.0005,-188.8,0.0001,0.0,N/A,1.0
+B_SPANN_Boundary_Replication,4.49,0.34,8.65,0.2805,0.1329,0.034804,0.069609,0.417654,0.28507,0.57014,3.53,0.81062,0.0333,0.1334,0.0001
+C_SIMD_RNS_PreEncoding,3.32,0.67,5.97,0.2184,0.1337,0.102508,0.102508,0.820065,0.43626,0.57014,-21.53,0.13929,-0.0,N/A,1.0
+D_Lagged_Discounted_Bandit,8.4,5.89,10.91,0.4848,0.1331,0.00027,0.000987,0.003511,0.0385,0.15398,-9.73,0.50785,-0.0133,N/A,0.0059
+E_Dual_SLA_Feasibility_Gate,8.01,2.81,13.21,0.4865,0.1327,0.000247,0.000987,0.003455,0.05179,0.15538,7.57,0.60784,0.0573,N/A,0.0001
+AxB_Interaction,2.15,0.31,3.99,0.0991,0.1309,0.448895,Secondary,1.0,0.62424,Secondary,-0.0,1.0,0.0,N/A,1.0
+AxC_Interaction,0.98,-1.53,3.49,0.0359,0.1303,0.782786,Secondary,1.0,0.84682,Secondary,-0.0,1.0,0.0,N/A,1.0
+AxD_Interaction,6.05,1.73,10.38,0.272,0.1298,0.036048,Secondary,0.417654,0.14109,Secondary,-7.12,0.62964,0.0,N/A,1.0
+AxE_Interaction,4.1,0.76,7.45,0.159,0.1316,0.226818,Secondary,1.0,0.32897,Secondary,-0.0,1.0,-0.0,N/A,1.0
+BxC_Interaction,3.32,0.67,5.97,0.2273,0.1286,0.077218,Secondary,0.694964,0.44476,Secondary,-2.02,0.89061,0.0,N/A,1.0
+BxD_Interaction,-0.98,-2.82,0.86,-0.0436,0.127,0.731235,Secondary,1.0,0.84832,Secondary,-2.6,0.85671,-0.0192,N/A,0.0002
+BxE_Interaction,1.76,0.46,3.05,0.1293,0.1276,0.310931,Secondary,1.0,0.70023,Secondary,-1.68,0.90891,-0.005,N/A,0.28727
+CxD_Interaction,-0.59,-1.97,0.8,-0.0241,0.1277,0.850537,Secondary,1.0,0.92031,Secondary,1.49,0.91461,-0.0,N/A,1.0
+CxE_Interaction,1.37,0.53,2.2,0.0999,0.1282,0.435711,Secondary,1.0,0.77852,Secondary,-3.95,0.79152,0.0,N/A,1.0
+DxE_Interaction,-4.49,-7.24,-1.75,-0.2617,0.1252,0.036647,Secondary,0.417654,0.28937,Secondary,2.6,0.85891,0.0133,N/A,0.0056

@@ -1,0 +1,22 @@
+\begin{table*}[t]
+\centering
+\caption{Four-Group Baseline Taxonomy, Transport Cryptography, and Coordinate-Confidentiality Compliance Scope}
+\label{tab:taxonomy_v4}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llllccc@{}}
+\toprule
+\textbf{Group / Mode ID} & \textbf{Session \& PQC Transport} & \textbf{Vector Quantization} & \textbf{Confidential (\texttt{conf}) Engine} & \textbf{PQ-Safe} & \textbf{Coord.-Conf.} & \textbf{Online Control} \\
+\midrule
+G1: \texttt{M1\_Fresh\_TLS13\_PQC} & Unpooled TLS 1.3 ML-KEM-1024 + ML-DSA-65 & FP32 (Uncompressed) & OpenFHE CKKS SPANN ($r=2$) & \checkmark & \checkmark & Static \\
+G1: \texttt{M2\_Pooled\_Classical} & Persistent TLS 1.3 X25519 + ECDSA & FP32 (Plaintext-on-TLS) & None (Plaintext Server HNSW) & $\times$ & $\times$ & Static \\
+G1: \texttt{M3\_Pooled\_Hybrid768} & Persistent TLS 1.3 X25519 + ML-KEM-768 & FP32 (Plaintext-on-TLS) & None (Plaintext Server HNSW) & \checkmark & $\times$ & Static \\
+G2: \texttt{M4\_Rule\_Heuristic} & Static RTT Threshold + Pooled TLS/QUIC & INT8 Fixed & Single-Probe Disjoint ($r=1$) & \checkmark & Partial ($0.47$) & Rule Threshold \\
+G3: \texttt{M6\_Pooled\_CKKS\_Disjoint\_r2} & Persistent Hybrid TLS 1.3 Pool & FP32 & OpenFHE CKKS Disjoint ($r=2$, Multi-CT) & \checkmark & \checkmark ($0.68$) & Fair Static Control \\
+G3: \texttt{M7\_Pooled\_CKKS\_SPANN\_r2} & Persistent Hybrid TLS 1.3 Pool & FP32 & OpenFHE CKKS SPANN ($r=2$, Multi-CT) & \checkmark & \checkmark ($0.97$) & Strongest Static \\
+G4: \texttt{Stationary\_LinUCB\_Gated} & Pooled TCP / QUIC 0-RTT Adaptive & FP32 / INT8 & 1-CT Slot-Agg.\ SPANN ($r\in\{1,2\}$) & \checkmark & \checkmark & $\gamma=1.00$ + Gate \\
+G4: \texttt{SW\_LinUCB\_Gated} & Pooled TCP / QUIC 0-RTT Adaptive & FP32 / INT8 & 1-CT Slot-Agg.\ SPANN ($r\in\{1,2\}$) & \checkmark & \checkmark & Window $W=24$ + Gate \\
+\textbf{G4: \texttt{CAPQ-Pareto (V4 Ours)}} & \textbf{Pooled Hybrid TCP / 1-MTU QUIC Fast-PTO} & \textbf{Asym.\ INT8 / FP32} & \textbf{1-CT Slot-Agg.\ SPANN ($128.8$~KB, $100$k)} & \textbf{\checkmark} & \textbf{\checkmark ($0.97$)} & \textbf{Centered $\gamma=0.88$ + Gate} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

@@ -1,0 +1,21 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\begin{document}
+\noindent November 26, 2026\\[1em]
+\textbf{To:} Editor-in-Chief and Associate Editor, \textit{IEEE Transactions on Cloud Computing}\\
+\textbf{Subject:} Submission of Revised Regular Paper (V4): \textit{``CAPQ-Pareto: Coordinate-Confidential Hybrid Cloud Vector-Relational Orchestration Under Post-Quantum Transport and Non-Stationary WANs''}\\[1em]
+Dear Editor-in-Chief and Associate Editor,\\[0.6em]
+Please find enclosed the thoroughly revised V4 manuscript and complete Electronic Supplementary Material for \textbf{CAPQ-Pareto}. In response to the Reviewer's rigorous evaluation of V3, we audited every script, mathematical constant, and hardware log from first principles under a strict \textbf{Zero-Estimation / 100\% Real Execution} protocol:
+\begin{enumerate}
+    \item \textbf{Bandit Redemption (P0.1):} Identified and fixed prior-shrinkage and minimization ridge-to-zero bugs in V3's D-LinUCB implementation, re-running 10-seed counterfactual replay benchmarks over real Linux \texttt{tc netem} sockets against a single global fixed baseline and stationary LinUCB ($-39.8\%$ dynamic regret under unannounced link-loss inversions, $p=0.00195$, while candidly reporting parity on stationary/observable-EWMA links).
+    \item \textbf{Equal-Probe \texttt{Disjoint r=2} Control, Wire Reconciliation, and 100k Scaling (P0.2, P0.5):} Withdrew the erroneous $8.0/4.0$~KB buffer figure in favor of verified C++ OpenFHE serialized sizes ($128.81$~KB request / $128.81$~KB 1-CT slot-aggregated response), added the controlled \texttt{Disjoint r=2} comparison ($+0.11\text{--}0.23$ Recall@10 gain for SPANN, $p=8.46\times 10^{-4}$), scaled confidential CKKS to $100,000$ vectors ($52.31$~ms server eval), and replaced OLS ANOVA with a block-fixed Binomial Logit GLM (HC3).
+    \item \textbf{Fair Confidential WAN Baselines \& Quiescent RAPL $\pm U_{95}$ (P0.3, P0.4, P1, P2):} Added fair pooled CKKS baselines (\texttt{M6}, \texttt{M7}), reported pre-registered \texttt{Strict-150ms} and \texttt{Class-250ms} SLAs side-by-side ($40.4\%\text{--}40.9\%$ lower latency than \texttt{M7}, $p<10^{-4}$), unified 10,000-query Proposition~1 audits with the exact $\Delta_q\sqrt{\tfrac{1}{2}\ln(2/\zeta)}$ Hoeffding bound, measured quiescent-settled dual-ring RAPL power, and verified 64-character SHA-256 digests across all 54 active artifacts (with 4 superseded V1/V3 logs segregated into an explicit Errata Registry).
+\end{enumerate}
+All authors confirm this work is original and not under consideration elsewhere.\\[1em]
+Sincerely,\\[0.6em]
+\textbf{Preecha Noiumkar} (Member, IEEE)\\
+Department of Information Technology, Faculty of Informatics, Mahasarakham University, Thailand\\
+E-mail: \texttt{preecha.n@msu.ac.th}
+\end{document}

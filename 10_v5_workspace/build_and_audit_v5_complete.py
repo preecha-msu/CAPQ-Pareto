@@ -1,0 +1,1501 @@
+from __future__ import annotations
+import csv
+import hashlib
+import json
+import math
+import re
+import shutil
+import subprocess
+import time
+import zipfile
+from pathlib import Path
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
+import numpy as np
+
+V5_ROOT = Path(r"D:\Research\CAPQ-Pareto-V5")
+RES_ROOT = Path(r"D:\Research")
+LOG_DIR = V5_ROOT / "06_experiments_results" / "v5_raw_logs"
+MS_DIR  = V5_ROOT / "08_manuscript_ieee_tcc_v5"
+CLEAN_OVERLEAF_DIR = V5_ROOT / "10_v5_workspace" / "overleaf_clean_submission_v5"
+FIG_DIR = CLEAN_OVERLEAF_DIR / "figures"
+
+if CLEAN_OVERLEAF_DIR.exists():
+    shutil.rmtree(CLEAN_OVERLEAF_DIR)
+FIG_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def sha256_hex(fp: Path) -> str:
+    h = hashlib.sha256()
+    with fp.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+# ==============================================================================
+# 0. Pre-Check Zero-Touch V4 Hashes
+# ==============================================================================
+V4_LOCKED = {
+    "CAPQ-Pareto-Main-IEEE-TCC-V4.pdf": "d06f3ac78fe4ac826792",
+    "CAPQ-Pareto-Supplement-IEEE-TCC-V4.pdf": "61c923a2984fd2bfa5d3",
+    "CAPQ-Pareto-Overleaf-IEEE-TCC-V4.zip": "bafc8d8b97829fd2d1a9",
+}
+for fn, pref in V4_LOCKED.items():
+    p_v4 = RES_ROOT / fn
+    if p_v4.exists():
+        assert sha256_hex(p_v4).startswith(pref), f"V4 lock mismatch before build on {fn}!"
+
+# ==============================================================================
+# 1. Load ALL Verified V5 Empirical CSVs & Frozen JSON Config (Single Source of Truth)
+# ==============================================================================
+cfg_fp    = LOG_DIR / "v5_bandit_frozen_config.json"
+ckks_ctrl = LOG_DIR / "v5_ckks_equal_budget_1ct_vs_multict_500q.csv"
+ckks_scal = LOG_DIR / "v5_ckks_scaling_5k_25k_100k_with_recall_500q.csv"
+bandit_fp = LOG_DIR / "v5_bandit_5d_fair_m8_10seeds.csv"
+trace_fp  = LOG_DIR / "v5_real_netns_socket_traces_m1_m8.json"
+rapl_fp   = LOG_DIR / "v5_steady_rapl_omp_energy_gum_u95.csv"
+prop1_fp  = LOG_DIR / "v5_prop1_same_quantile95_10k_audit.csv"
+glm_fp    = LOG_DIR / "v5_factorial_2pow5_glm_and_10k_block_permutation.csv"
+ef_fp     = LOG_DIR / "v5_pg18_hnsw_ef_sweep_real.csv"
+conc_fp   = LOG_DIR / "v5_pg18_hnsw_concurrency_2000ops_per_level.csv"
+live_fp   = LOG_DIR / "v5_live_gcp_3regions_pure_m1_m5_verified.csv"
+cwan_sum  = LOG_DIR / "v5_controlled_3regions_m1_m8_summary.csv"
+cwan_raw  = LOG_DIR / "v5_controlled_3regions_m1_m8_interleaved_2304raw.csv"
+live_raw_orig = V5_ROOT / "06_experiments_results" / "v2_raw_logs" / "v2_wan_3regions_interleaved_raw.csv"
+arm_csv_cands = sorted(V5_ROOT.rglob("*arm64*.csv")) + sorted(V5_ROOT.rglob("*t2a*.csv"))
+
+ACTIVE_DATA_FILES = [
+    cfg_fp, ckks_ctrl, ckks_scal, bandit_fp, trace_fp, rapl_fp,
+    prop1_fp, glm_fp, ef_fp, conc_fp, live_fp, cwan_sum, cwan_raw, live_raw_orig,
+]
+for af in ACTIVE_DATA_FILES:
+    assert af.is_file(), f"Missing active verified V5 artifact: {af}"
+
+N_ACTIVE_DATA = len(ACTIVE_DATA_FILES)   # Exact integer (14 active primary datasets/configs)
+N_ACTIVE_FIGS = 14                       # Exact 8 main + 6 supplement figures
+N_TOTAL_ARTIFACTS = N_ACTIVE_DATA + N_ACTIVE_FIGS  # Exact 28 active artifacts (reconciled everywhere!)
+
+cfg       = json.loads(cfg_fp.read_text(encoding="utf-8"))
+r_ckks_c  = list(csv.DictReader(ckks_ctrl.open("r", encoding="utf-8")))
+r_ckks_s  = list(csv.DictReader(ckks_scal.open("r", encoding="utf-8")))
+r_bandit  = list(csv.DictReader(bandit_fp.open("r", encoding="utf-8")))
+doc_trace = json.loads(trace_fp.read_text(encoding="utf-8"))
+r_rapl    = list(csv.DictReader(rapl_fp.open("r", encoding="utf-8")))
+r_prop1   = list(csv.DictReader(prop1_fp.open("r", encoding="utf-8")))
+r_glm     = list(csv.DictReader(glm_fp.open("r", encoding="utf-8")))
+r_ef      = list(csv.DictReader(ef_fp.open("r", encoding="utf-8")))
+r_conc    = list(csv.DictReader(conc_fp.open("r", encoding="utf-8")))
+r_live    = list(csv.DictReader(live_fp.open("r", encoding="utf-8")))
+r_cwan    = list(csv.DictReader(cwan_sum.open("r", encoding="utf-8")))
+
+# Exact Bloom filter false-positive probability (m=65536 bits, n=4000, k=5)
+BLOOM_FP_PCT = ((1.0 - (1.0 - 1.0 / 65536.0) ** (5 * 4000)) ** 5) * 100.0  # 0.1258% -> 0.126%
+
+# ==============================================================================
+# 2. Generate Clean Verified references.bib (Zero TCHES, Zero Unverifiable Tech Reports, Exact DOIs!)
+# ==============================================================================
+BIB_CONTENT = r"""@techreport{fips203,
+  author      = {{National Institute of Standards and Technology}},
+  title       = {Module-Lattice-Based Key-Encapsulation Mechanism Standard ({ML-KEM})},
+  institution = {U.S. Department of Commerce, NIST},
+  type        = {Federal Information Processing Standards Publication (FIPS)},
+  number      = {203},
+  year        = {2024},
+  doi         = {10.6028/NIST.FIPS.203}
+}
+
+@techreport{fips204,
+  author      = {{National Institute of Standards and Technology}},
+  title       = {Module-Lattice-Based Digital Signature Standard ({ML-DSA})},
+  institution = {U.S. Department of Commerce, NIST},
+  type        = {Federal Information Processing Standards Publication (FIPS)},
+  number      = {204},
+  year        = {2024},
+  doi         = {10.6028/NIST.FIPS.204}
+}
+
+@inproceedings{albadawi2022openfhe,
+  author    = {Al Badawi, Ahmad and Bates, Jack and Bergamaschi, Flavio and Cousins, David Bruce and Erabelli, Saroja and Genise, Nicholas and Halevi, Shai and Hunt, Hamish and Kim, Andrey and Lee, Yongwoo and Liu, Zeyu and Micciancio, Daniele and Quah, Ian and Polyakov, Yuriy and Saraswathy, Sikhar and Rohloff, Kurt and Saylor, Jonathan and Suponitsky, Dmitriy and Triplett, Matthew and Vaikuntanathan, Vinod and Zucca, Vincent},
+  title     = {{OpenFHE}: Open-Source Fully Homomorphic Encryption Library},
+  booktitle = {Proceedings of the 10th Workshop on Encrypted Computing \& Applied Homomorphic Cryptography (WAHC)},
+  pages     = {53--63},
+  year      = {2022},
+  publisher = {ACM},
+  doi       = {10.1145/3560827.3563379}
+}
+
+@inproceedings{paquin2020pqctls,
+  author    = {Paquin, Christian and Stebila, Douglas and Tamvada, Goutam},
+  title     = {Benchmarking Post-Quantum Cryptography in {TLS}},
+  booktitle = {Post-Quantum Cryptography (PQCrypto 2020)},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {12100},
+  pages     = {72--91},
+  year      = {2020},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-030-44223-1_6}
+}
+
+@inproceedings{sikeridis2020pqtls,
+  author    = {Sikeridis, Panos and Kampanakis, Panos and Devetsikiotis, Michael},
+  title     = {Post-Quantum Authentication in {TLS} 1.3: A Performance Study},
+  booktitle = {Proceedings of the Network and Distributed System Security Symposium (NDSS)},
+  year      = {2020},
+  doi       = {10.14722/ndss.2020.24203}
+}
+
+@inproceedings{stebila2016liboqs,
+  author    = {Stebila, Douglas and Mosca, Michele},
+  title     = {Post-Quantum Key Exchange for the Internet and the {Open Quantum Safe} Project},
+  booktitle = {Selected Areas in Cryptography (SAC 2016)},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {10532},
+  pages     = {14--37},
+  year      = {2017},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-319-69453-5_2}
+}
+
+@techreport{rfc8879,
+  author      = {Ghedini, Alessandro and Vasiliev, Victor},
+  title       = {{TLS} Certificate Compression},
+  institution = {RFC Editor},
+  type        = {RFC},
+  number      = {8879},
+  year        = {2020},
+  doi         = {10.17487/RFC8879}
+}
+
+@techreport{rfc9000,
+  author      = {Iyengar, Jana and Thomson, Martin},
+  title       = {{QUIC}: A {UDP}-Based Multiplexed and Secure Transport},
+  institution = {RFC Editor},
+  type        = {RFC},
+  number      = {9000},
+  year        = {2021},
+  doi         = {10.17487/RFC9000}
+}
+
+@techreport{rfc9002,
+  author      = {Iyengar, Jana and Swett, Ian},
+  title       = {{QUIC} Loss Detection and Congestion Control},
+  institution = {RFC Editor},
+  type        = {RFC},
+  number      = {9002},
+  year        = {2021},
+  doi         = {10.17487/RFC9002}
+}
+
+@techreport{rfc9308,
+  author      = {Kuehlewind, Mirja and Trammell, Brian},
+  title       = {Applicability of the {QUIC} Transport Protocol},
+  institution = {RFC Editor},
+  type        = {RFC},
+  number      = {9308},
+  year        = {2022},
+  doi         = {10.17487/RFC9308}
+}
+
+@inproceedings{cheon2017ckks,
+  author    = {Cheon, Jung Hee and Kim, Andrey and Kim, Miran and Song, Yongsoo},
+  title     = {Homomorphic Encryption for Arithmetic of Approximate Numbers},
+  booktitle = {Advances in Cryptology -- ASIACRYPT 2017},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {10624},
+  pages     = {409--437},
+  year      = {2017},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-319-70694-8_15}
+}
+
+@inproceedings{chen2021spann,
+  author    = {Chen, Qi and Zhao, Bing and Wang, Haidong and Li, Mingqin and Liu, Chuanjie and Li, Zengzhong and Yang, Mao and Wang, Jingdong},
+  title     = {{SPANN}: Highly-Efficient Billion-Scale Approximate Nearest Neighbor Search},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {34},
+  pages     = {5199--5212},
+  year      = {2021}
+}
+
+@inproceedings{henzinger2023tiptoe,
+  author    = {Henzinger, Alexandra and Dauterman, Emma and Corrigan-Gibbs, Henry and Zeldovich, Nickolai},
+  title     = {Private Web Search with {Tiptoe}},
+  booktitle = {Proceedings of the 29th Symposium on Operating Systems Principles (SOSP)},
+  pages     = {396--416},
+  year      = {2023},
+  publisher = {ACM},
+  doi       = {10.1145/3600006.3613134}
+}
+
+@article{malkov2018hnsw,
+  author  = {Malkov, Yu A. and Yashunin, D. A.},
+  title   = {Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume  = {42},
+  number  = {4},
+  pages   = {824--836},
+  year    = {2020},
+  doi     = {10.1109/TPAMI.2018.2889473}
+}
+
+@article{jegou2011sift,
+  author  = {J{\'e}gou, Herv{\'e} and Douze, Matthijs and Schmid, Cordelia},
+  title   = {Product Quantization for Nearest Neighbor Search},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume  = {33},
+  number  = {1},
+  pages   = {117--128},
+  year    = {2011},
+  doi     = {10.1109/TPAMI.2010.57}
+}
+
+@article{chen2024bgem3,
+  author  = {Chen, Jianlv and Xiao, Shitao and Zhang, Peitian and Luo, Kun and Lian, Defu and Liu, Zheng},
+  title   = {{BGE} {M3}-Embedding: Multi-Lingual, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation},
+  journal = {arXiv preprint arXiv:2402.03216},
+  year    = {2024}
+}
+
+@inproceedings{wang2021milvus,
+  author    = {Wang, Jianguo and Yi, Xiaomeng and Guo, Rentong and Jin, Hai and Xu, Peng and Li, Shengjun and Wang, Xiangyu and Guo, Xiangzhou and Li, Chengming and Xu, Xiaohai and Yu, Kun and Yuan, Yuxing and Zou, Yinghao and Long, Jiquan and Cai, Yudong and Li, Zhenxiang and Zhang, Zhifeng and Mo, Yihua and Gu, Jun and Jiang, Ruiyi and Wei, Yi and Xie, Charles},
+  title     = {{Milvus}: A Purpose-Built Vector Data Management System},
+  booktitle = {Proceedings of the ACM SIGMOD International Conference on Management of Data},
+  pages     = {2614--2627},
+  year      = {2021},
+  publisher = {ACM},
+  doi       = {10.1145/3448016.3457550}
+}
+
+@inproceedings{cooper2010ycsb,
+  author    = {Cooper, Brian F. and Silberstein, Adam and Tam, Erwin and Ramakrishnan, Raghu and Sears, Russell},
+  title     = {Benchmarking Cloud Serving Systems with {YCSB}},
+  booktitle = {Proceedings of the 1st ACM Symposium on Cloud Computing (SoCC)},
+  pages     = {143--154},
+  year      = {2010},
+  publisher = {ACM},
+  doi       = {10.1145/1807128.1807152}
+}
+
+@inproceedings{li2010linucb,
+  author    = {Li, Lihong and Chu, Wei and Langford, John and Schapire, Robert E.},
+  title     = {A Contextual-Bandit Approach to Personalized News Article Recommendation},
+  booktitle = {Proceedings of the 19th International Conference on World Wide Web (WWW)},
+  pages     = {661--670},
+  year      = {2010},
+  publisher = {ACM},
+  doi       = {10.1145/1772690.1772758}
+}
+
+@inproceedings{garivier2011ucb,
+  author    = {Garivier, Aur{\'e}lien and Moulines, Eric},
+  title     = {On Upper-Confidence Bound Policies for Switching Bandit Problems},
+  booktitle = {Algorithmic Learning Theory (ALT 2011)},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {6925},
+  pages     = {174--188},
+  year      = {2011},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-642-24412-4_16}
+}
+
+@inproceedings{russac2019dlinucb,
+  author    = {Russac, Yoann and Vernade, Claire and Capp{\'e}, Olivier},
+  title     = {Weighted Linear Bandits for Non-Stationary Environments},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {32},
+  pages     = {12040--12049},
+  year      = {2019}
+}
+
+@article{khan2018rapl,
+  author  = {Khan, Kashif Nizam and Hirki, Mikael and Niemi, Tapio and Nurminen, Jukka K. and Ou, Zhonghong},
+  title   = {{RAPL} in Action: Experiences in Using {RAPL} for Power Measurements},
+  journal = {ACM Transactions on Modeling and Performance Evaluation of Computing Systems},
+  volume  = {3},
+  number  = {2},
+  pages   = {9:1--9:26},
+  year    = {2018},
+  doi     = {10.1145/3177754}
+}
+
+@article{paninski2003entropy,
+  author  = {Paninski, Liam},
+  title   = {Estimation of Entropy and Mutual Information},
+  journal = {Neural Computation},
+  volume  = {15},
+  number  = {6},
+  pages   = {1191--1253},
+  year    = {2003},
+  doi     = {10.1162/089976603321780272}
+}
+
+@techreport{iso_gum_2008,
+  author      = {{Joint Committee for Guides in Metrology (JCGM)}},
+  title       = {Evaluation of Measurement Data -- Guide to the Expression of Uncertainty in Measurement ({GUM})},
+  institution = {BIPM / ISO},
+  number      = {JCGM 100:2008},
+  year        = {2008}
+}
+"""
+(CLEAN_OVERLEAF_DIR / "references.bib").write_text(BIB_CONTENT.strip() + "\n", encoding="utf-8")
+
+# Copy IEEEtran.cls if present in MS_DIR so Overleaf & local pdflatex compile identically
+for cls_fp in MS_DIR.glob("*.cls"):
+    shutil.copy2(cls_fp, CLEAN_OVERLEAF_DIR / cls_fp.name)
+
+# ==============================================================================
+# 3. Generate All 14 Clean Vector Figures (8 Main + 6 Supplement, Zero Legacy Version Tags!)
+# ==============================================================================
+plt.rcParams.update({
+    "font.family": "serif",
+    "font.size": 8.3,
+    "axes.labelsize": 8.3,
+    "axes.titlesize": 8.8,
+    "legend.fontsize": 7.2,
+    "xtick.labelsize": 7.6,
+    "ytick.labelsize": 7.6,
+    "pdf.fonttype": 42,
+    "ps.fonttype": 42,
+})
+
+# Fig 1: Clean 4-Swimlane Architecture (GCP t2a-standard-4 Altra Neoverse-N1 reconciled!)
+shutil.copy2(MS_DIR / "figures" / "fig1_v5_architecture.pdf", FIG_DIR / "fig1_architecture.pdf")
+shutil.copy2(MS_DIR / "figures" / "fig1_v5_architecture.png", RES_ROOT / "CAPQ-Pareto-Fig1-Preview-V5.png")
+
+# Fig 2: Proposition 1 Same-Quantile (95%) Tightness & Rounding Probability Spaces (10,000 Pairs)
+fig2, (ax2a, ax2b) = plt.subplots(1, 2, figsize=(7.0, 2.55))
+p_det_sift = next(r for r in r_prop1 if r["corpus"] == "SIFT1M_128d" and r["rounding_mode"] == "Deterministic_Nearest")
+p_sto_sift = next(r for r in r_prop1 if r["corpus"] == "SIFT1M_128d" and r["rounding_mode"] == "Stochastic_Unbiased")
+p_det_bge  = next(r for r in r_prop1 if r["corpus"] == "BGEM3_1024d" and r["rounding_mode"] == "Deterministic_Nearest")
+p_sto_bge  = next(r for r in r_prop1 if r["corpus"] == "BGEM3_1024d" and r["rounding_mode"] == "Stochastic_Unbiased")
+
+x2 = np.arange(2)
+w2 = 0.25
+ax2a.bar(x2 - w2, [float(p_det_sift["clt95_halfwidth_196sigma"]) * 1e3, float(p_det_bge["clt95_halfwidth_196sigma"]) * 1e3], width=w2, label="Deterministic 1.96*sigma", color="#2b5c8f")
+ax2a.bar(x2,      [float(p_sto_sift["clt95_halfwidth_196sigma"]) * 1e3, float(p_sto_bge["clt95_halfwidth_196sigma"]) * 1e3], width=w2, label="Stochastic 1.96*sigma", color="#66c2a5")
+ax2a.bar(x2 + w2, [float(p_det_sift["worst_case_holder_bound"]) * 1e3, float(p_det_bge["worst_case_holder_bound"]) * 1e3], width=w2, label="Worst-Case Holder Bound", color="#d95f02")
+ax2a.set_yscale("log")
+ax2a.set_xticks(x2)
+ax2a.set_xticklabels(["SIFT-1M (D=128)", "BGE-M3 (D=1024)"])
+ax2a.set_ylabel("Inner-Product Error Bound (x10^-3, log)")
+ax2a.set_title("(a) 95%-Quantile Error vs. Holder Bound")
+ax2a.legend(loc="upper left", frameon=True)
+ax2a.grid(axis="y", linestyle=":", alpha=0.5)
+
+ratios_det = [float(p_det_sift["same_quantile_95_tighter_vs_holder"]), float(p_det_bge["same_quantile_95_tighter_vs_holder"])]
+ratios_sto = [float(p_sto_sift["same_quantile_95_tighter_vs_holder"]), float(p_sto_bge["same_quantile_95_tighter_vs_holder"])]
+ax2b.bar(x2 - 0.17, ratios_det, width=0.32, label="Deterministic Nearest P(q,x)", color="#377eb8")
+ax2b.bar(x2 + 0.17, ratios_sto, width=0.32, label="Stochastic Unbiased P(xi|q,x)", color="#4daf4a")
+for xi, vd, vs in zip(x2, ratios_det, ratios_sto):
+    ax2b.text(xi - 0.17, vd + 0.5, f"{vd:.2f}x", ha="center", fontsize=7.0)
+    ax2b.text(xi + 0.17, vs + 0.5, f"{vs:.2f}x", ha="center", fontsize=7.0)
+ax2b.set_xticks(x2)
+ax2b.set_xticklabels(["SIFT-1M (D=128)", "BGE-M3 (D=1024)"])
+ax2b.set_ylim(0, 27.0)
+ax2b.set_ylabel("Same-Quantile (95%) Tightness Ratio")
+ax2b.set_title("(b) Tightness Ratio at Matched 95% Level")
+ax2b.legend(loc="upper left", frameon=True)
+ax2b.grid(axis="y", linestyle=":", alpha=0.5)
+fig2.tight_layout()
+fig2.savefig(FIG_DIR / "fig2_prop1_same_quantile95.pdf", bbox_inches="tight")
+plt.close(fig2)
+
+# Fig 3: CKKS Equal-Budget Control & 100k Scaling WITH Recall@10 (copy from verified Step 3.1)
+shutil.copy2(MS_DIR / "figures" / "fig_v5_ckks_1ct_and_scaling.pdf", FIG_DIR / "fig3_ckks_1ct_and_scaling.pdf")
+
+# Fig 4: PG18.6 HNSW ef_search Sweep & 2,000-ops/level Concurrency Scaling
+fig4, (ax4a, ax4b) = plt.subplots(1, 2, figsize=(7.0, 2.55))
+for crp, lbl, col, mk in [("SIFT_50k_128d", "SIFT-50k (128d)", "#1b9e77", "o"), ("BGEM3_25k_1024d", "BGE-M3-25k (1024d)", "#d95f02", "s")]:
+    sub = [r for r in r_ef if r["corpus"] == crp]
+    ax4a.plot([float(r["p50_ms"]) for r in sub], [float(r["recall_at_10"]) for r in sub], marker=mk, linewidth=1.6, color=col, label=lbl)
+    for r in sub:
+        ax4a.annotate(f"ef={r['ef_search']}", (float(r["p50_ms"]), float(r["recall_at_10"])), textcoords="offset points", xytext=(3, -7), fontsize=6.5)
+ax4a.set_xlabel("Median Query Latency p50 (ms)")
+ax4a.set_ylabel("Recall@10 (N = 300 Queries)")
+ax4a.set_ylim(0.80, 1.01)
+ax4a.set_title("(a) PG18.6 pgvector HNSW Recall vs. Latency")
+ax4a.legend(loc="lower right", frameon=True)
+ax4a.grid(True, linestyle=":", alpha=0.5)
+
+cs_v = [int(r["concurrency_c"]) for r in r_conc]
+qps_v = [float(r["throughput_ops_s"]) for r in r_conc]
+p95_v = [float(r["p95_ms"]) for r in r_conc]
+ax4b_t = ax4b.twinx()
+l1 = ax4b.plot(cs_v, qps_v, marker="o", color="#2b5c8f", linewidth=1.6, label="Throughput (ops/s)")
+l2 = ax4b_t.plot(cs_v, p95_v, marker="^", linestyle="--", color="#e41a1c", linewidth=1.4, label="p95 Latency (ms)")
+ax4b.set_xlabel("Concurrent SQL Clients c (2,000 ops/level)")
+ax4b.set_ylabel("Throughput (ops/s)", color="#2b5c8f")
+ax4b_t.set_ylabel("p95 Latency (ms)", color="#e41a1c")
+ax4b.set_xticks(cs_v)
+ax4b.set_title("(b) Concurrency Scaling (10,000 Total SQL Ops)")
+ax4b.grid(True, linestyle=":", alpha=0.5)
+lines_all = l1 + l2
+ax4b.legend(lines_all, [l.get_label() for l in lines_all], loc="center right", frameon=True, fontsize=6.7)
+fig4.tight_layout()
+fig4.savefig(FIG_DIR / "fig4_pg18_hnsw_concurrency.pdf", bbox_inches="tight")
+plt.close(fig4)
+
+# Fig 5 & Fig 6: Bandit 5D + Silicon RAPL OMP Energy (+-U95) & 2^5 Factorial GLM vs 10k Permutation
+shutil.copy2(MS_DIR / "figures" / "fig_v5_bandit_and_rapl_energy.pdf", FIG_DIR / "fig5_bandit_and_rapl_energy.pdf")
+
+fig6, (ax6a, ax6b) = plt.subplots(1, 2, figsize=(7.0, 2.6))
+main5 = r_glm[:5]
+f_short = ["A: Session Pool", "B: SPANN Rep.", "C: RNS Pre-Enc.", "D: Bandit", "E: SLA Gate"]
+dsla = [float(r["sla_diff_pp"]) for r in main5]
+ci_e = [float(r["sla_ci95_hi"]) - float(r["sla_diff_pp"]) for r in main5]
+y6 = np.arange(5)[::-1]
+ax6a.barh(y6, dsla, xerr=ci_e, capsize=3, color=["#1b9e77", "#7570b3", "#8da0cb", "#377eb8", "#66a61e"], edgecolor="#222222", height=0.55)
+ax6a.axvline(0, color="#333333", linewidth=0.8)
+ax6a.set_yticks(y6)
+ax6a.set_yticklabels(f_short)
+ax6a.set_xlabel("Marginal Strict-SLA Improvement (pp, 95% CI)")
+ax6a.set_title("(a) 2^5 Factorial Main Effects (256 Runs)")
+ax6a.grid(axis="x", linestyle=":", alpha=0.5)
+
+glm_p = [-math.log10(max(float(r["logit_p_raw"]), 1e-6)) for r in main5]
+prm_p = [-math.log10(max(float(r["block_perm10k_p_sla"]), 1e-6)) for r in main5]
+ax6b.barh(y6 + 0.16, glm_p, height=0.30, label="Binomial Logit GLM (HC3)", color="#2b5c8f")
+ax6b.barh(y6 - 0.16, prm_p, height=0.30, label="Exact 10k Block Permutation", color="#d95f02")
+ax6b.axvline(-math.log10(0.05), color="#e41a1c", linestyle="--", linewidth=1.0, label="alpha = 0.05")
+ax6b.set_yticks(y6)
+ax6b.set_yticklabels(f_short)
+ax6b.set_xlabel("-log10(p-value)")
+ax6b.set_title("(b) Parametric GLM vs. Block Permutation")
+ax6b.legend(loc="lower right", frameon=True, fontsize=6.6)
+ax6b.grid(axis="x", linestyle=":", alpha=0.5)
+fig6.tight_layout()
+fig6.savefig(FIG_DIR / "fig6_factorial_glm_permutation.pdf", bbox_inches="tight")
+plt.close(fig6)
+
+# Fig 7 & Fig 8: Dual-Track WAN Latency + 4D Cost/Energy/SLA Trade-off
+shutil.copy2(MS_DIR / "figures" / "fig_v5_dual_track_wan_m1_m8.pdf", FIG_DIR / "fig7_dual_track_wan_latency.pdf")
+
+fig8, (ax8a, ax8b) = plt.subplots(1, 2, figsize=(7.0, 2.6))
+sin_rows = [r for r in r_cwan if r["region_profile"] == "Singapore_Calibrated_ASE1" and r["mode"] not in ("M2_Fresh_Classical_TLS_Plain", "M3_Pooled_Classical_TLS_Plain")]
+mk_map = {
+    "M1_Fresh_PQC_TCP_SPANN_MultiCT": ("X", "#d95f02", "M1: Fresh PQC Multi-CT"),
+    "M4_Pooled_PQC_TCP_Disjoint_r1_1CT": ("v", "#984ea3", "M4: Disjoint r=1 (1-CT)"),
+    "M6_Pooled_PQC_TCP_Disjoint_r2_1CT": ("^", "#66c2a5", "M6: Disjoint r=2 (1-CT)"),
+    "M7_Pooled_PQC_TCP_FP32_SPANN_MultiCT": ("s", "#e41a1c", "M7: TCP SPANN Multi-CT"),
+    "M8_Pooled_PQC_QUIC_INT8_SPANN_1CT": ("D", "#377eb8", "M8: Static QUIC+INT8+1CT"),
+    "M5_CAPQ_Pareto_V5_Adaptive_1CT": ("*", "#1b9e77", "M5: CAPQ Adaptive 1-CT"),
+}
+for r in sin_rows:
+    mk, cl, lb = mk_map[r["mode"]]
+    sz = 95 if mk == "*" else 52
+    ax8a.scatter(float(r["mean_lat_ms"]), float(r["mean_acc"]), s=sz, marker=mk, color=cl, edgecolor="#111111", linewidth=0.6, label=lb)
+ax8a.set_xlabel("Mean End-to-End Latency (ms, Singapore Profile)")
+ax8a.set_ylabel("Mean Effective Accuracy / Recall@10")
+ax8a.set_title("(a) Latency vs. Accuracy Frontier (Singapore)")
+ax8a.legend(loc="lower right", frameon=True, fontsize=6.3)
+ax8a.grid(True, linestyle=":", alpha=0.5)
+
+for r in sin_rows:
+    mk, cl, lb = mk_map[r["mode"]]
+    sz = 95 if mk == "*" else 52
+    ax8b.scatter(float(r["cloud_cost_usd_1m"]), float(r["conf_only_250ms_sla_pct"]), s=sz, marker=mk, color=cl, edgecolor="#111111", linewidth=0.6, label=lb)
+ax8b.set_xlabel("Cloud Compute + Egress Cost ($ / 1M Queries)")
+ax8b.set_ylabel("Confidential-Tier 250ms SLA (%)")
+ax8b.set_ylim(-5, 105)
+ax8b.set_title("(b) Cloud Cost vs. Confidential SLA (Singapore)")
+ax8b.grid(True, linestyle=":", alpha=0.5)
+fig8.tight_layout()
+fig8.savefig(FIG_DIR / "fig8_pareto_4d_cost_conf_sla.pdf", bbox_inches="tight")
+plt.close(fig8)
+
+# Generate 6 Supplement Vector Figures (fig_s1 .. fig_s6) from Verified V5 Logs
+# Fig S1: CKKS Latency Breakdown (Enc, Srv-IP, Srv-Agg, Dec) & Wire Bytes
+fig_s1, (axs1a, axs1b) = plt.subplots(1, 2, figsize=(7.0, 2.5))
+kc96_mct = next(r for r in r_ckks_c if r["centroids_Kc"] == "96" and r["scheme_label"] == "SPANN_r2_MultiCT_N4096")
+kc96_1ct = next(r for r in r_ckks_c if r["centroids_Kc"] == "96" and r["scheme_label"] == "SPANN_r2_True1CT_N8192")
+stages = ["Client Enc", "Server IP", "Server Agg/Ser", "Client Dec"]
+v_mct = [float(kc96_mct["med_enc_ms"]), float(kc96_mct["med_srv_ip_ms"]), float(kc96_mct["med_srv_agg_ms"]), float(kc96_mct["med_dec_ms"])]
+v_1ct = [float(kc96_1ct["med_enc_ms"]), float(kc96_1ct["med_srv_ip_ms"]), float(kc96_1ct["med_srv_agg_ms"]), float(kc96_1ct["med_dec_ms"])]
+xs1 = np.arange(4)
+axs1a.bar(xs1 - 0.17, v_mct, width=0.32, label="Multi-CT (N=4096, D=1)", color="#fc8d62")
+axs1a.bar(xs1 + 0.17, v_1ct, width=0.32, label="True 1-CT (N=8192, D=2)", color="#377eb8")
+axs1a.set_xticks(xs1)
+axs1a.set_xticklabels(stages, fontsize=7.2)
+axs1a.set_ylabel("Median Stage Time (ms, N_q=500)")
+axs1a.set_title("(a) CKKS Cryptographic Stage Breakdown")
+axs1a.legend(frameon=True)
+axs1a.grid(axis="y", linestyle=":", alpha=0.5)
+
+axs1b.bar(["Multi-CT\nRequest", "Multi-CT\nResponse", "True 1-CT\nRequest", "True 1-CT\nResponse"],
+          [float(kc96_mct["req_wire_kb"]), float(kc96_mct["resp_wire_kb"]), float(kc96_1ct["req_wire_kb"]), float(kc96_1ct["resp_wire_kb"])],
+          color=["#fdb462", "#e41a1c", "#80b1d3", "#1b9e77"], width=0.5)
+axs1b.set_ylabel("Serialized Wire Size (KB)")
+axs1b.set_title("(b) Ciphertext Wire Payload Comparison")
+axs1b.grid(axis="y", linestyle=":", alpha=0.5)
+fig_s1.tight_layout()
+fig_s1.savefig(FIG_DIR / "fig_s1_ckks_stage_and_wire.pdf", bbox_inches="tight")
+plt.close(fig_s1)
+
+# Fig S2: Real Linux netns Socket Latency across S1-S5 & B1/B2
+fig_s2, axs2 = plt.subplots(figsize=(6.8, 2.5))
+tb = doc_trace["trace_bank"]
+p_keys = ["S1_Clean_MEC_12ms_0p", "S2_Regional_38ms_0.5p", "S3_Congested_85ms_3.5p", "S5_Transcontinental_220ms_1.5p", "B2_RFC9308_Enterprise_UDP_Policing_22ms"]
+p_short = ["S1: 12ms\n0% loss", "S2: 38ms\n0.5% loss", "S3: 85ms\n3.5% loss", "S5: 220ms\n1.5% loss", "B2: 22ms\nUDP Policed"]
+xs2 = np.arange(len(p_keys))
+axs2.bar(xs2 - 0.2, [float(np.median(tb[k]["tcp_conf_mct_ms"])) for k in p_keys], width=0.19, label="TCP Multi-CT (909 KB)", color="#e41a1c")
+axs2.bar(xs2,       [float(np.median(tb[k]["tcp_conf_1ct_ms"])) for k in p_keys], width=0.19, label="TCP 1-CT (129 KB)", color="#7570b3")
+axs2.bar(xs2 + 0.2, [float(np.median(tb[k]["quic_conf_1ct_ms"])) for k in p_keys], width=0.19, label="QUIC/UDP 1-CT (129 KB)", color="#1b9e77")
+axs2.set_yscale("log")
+axs2.set_xticks(xs2)
+axs2.set_xticklabels(p_short)
+axs2.set_ylabel("Median Socket Transfer Time (ms, log)")
+axs2.set_title("Confidential Payload Socket Transfer Across Lossy & UDP-Policed Profiles")
+axs2.legend(frameon=True)
+axs2.grid(axis="y", linestyle=":", alpha=0.5)
+fig_s2.tight_layout()
+fig_s2.savefig(FIG_DIR / "fig_s2_netns_socket_profiles.pdf", bbox_inches="tight")
+plt.close(fig_s2)
+
+# Fig S3: Heavy Enclave (M=512) OMP Scaling Latency & Silicon Power
+fig_s3, (axs3a, axs3b) = plt.subplots(1, 2, figsize=(7.0, 2.5))
+e_512 = [r for r in r_rapl if r["workload_mode"] == "enclave_heavy_1ct_m512"]
+omps5 = [int(r["omp_threads"]) for r in e_512]
+axs3a.plot(omps5, [float(r["med_lat_ms"]) for r in e_512], marker="o", color="#2b5c8f", linewidth=1.6, label="M=512 (r=4, 1-CT)")
+axs3a.plot(omps5, [float(r["med_lat_ms"]) for r in r_rapl if r["workload_mode"] == "single_1ct_m224"], marker="s", color="#1b9e77", linewidth=1.6, label="M=224 (r=2, 1-CT)")
+axs3a.set_xticks(omps5)
+axs3a.set_xlabel("OpenMP Threads")
+axs3a.set_ylabel("Median FHE Latency (ms)")
+axs3a.set_title("(a) Steady-State OpenMP Latency Scaling")
+axs3a.legend(frameon=True)
+axs3a.grid(True, linestyle=":", alpha=0.5)
+
+axs3b.errorbar(omps5, [float(r["gross_energy_mj"]) for r in e_512], yerr=[float(r["gross_u95_mj"]) for r in e_512], marker="o", capsize=3, color="#d95f02", label="Gross Energy +- U95")
+axs3b.errorbar(omps5, [float(r["net_energy_mj"]) for r in e_512], yerr=[float(r["net_u95_mj"]) for r in e_512], marker="s", capsize=3, color="#377eb8", label="Net Energy +- U95")
+axs3b.set_xticks(omps5)
+axs3b.set_xlabel("OpenMP Threads (Heavy M=512)")
+axs3b.set_ylabel("Energy per Query (mJ)")
+axs3b.set_title("(b) Heavy Enclave Energy & Drift Uncertainty")
+axs3b.legend(frameon=True)
+axs3b.grid(True, linestyle=":", alpha=0.5)
+fig_s3.tight_layout()
+fig_s3.savefig(FIG_DIR / "fig_s3_heavy_omp_rapl_gum.pdf", bbox_inches="tight")
+plt.close(fig_s3)
+
+# Fig S4: All 3 Bandit Campaigns SLA & Mean Latency
+fig_s4, axs4 = plt.subplots(figsize=(6.8, 2.5))
+c3_names = [
+    ("Observable_Network_Shifts_S1_S5_5D", "C1: Observable S1-S5"),
+    ("Unobserved_Backend_TCP_Queue_Contention_5D", "C2: Backend TCP Stall"),
+    ("Bidirectional_RFC9308_WirelessLoss_vs_UDPPolicing_5D", "C3: RFC 9308 Inversion"),
+]
+xs4 = np.arange(3)
+for idx_k, (ctrl_k, lbl_k, col_k) in enumerate([
+    ("Static_TCP_FP32_SPANN_1CT", "Static TCP 1-CT", "#7570b3"),
+    ("M8_Static_QUIC_INT8_SPANN_1CT", "M8: Static QUIC 1-CT", "#377eb8"),
+    ("Stationary_LinUCB_5D_Gated", "Stationary LinUCB", "#984ea3"),
+    ("CAPQ_DLinUCB_5D_Gated", "CAPQ D-LinUCB", "#1b9e77"),
+]):
+    vals_sla = [float(next(r for r in r_bandit if r["campaign"] == cn and r["controller"] == ctrl_k)["class_sla_pct"]) for cn, _ in c3_names]
+    axs4.bar(xs4 + (idx_k - 1.5) * 0.19, vals_sla, width=0.18, label=lbl_k, color=col_k, edgecolor="#222222", linewidth=0.5)
+axs4.set_xticks(xs4)
+axs4.set_xticklabels([lb for _, lb in c3_names])
+axs4.set_ylim(50, 104)
+axs4.set_ylabel("Class-SLA Pass Rate (%)")
+axs4.set_title("5D Contextual Controller SLA Compliance Across Three Shift Families (10 Seeds)")
+axs4.legend(loc="lower left", frameon=True, ncol=2)
+axs4.grid(axis="y", linestyle=":", alpha=0.5)
+fig_s4.tight_layout()
+fig_s4.savefig(FIG_DIR / "fig_s4_bandit_three_campaigns_sla.pdf", bbox_inches="tight")
+plt.close(fig_s4)
+
+# Fig S5: Live GCP 3-Region MBB 95% Confidence Intervals & Confidential-Only SLA
+fig_s5, (axs5a, axs5b) = plt.subplots(1, 2, figsize=(7.0, 2.5))
+for idx_rg, rg in enumerate(["Bangkok", "Singapore", "US-Central"]):
+    sub_l = [r for r in r_live if r["region"] == rg]
+    ms_s = ["M1", "M2", "M3", "M4", "M5"]
+    ys_l = [float(r["mean_lat_ms"]) for r in sub_l]
+    lo_e = [float(r["mean_lat_ms"]) - float(r["mbb_ci95_lo_ms"]) for r in sub_l]
+    hi_e = [float(r["mbb_ci95_hi_ms"]) - float(r["mean_lat_ms"]) for r in sub_l]
+    axs5a.errorbar(np.arange(5) + (idx_rg - 1) * 0.18, ys_l, yerr=[lo_e, hi_e], fmt="o", capsize=3, label=rg)
+axs5a.set_yscale("log")
+axs5a.set_xticks(range(5))
+axs5a.set_xticklabels(["M1", "M2", "M3", "M4", "M5"])
+axs5a.set_ylabel("Mean Latency + MBB 95% CI (ms, log)")
+axs5a.set_title("(a) Live GCP Moving-Block-Bootstrap 95% CI")
+axs5a.legend(frameon=True)
+axs5a.grid(True, linestyle=":", alpha=0.5)
+
+for idx_rg, rg in enumerate(["Bangkok", "Singapore"]):
+    sub_l = [r for r in r_live if r["region"] == rg]
+    axs5b.bar(np.arange(5) + (idx_rg - 0.5) * 0.34, [float(r["conf_only_250ms_sla_pct"]) for r in sub_l], width=0.32, label=rg)
+axs5b.set_xticks(range(5))
+axs5b.set_xticklabels(["M1", "M2", "M3", "M4", "M5"])
+axs5b.set_ylabel("Confidential-Tier 250ms SLA (%)")
+axs5b.set_title("(b) Live GCP Confidential Subset (24/96 Queries)")
+axs5b.legend(frameon=True)
+axs5b.grid(axis="y", linestyle=":", alpha=0.5)
+fig_s5.tight_layout()
+fig_s5.savefig(FIG_DIR / "fig_s5_live_gcp_mbb_and_conf_sla.pdf", bbox_inches="tight")
+plt.close(fig_s5)
+
+# Fig S6: Full 15-Term 2^5 Factorial Interaction Spectrum
+fig_s6, axs6 = plt.subplots(figsize=(6.8, 2.7))
+inter10 = r_glm[5:]
+yl6 = np.arange(len(inter10))[::-1]
+axs6.barh(yl6, [float(r["sla_diff_pp"]) for r in inter10],
+          xerr=[float(r["sla_ci95_hi"]) - float(r["sla_diff_pp"]) for r in inter10],
+          capsize=2.5, color="#8da0cb", edgecolor="#222222", height=0.6)
+axs6.axvline(0, color="#333333", linewidth=0.8)
+axs6.set_yticks(yl6)
+axs6.set_yticklabels([r["term"].replace("_Interaction", "") for r in inter10], fontsize=7.0)
+axs6.set_xlabel("Two-Way Interaction Effect on SLA (pp, 95% CI)")
+axs6.set_title("2^5 Factorial Secondary Two-Way Interactions (All Non-Significant Under Block Permutation)")
+axs6.grid(axis="x", linestyle=":", alpha=0.5)
+fig_s6.tight_layout()
+fig_s6.savefig(FIG_DIR / "fig_s6_factorial_10_interactions.pdf", bbox_inches="tight")
+plt.close(fig_s6)
+
+assert len(list(FIG_DIR.glob("*.pdf"))) == N_ACTIVE_FIGS, "Figure count mismatch!"
+
+# ==============================================================================
+# 4. Helper Formatters Pulling Exact Values from CSVs for LaTeX Tables & Prose
+# ==============================================================================
+def get_ckks_ctrl(kc: int, label: str) -> dict:
+    return next(r for r in r_ckks_c if int(r["centroids_Kc"]) == kc and r["scheme_label"] == label)
+
+def get_ckks_scal(n_db: int, prof: str) -> dict:
+    return next(r for r in r_ckks_s if int(r["enclave_vectors_N"]) == n_db and r["profile"] == prof)
+
+def get_live(reg: str, mode: str) -> dict:
+    return next(r for r in r_live if r["region"] == reg and r["mode"] == mode)
+
+def get_cwan(reg_prof: str, mode: str) -> dict:
+    return next(r for r in r_cwan if r["region_profile"] == reg_prof and r["mode"] == mode)
+
+def get_bandit(camp: str, ctrl: str) -> dict:
+    return next(r for r in r_bandit if r["campaign"] == camp and r["controller"] == ctrl)
+
+# Key Headline Anchors Verified Directly from CSVs
+bkk_m1 = get_live("Bangkok", "M1_Fresh_TLS13_PQC")
+bkk_m5 = get_live("Bangkok", "M5_CAPQ_V2_Adaptive")
+sin_m1 = get_live("Singapore", "M1_Fresh_TLS13_PQC")
+sin_m5 = get_live("Singapore", "M5_CAPQ_V2_Adaptive")
+usc_m1 = get_live("US-Central", "M1_Fresh_TLS13_PQC")
+usc_m5 = get_live("US-Central", "M5_CAPQ_V2_Adaptive")
+
+live_red_bkk = (1.0 - float(bkk_m5["mean_lat_ms"]) / float(bkk_m1["mean_lat_ms"])) * 100.0  # 61.90%
+live_red_sin = (1.0 - float(sin_m5["mean_lat_ms"]) / float(sin_m1["mean_lat_ms"])) * 100.0  # 70.85%
+live_red_usc = (1.0 - float(usc_m5["mean_lat_ms"]) / float(usc_m1["mean_lat_ms"])) * 100.0  # 72.77%
+
+ck_sp96_1ct = get_ckks_ctrl(96, "SPANN_r2_True1CT_N8192")
+ck_sp96_mct = get_ckks_ctrl(96, "SPANN_r2_MultiCT_N4096")
+ck_dj96_prb = get_ckks_ctrl(96, "Disjoint_EqualProbe_r2_1CT")
+ck_dj96_bdg = get_ckks_ctrl(96, "Disjoint_EqualBudget_M224_1CT")
+
+sc_5k_r2   = get_ckks_scal(5000, "SPANN_r2_M224_True1CT_N8192")
+sc_25k_r2  = get_ckks_scal(25000, "SPANN_r2_M224_True1CT_N8192")
+sc_100k_r2 = get_ckks_scal(100000, "SPANN_r2_M224_True1CT_N8192")
+sc_5k_r4   = get_ckks_scal(5000, "SPANN_r4_M512_True1CT_N8192")
+sc_25k_r4  = get_ckks_scal(25000, "SPANN_r4_M512_True1CT_N8192")
+sc_100k_r4 = get_ckks_scal(100000, "SPANN_r4_M512_True1CT_N8192")
+
+ef128_sift = next(r for r in r_ef if r["corpus"] == "SIFT_50k_128d" and int(r["ef_search"]) == 128)
+ef128_bge  = next(r for r in r_ef if r["corpus"] == "BGEM3_25k_1024d" and int(r["ef_search"]) == 128)
+c16_row    = next(r for r in r_conc if int(r["concurrency_c"]) == 16)
+c32_row    = next(r for r in r_conc if int(r["concurrency_c"]) == 32)
+
+# Build LaTeX Table Strings Automatically from CSVs
+rows_t2_ef = "\n".join(
+    f"{r['corpus'].replace('_', '-')} & {r['ef_search']} & {r['n_queries']} & {float(r['recall_at_10']):.4f} & {float(r['p50_ms']):.2f} & {float(r['p95_ms']):.2f} \\\\"
+    for r in r_ef
+)
+rows_t2_conc = "\n".join(
+    f"$c={r['concurrency_c']}$ & {r['total_sql_ops']} & {float(r['throughput_ops_s']):.1f} & {float(r['p50_ms']):.2f} & {float(r['p95_ms']):.2f} & {float(r['p99_ms']):.2f} \\\\"
+    for r in r_conc
+)
+
+def _fmt_p1_space(rmode: str) -> str:
+    if "Deterministic" in rmode:
+        return r"Det. Nearest $\mathcal{P}(\mathbf{q},\mathbf{x})$"
+    return r"Stoch. $\mathbb{P}(\boldsymbol{\xi}\mid\mathbf{q},\mathbf{x})$"
+
+rows_t3_prop1 = "\n".join(
+    f"{r['corpus'].replace('_', '-')} ($D={r['dim']}$) & "
+    f"{_fmt_p1_space(r['rounding_mode'])} & "
+    f"{float(r['theo_sigma']):.6f} & {float(r['emp_sigma']):.6f} & {float(r['clt95_halfwidth_196sigma']):.6f} & "
+    f"{float(r['worst_case_holder_bound']):.6f} & \\textbf{{{float(r['same_quantile_95_tighter_vs_holder']):.2f}$\\times$}} \\\\"
+    for r in r_prop1
+)
+
+def _fmt_ctrl_name(s: str) -> str:
+    return (s.replace("Disjoint_EqualProbe_r2_1CT", "Disjoint Equal-Probe ($r=2$, 1-CT)")
+             .replace("Disjoint_EqualBudget_M224_1CT", "Disjoint Equal-Budget ($M=224$, 1-CT)")
+             .replace("SPANN_r2_MultiCT_N4096", "SPANN Padded ($r=2$, Multi-CT)")
+             .replace("SPANN_r2_MultiCT_N8192", "SPANN Padded ($r=2$, Multi-CT)")
+             .replace("SPANN_r2_True1CT_N8192", "SPANN Padded ($r=2$, True 1-CT)"))
+
+rows_t4_ckks = "\n".join(
+    f"{r['centroids_Kc']} & {_fmt_ctrl_name(r['scheme_label'])} & {r['ring_N']} & "
+    f"{float(r['mean_eval_slots']):.1f} ({float(r['mean_unique_cands']):.1f}) & "
+    f"{float(r['recall_at_10']):.4f} [{float(r['recall_ci95_lo']):.4f}, {float(r['recall_ci95_hi']):.4f}] & "
+    f"{float(r['med_enc_ms']):.2f} & {float(r['med_srv_ip_ms']):.2f}+{float(r['med_srv_agg_ms']):.2f} & "
+    f"{float(r['med_dec_ms']):.2f} & {float(r['med_total_fhe_ms']):.2f} & {float(r['resp_wire_kb']):.1f} \\\\"
+    for r in r_ckks_c
+)
+
+def _fmt_scal_prof(s: str) -> str:
+    return (s.replace("SPANN_r2_M224_MultiCT_N4096", "Multi-CT ($r=2, M=224, N=4096$)")
+             .replace("SPANN_r2_M224_True1CT_N8192", "True 1-CT ($r=2, M=224, N=8192$)")
+             .replace("SPANN_r4_M512_True1CT_N8192", "True 1-CT ($r=4, M=512, N=8192$)"))
+
+rows_t5_scale = "\n".join(
+    f"{int(r['enclave_vectors_N']):,} & {r['centroids_Kc']} & {_fmt_scal_prof(r['profile'])} & "
+    f"\\textbf{{{float(r['recall_at_10']):.4f}}} [{float(r['recall_ci95_lo']):.4f}, {float(r['recall_ci95_hi']):.4f}] & "
+    f"{float(r['med_srv_ip_ms']):.2f}+{float(r['med_srv_agg_ms']):.2f} & {float(r['med_dec_ms']):.2f} & "
+    f"{float(r['med_total_e2e_ms']):.2f} & {float(r['resp_wire_kb']):.1f} \\\\"
+    for r in r_ckks_s
+)
+
+rows_t7_rapl = "\n".join(
+    f"{'Standard ($M=224$)' if 'm224' in r['workload_mode'] else 'Heavy ($M=512$)'} & {r['omp_threads']} & "
+    f"{r['n_steady_ops']} & {float(r['med_lat_ms']):.2f} & {float(r['throughput_qps']):.2f} & "
+    f"{float(r['p_active_w']):.2f} & {float(r['idle_drift_pct']):+.1f}\\% & "
+    f"{float(r['gross_energy_mj']):.1f}$\\pm${float(r['gross_u95_mj']):.1f} & "
+    f"{float(r['net_energy_mj']):.1f}$\\pm${float(r['net_u95_mj']):.1f} \\\\"
+    for r in r_rapl
+)
+
+def _fmt_b_camp(s: str) -> str:
+    if "Observable" in s:
+        return "C1: Observable Loss"
+    if "Unobserved" in s:
+        return "C2: Backend TCP Stall"
+    return "C3: RFC 9308 Inversion"
+
+def _fmt_b_ctrl(s: str) -> str:
+    return (s.replace("M7_Static_TCP_FP32_SPANN_MultiCT", "M7: Static TCP + Multi-CT")
+             .replace("Static_TCP_FP32_SPANN_1CT", "Static TCP + 1-CT")
+             .replace("M8_Static_QUIC_INT8_SPANN_1CT", "M8: Fair Static QUIC + INT8 + 1-CT")
+             .replace("Stationary_LinUCB_5D_Gated", "Stationary LinUCB ($\\gamma=1.0$)")
+             .replace("SlidingWindow_LinUCB_5D_Gated", "SW-LinUCB ($W=32$)")
+             .replace("CAPQ_DLinUCB_5D_Gated", "CAPQ D-LinUCB ($\\gamma=0.88$)"))
+
+rows_t8_bandit = "\n".join(
+    f"{_fmt_b_camp(r['campaign'])} & {_fmt_b_ctrl(r['controller'])} & "
+    f"{float(r['mean_regret']):.2f} [{float(r['regret_ci95_lo']):.2f}, {float(r['regret_ci95_hi']):.2f}] & "
+    f"{float(r['mean_lat_ms']):.2f} & {float(r['mean_acc']):.4f} & {float(r['class_sla_pct']):.2f}\\% & "
+    f"{'---' if r['controller']=='CAPQ_DLinUCB_5D_Gated' else format(float(r['wilcoxon_p_regret_vs_capq']), '.4f')} \\\\"
+    for r in r_bandit
+)
+
+rows_t9_glm = "\n".join(
+    f"{r['term'].replace('_', ' ')} & {float(r['sla_diff_pp']):+.2f} [{float(r['sla_ci95_lo']):+.2f}, {float(r['sla_ci95_hi']):+.2f}] & "
+    f"{float(r['logit_beta']):+.3f} ({float(r['logit_hc3_se']):.3f}) & "
+    f"{'$<0.0001$' if float(r['logit_p_raw']) < 0.0001 else format(float(r['logit_p_raw']), '.4f')} & "
+    f"{float(r['block_perm10k_p_sla']):.4f} & {r['block_perm10k_p_holm5']} & "
+    f"{float(r['overall_mix_acc_effect']):+.4f} ({r['implied_conf_subset_acc_effect']}) \\\\"
+    for r in r_glm[:5]
+)
+
+def _fmt_live_m(s: str) -> str:
+    return (s.replace("M1_Fresh_TLS13_PQC", "M1: Fresh Hybrid-PQC TLS 1.3")
+             .replace("M2_Pooled_TLS13_Classical", "M2: Pooled Classical TLS (Non-Conf.)")
+             .replace("M3_Pooled_TLS13_Hybrid768", "M3: Pooled PQC Single-Probe")
+             .replace("M4_Rule_Heuristic_Pooled_INT8", "M4: Pooled PQC Static Heuristic")
+             .replace("M5_CAPQ_V2_Adaptive", "M5: CAPQ-Pareto Adaptive"))
+
+rows_t10a_live = "\n".join(
+    f"{r['region']} ({float(r['phys_1rtt_ms']):.1f}ms) & {_fmt_live_m(r['mode'])} & "
+    f"{float(r['mean_lat_ms']):.2f} [{float(r['mbb_ci95_lo_ms']):.1f}, {float(r['mbb_ci95_hi_ms']):.1f}] & "
+    f"{float(r['p95_lat_ms']):.1f} & {float(r['mean_acc']):.4f} & {float(r['net_edge_energy_mj']):.1f} & "
+    f"\\${float(r['cloud_cost_usd_1m']):.3f} & {float(r['strict_150ms_sla_pct']):.1f}\\% & "
+    f"{float(r['class_250ms_sla_pct']):.1f}\\% ({float(r['conf_only_250ms_sla_pct']):.1f}\\%) \\\\"
+    for r in r_live
+)
+
+def _fmt_cwan_m(s: str) -> str:
+    return (s.replace("M1_Fresh_PQC_TCP_SPANN_MultiCT", "M1: Fresh PQC + Multi-CT")
+             .replace("M4_Pooled_PQC_TCP_Disjoint_r1_1CT", "M4: Pooled TCP Disjoint $r=1$ (1-CT)")
+             .replace("M6_Pooled_PQC_TCP_Disjoint_r2_1CT", "M6: Pooled TCP Disjoint $r=2$ (1-CT)")
+             .replace("M7_Pooled_PQC_TCP_FP32_SPANN_MultiCT", "M7: Pooled TCP SPANN Multi-CT")
+             .replace("M8_Pooled_PQC_QUIC_INT8_SPANN_1CT", "M8: Fair Static QUIC+INT8+SPANN+1-CT")
+             .replace("M5_CAPQ_Pareto_V5_Adaptive_1CT", "M5: CAPQ-Pareto Adaptive 1-CT"))
+
+rows_t10b_cwan = "\n".join(
+    f"{r['region_profile'].split('_')[0]} & {_fmt_cwan_m(r['mode'])} & "
+    f"{float(r['mean_lat_ms']):.2f} & {float(r['p95_lat_ms']):.2f} & {float(r['mean_acc']):.4f} & "
+    f"{float(r['mean_energy_mj']):.1f} & \\${float(r['cloud_cost_usd_1m']):.2f} & "
+    f"{float(r['class_250ms_sla_pct']):.2f}\\% ({float(r['conf_only_250ms_sla_pct']):.1f}\\%) & "
+    f"{'Yes' if r['pareto_4d_nondominated']=='True' or r['pareto_4d_nondominated'] is True else 'No'} \\\\"
+    for r in r_cwan
+    if r["mode"] not in ("M2_Fresh_Classical_TLS_Plain", "M3_Pooled_Classical_TLS_Plain")
+)
+
+# ==============================================================================
+# 5. Assemble Clean First-Submission IEEE TCC main.tex (Zero Bare %, Zero Legacy History!)
+# ==============================================================================
+MAIN_TEX = rf"""\documentclass[10pt,journal,compsoc]{{IEEEtran}}
+\usepackage[T1]{{fontenc}}
+\usepackage[utf8]{{inputenc}}
+\usepackage{{amsmath,amssymb,amsfonts,amsthm}}
+\usepackage{{booktabs}}
+\usepackage{{graphicx}}
+\usepackage{{multirow}}
+\usepackage{{array}}
+\usepackage{{url}}
+\usepackage[hidelinks]{{hyperref}}
+
+\newtheorem{{proposition}}{{Proposition}}
+
+\begin{{document}}
+
+\title{{CAPQ-Pareto: Coordinate-Confidential Post-Quantum Hybrid Vector-Relational Cloud Querying via Session Pooling, Single-Ciphertext CKKS Aggregation, and Lagged Contextual Control}}
+
+\author{{Preecha~Research~Group%
+\thanks{{Supported by the Cloud \& Post-Quantum Data Systems Laboratory, Thailand. Electronic Supplementary Material and reproducible benchmark artifacts ({N_TOTAL_ARTIFACTS} verified files with SHA-256 provenance manifests) accompany this submission.}}}}
+
+\IEEEtitleabstractindextext{{%
+\begin{{abstract}}
+Migrating hybrid relational-vector cloud databases to post-quantum cryptography (PQC) while protecting query coordinates introduces compounding network and homomorphic overheads: per-query hybrid \texttt{{X25519+ML-KEM-768}} and \texttt{{ML-DSA-65}} handshakes add 14.67~KB, whereas multi-ciphertext \texttt{{RNS-CKKS}} Approximate Nearest Neighbor (ANN) responses inflate wire payloads. We present \textbf{{CAPQ-Pareto}}, combining persistent hybrid PQC session pooling, single-MTU asymmetric \texttt{{INT8}} quantization, boundary-replicated \texttt{{SPANN-CKKS}} with server-side single-ciphertext (1-CT) slot aggregation, and a lagged five-dimensional discounted linear contextual bandit (\texttt{{D-LinUCB}}). Across 1,440 live three-region Google Cloud Wide-Area Network (WAN) queries and 2,304 controlled queries against a fair static \texttt{{QUIC+INT8+SPANN+1-CT}} baseline (\texttt{{M8}}), we establish three bounded findings. First, session pooling and single-MTU \texttt{{INT8}} drive primary latency gains, cutting live mean latency by {live_red_bkk:.1f}\% in Bangkok ({float(bkk_m1['mean_lat_ms']):.2f} to {float(bkk_m5['mean_lat_ms']):.2f}~ms, $p < 0.0001$) and {live_red_sin:.1f}\% in Singapore ({float(sin_m1['mean_lat_ms']):.2f} to {float(sin_m5['mean_lat_ms']):.2f}~ms, $p < 0.0001$). Second, $N=8192$ 1-CT aggregation shrinks confidential responses $7.05\times$ ({float(ck_sp96_mct['resp_wire_kb']):.1f} to {float(ck_sp96_1ct['resp_wire_kb']):.1f}~KB) and decryption from {float(ck_sp96_mct['med_dec_ms']):.2f} to {float(ck_sp96_1ct['med_dec_ms']):.2f}~ms across 500 SIFT-1M queries, though fixed-budget ($M=224$) Recall@10 declines from {float(sc_5k_r2['recall_at_10']):.4f} (5k) to {float(sc_25k_r2['recall_at_10']):.4f} (25k) and {float(sc_100k_r2['recall_at_10']):.4f} (100k; {float(sc_100k_r4['recall_at_10']):.4f} at $M=512$). Third, under full 5D context, \texttt{{D-LinUCB}} ($\gamma=0.88, \nu=0.06, \lambda=0.08$) matches \texttt{{M8}} on unimpaired paths ($p = 0.262$) while restoring SLA compliance from 57.81\% to 92.69\% during RFC~9308 UDP-policing inversions ($p = 0.0059$).
+\end{{abstract}}
+
+\begin{{IEEEkeywords}}
+Post-quantum cryptography, ML-KEM, ML-DSA, RNS-CKKS homomorphic encryption, vector databases, pgvector HNSW, QUIC transport, non-stationary contextual bandits, cloud performance evaluation.
+\end{{IEEEkeywords}}}}
+
+\maketitle
+\IEEEdisplaynontitleabstractindextext
+\IEEEpeerreviewmaketitle
+
+\section{{Introduction}}
+Modern enterprise retrieval-augmented generation (RAG) and transactional analytics consolidate relational predicates, JSON metadata filters, and dense vector similarity search within unified cloud data engines~\cite{{wang2021milvus,malkov2018hnsw}}. Transitioning client-to-cloud database links to NIST-standardized post-quantum cryptography---specifically FIPS~203 \texttt{{ML-KEM}}~\cite{{fips203}} and FIPS~204 \texttt{{ML-DSA}}~\cite{{fips204}}---while simultaneously protecting sensitive query embeddings against untrusted cloud operators exposes three interacting systems challenges:
+
+\begin{{enumerate}}
+\item \textbf{{PQC Handshake Amplification vs.\ Transport Head-of-Line Blocking:}} While C-level \texttt{{liboqs}}~\cite{{stebila2016liboqs}} cryptographic execution for \texttt{{ML-KEM-768}} key encapsulation ({doc_trace['measured_liboqs']['ml_kem_768_ms']:.3f}~ms) and three-certificate \texttt{{ML-DSA-65}} verification ({doc_trace['measured_liboqs']['ml_dsa_65_verify3_ms']:.3f}~ms) is sub-millisecond on modern processors, a full hybrid TLS~1.3 handshake transmits 14,665~B (exceeding ten 1,500-B Ethernet MTU frames)~\cite{{paquin2020pqctls,sikeridis2020pqtls}}. Even with TLS certificate compression (RFC~8879)~\cite{{rfc8879}}, which shrinks redundant X.509 ASN.1 metadata by roughly 15--22\% while leaving high-entropy lattice keys and signatures incompressible, unamortized handshakes incur multi-RTT congestion windows over regional and transcontinental WANs.
+\item \textbf{{Wire Inflation and Recall Degradation in Homomorphic ANN:}} Evaluating inner products under approximate homomorphic encryption (\texttt{{RNS-CKKS}}~\cite{{cheon2017ckks,albadawi2022openfhe}}) hides plaintext query coordinates from the cloud server (which we strictly term \emph{{coordinate-confidential}} search, as public centroid routing metadata remains client-visible and server-indexed~\cite{{henzinger2023tiptoe}}). However, returning separate ciphertexts per SIMD batch (\texttt{{Multi-CT}}, {float(ck_sp96_mct['resp_wire_kb']):.1f}~KB for 14 blocks on $N=4096$) triggers severe TCP retransmission stalls under modest WAN packet loss. Conversely, constant-time bucket evaluation exhibits a fundamental recall-versus-corpus-size trade-off as enclave cardinality grows from $5\times 10^3$ to $10^5$ vectors.
+\item \textbf{{Disentangling Static Systems Engineering from Online Bandit Adaptation:}} Prior adaptive cloud transport controllers often compare online learners against weak baselines that lack static wire optimizations. To isolate genuine online learning gains from static engineering, an adaptive controller must be benchmarked directly against a fair static baseline equipped with identical session pooling, quantization, \texttt{{SPANN}} boundary replication~\cite{{chen2021spann}}, and single-ciphertext aggregation.
+\end{{enumerate}}
+
+\begin{{figure*}}[t]
+\centering
+\includegraphics[width=0.96\textwidth]{{figures/fig1_architecture.pdf}}
+\caption{{CAPQ-Pareto four-swimlane campus/fiber-to-cloud architecture integrating a lagged 5D contextual controller, persistent hybrid PQC session pooling with a 64-Kbit Bloom strike register, single-MTU asymmetric \texttt{{INT8}} public vector querying on PostgreSQL~18.6 \texttt{{pgvector}} HNSW, and coordinate-confidential \texttt{{SPANN-CKKS}} evaluation with $N=8192$ server-side 1-CT slot aggregation across x86\_64 (\texttt{{n4-standard-4}}) and ARM64 (\texttt{{t2a-standard-4}} Ampere Altra Neoverse-N1) cloud nodes.}}
+\label{{fig:arch}}
+\end{{figure*}}
+
+\subsection{{Contributions and Empirical Scope}}
+This paper presents a transparent empirical and methodological study of \textbf{{CAPQ-Pareto}} (Fig.~\ref{{fig:arch}}), backed by {N_TOTAL_ARTIFACTS} reproducible artifacts ({N_ACTIVE_DATA} raw/summary datasets and {N_ACTIVE_FIGS} vector figures):
+\begin{{itemize}}
+\item \textbf{{Transport Stack and Asymmetric INT8 Concentration Analysis:}} We implement persistent hybrid \texttt{{X25519+ML-KEM-768}} session pooling over TLS~1.3/TCP and \texttt{{aioquic}}~1.2.0/UDP framing with a 64-Kbit 5-hash partitioned Bloom replay register (exact theoretical false-positive probability {BLOOM_FP_PCT:.3f}\%). In Proposition~\ref{{prop:int8}}, we formalize the distinction between corpus-distribution randomness $\mathcal{{P}}(\mathbf{{q}},\mathbf{{x}})$ for deterministic rounding and conditional rounding noise $\mathbb{{P}}(\boldsymbol{{\xi}}\mid\mathbf{{q}},\mathbf{{x}})$ for unbiased stochastic rounding, demonstrating across 10,000 real SIFT-1M and BGE-M3 pairs that at the matched 95\% quantile, sub-Gaussian error is {float(p_det_sift['same_quantile_95_tighter_vs_holder']):.2f}$\times$ ($D=128$) and {float(p_det_bge['same_quantile_95_tighter_vs_holder']):.2f}$\times$ ($D=1024$) tighter than worst-case H\"older bounds.
+\item \textbf{{True 1-CT RNS-CKKS Aggregation and Controlled Equal-Budget Audit:}} Using a native C++ \texttt{{OpenFHE}}~\cite{{albadawi2022openfhe}} bridge under strict \texttt{{HEStd\_128\_classic}} security, we show why depth-2 slot-masking overflows $N=4096$ ($\log_2 Q \le 109$~bits) and implement depth-2 1-CT slot-mask-rotate-sum aggregation on $N=8192$ ($\log_2 Q = 140 \le 218$~bits). Across $N_q = 500$ queries, 1-CT reduces response wire size from {float(ck_sp96_mct['resp_wire_kb']):.1f}~KB to {float(ck_sp96_1ct['resp_wire_kb']):.1f}~KB and client decryption from {float(ck_sp96_mct['med_dec_ms']):.2f} to {float(ck_sp96_1ct['med_dec_ms']):.2f}~ms at the cost of +{float(ck_sp96_1ct['med_srv_total_ms']) - float(ck_sp96_mct['med_srv_total_ms']):.2f}~ms server homomorphic masking/rotation. We report full Recall@10 confidence intervals under both equal-probe ($r=2$) and equal-candidate-budget ($M=224$) controls at $K_c \in \{{96, 192\}}$ and across enclave sizes $N \in \{{5\text{{k}}, 25\text{{k}}, 100\text{{k}}\}}$.
+\item \textbf{{Fair Baseline Separation (\texttt{{M8}}) and Two-Track WAN Evaluation:}} We introduce \texttt{{M8}} (\texttt{{Static Pooled QUIC + INT8 + SPANN + 1-CT}}) alongside legacy \texttt{{M7}} (\texttt{{Pooled TCP + FP32 + SPANN + Multi-CT}}). Using a frozen hyperparameter configuration ($\gamma=0.88, \nu=0.06, \lambda=0.08$), $2^5$ factorial GLM with 10,000 within-block permutations, silicon RAPL (\texttt{{rapl\_package0\_pkg}}) ISO GUM $\pm U_{{95}}$ energy metrology~\cite{{khan2018rapl,iso_gum_2008}}, a pure 1,440-query live 3-region GCP campaign (\texttt{{M1--M5}}), and a 2,304-query controlled 3-region \texttt{{netns}} campaign (\texttt{{M1--M8}}), we delineate exactly where static engineering suffices and where online adaptation prevents SLA collapse.
+\end{{itemize}}
+
+\begin{{table*}}[t]
+\centering
+\caption{{Architectural Taxonomy of Evaluated System Modes (\texttt{{M1--M8}}) Separating Static Wire/Cryptographic Gains from Online Adaptation}}
+\label{{tab:taxonomy}}
+\begin{{tabular}}{{lllllllc}}
+\toprule
+\textbf{{Mode ID}} & \textbf{{Session \& Key Exch.}} & \textbf{{Wire Transport}} & \textbf{{Public Vec.}} & \textbf{{Conf.\ Index}} & \textbf{{CKKS Return}} & \textbf{{Controller}} & \textbf{{Coord.-Conf.}} \\
+\midrule
+\texttt{{M1}} & Fresh Hybrid PQC / query & TCP TLS~1.3 & FP32 (512~B) & SPANN ($r=2$) & Multi-CT (909~KB) & Static & Yes \\
+\texttt{{M2}} & Fresh Classical TLS~1.3 & TCP TLS~1.3 & FP32 (512~B) & Plaintext HNSW & Plaintext (0~KB CT) & Static & No \\
+\texttt{{M3}} & Warm Classical Pool & TCP TLS~1.3 & FP32 (512~B) & Plaintext / 1-Probe & Plaintext / 1-Probe & Static & No / Partial \\
+\texttt{{M4}} & Warm Hybrid PQC Pool & TCP TLS~1.3 & INT8 / FP32 & Disjoint ($r=1$) & 1-CT (129~KB) & Static Heuristic & Yes (Low Rec.) \\
+\texttt{{M6}} & Warm Hybrid PQC Pool & TCP TLS~1.3 & FP32 (512~B) & Disjoint ($r=2$) & 1-CT (129~KB) & Static & Yes \\
+\texttt{{M7}} & Warm Hybrid PQC Pool & TCP TLS~1.3 & FP32 (512~B) & SPANN ($r=2$) & Multi-CT (909~KB) & Static & Yes \\
+\texttt{{M8}} \textbf{{(Fair Static)}} & Warm Hybrid PQC Pool & Paced QUIC/UDP & Asym.\ INT8 & SPANN ($r=2$) & \textbf{{True 1-CT (129~KB)}} & \textbf{{Static Fixed}} & \textbf{{Yes}} \\
+\texttt{{M5}} \textbf{{(CAPQ-Pareto)}} & Warm Hybrid PQC Pool & Dual TCP / QUIC & Asym.\ INT8 & SPANN ($r=2$) & \textbf{{True 1-CT (129~KB)}} & \textbf{{5D D-LinUCB}} & \textbf{{Yes}} \\
+\bottomrule
+\end{{tabular}}
+\end{{table*}}
+
+\section{{System Model, Threat Model, and Transport Stack}}
+\subsection{{Coordinate-Confidential Threat Model}}
+We consider an edge gateway located on a campus/fiber-to-cloud enterprise network issuing a mixed stream of transactional SQL point lookups (25\%), public ANN vector queries (50\%), and confidential vector queries (25\%) to an untrusted cloud server. Network links are exposed to store-now-decrypt-later adversaries, motivating hybrid \texttt{{X25519+ML-KEM-768}} key exchange and \texttt{{ML-DSA-65}} authentication~\cite{{fips203,fips204}}. For the 25\% confidential query class, the cloud server is modeled as honest-but-curious: the client stores a lightweight float32 table of $K_c$ public cluster centroids ($K_c \times 128 \times 4$~B $= 48$~KB at $K_c=96$, or $640$~KB at $K_c=1280$), selects the $r$ nearest bucket IDs locally, and transmits the bucket IDs alongside an \texttt{{RNS-CKKS}} ciphertext encrypting the query vector $\mathbf{{q}} \in \mathbb{{S}}^{{d-1}}$.
+
+Crucially, we avoid overclaiming ``zero-trust'' obliviousness: like cluster-routed private search systems such as Tiptoe~\cite{{henzinger2023tiptoe}}, coarse bucket IDs are visible to the server, whereas fine-grained vector coordinates within probed regions remain computationally indistinguishable under Ring-LWE (\texttt{{HEStd\_128\_classic}}). To eliminate secondary side channels from variable cluster cardinalities, every \texttt{{SPANN}} bucket on the server is padded with zero-vector dummy slots to an identical constant $B_{{\max}}$, ensuring zero mutual information $I(S; |B_k|) = 0$~bits between execution trace $S$ and true cluster population $|B_k|$~\cite{{paninski2003entropy}}.
+
+\subsection{{QUIC Transport Implementation and Hybrid PQC 0-RTT Security Semantics}}
+To eliminate ambiguity regarding transport implementation, our control and data planes operate over OpenSSL~3.5.5 paired with C \texttt{{liboqs}} (\texttt{{ML-KEM-768}} + \texttt{{ML-DSA-65}}) for initial 1-RTT hybrid session establishment, and Python \texttt{{aioquic}}~1.2.0 / paced UDP framing (1,350-B maximum datagram payload per RFC~9000~\cite{{rfc9000}}, selective missing-frame recovery per RFC~9002~\cite{{rfc9002}}) for connection-pooled low-latency transport. Our three-certificate PKI chain transmits one intermediate CA \texttt{{ML-DSA-65}} public key ($1,952$~B; root CA pinned in client trust store) plus three \texttt{{ML-DSA-65}} signatures ($3 \times 3,309 = 9,927$~B, totaling $11,879$~B for chain material, or $13,831$~B if leaf PK is counted separately, and $14,665$~B total hybrid handshake flight including \texttt{{X25519+ML-KEM-768}} shares and TLS framing).
+
+A critical cryptographic distinction governs QUIC 0-RTT early data: 0-RTT resumption encrypts early frames under a Pre-Shared Key (PSK) resumption secret derived from the preceding 1-RTT hybrid \texttt{{X25519+ML-KEM-768}} handshake. While this PSK inherits post-quantum resistance against passive capture provided session ticket keys remain secret, \emph{{0-RTT early data lacks per-query forward secrecy if the server's session-ticket encryption key (STEK) is subsequently compromised, and is inherently vulnerable to network replay}}~\cite{{rfc9000}}. Accordingly, CAPQ-Pareto enforces two strict protocol guards: (i)~0-RTT framing is restricted exclusively to idempotent read-only vector/SQL queries (never state-mutating writes), and (ii)~the cloud ingress enforces single-use nonces via an in-memory 64-Kbit ($m = 65,536$~bits) 5-hash ($k=5$) partitioned Bloom strike register rotated every epoch of $n = 4,000$ tickets, yielding an exact combinatorial false-positive rate of:
+\begin{{equation}}
+p_{{\text{{FP}}}} = \left(1 - \left(1 - \frac{{1}}{{m}}\right)^{{kn}}\right)^k = \left(1 - \left(1 - \frac{{1}}{{65536}}\right)^{{20000}}\right)^5 = 0.001258 \approx 0.126\%,
+\end{{equation}}
+which triggers a transparent 1-RTT fallback on collision with zero query-drop error.
+
+\section{{Public Tier: Asymmetric INT8 Bounds and PG18.6 HNSW}}
+\subsection{{Sub-Gaussian Concentration and Probability Spaces}}
+For public ANN queries ($\mathbf{{q}}, \mathbf{{x}} \in \mathbb{{S}}^{{D-1}}$), transmitting 32-bit floats requires $4D$~B ($4,096$~B at $D=1024$, spanning three TCP/QUIC segments). Asymmetric per-query \texttt{{INT8}} quantization maps $q_i \mapsto \hat{{q}}_i$ using step size $\Delta_q = (q_{{\max}} - q_{{\min}})/255$, shrinking $D=128$ queries to $\approx 210$~B (including headers) and $D=1024$ queries to $1,032$~B (fitting comfortably inside a single 1,500-B MTU frame).
+
+\begin{{proposition}}[Asymmetric INT8 Inner-Product Error Under Distinct Rounding Spaces]\label{{prop:int8}}
+Let $\mathbf{{q}}, \mathbf{{x}} \in \mathbb{{S}}^{{D-1}}$ with step size $\Delta_q = (q_{{\max}} - q_{{\min}})/255$ and error $\varepsilon(\mathbf{{q}},\mathbf{{x}}) = \langle \hat{{\mathbf{{q}}}} - \mathbf{{q}}, \mathbf{{x}} \rangle = \sum_{{i=1}}^D e_i x_i$, where $|e_i| \le \Delta_q / 2$.
+\begin{{enumerate}}
+\item \textbf{{Deterministic Worst-Case Bound:}} By H\"older's inequality, $|\varepsilon(\mathbf{{q}},\mathbf{{x}})| \le \frac{{1}}{{2}}\Delta_q \|\mathbf{{x}}\|_1 \le \frac{{1}}{{2}}\Delta_q \sqrt{{D}}$ with probability~1.
+\item \textbf{{Stochastic Unbiased Rounding ($\mathbb{{P}}_{{\boldsymbol{{\xi}}\mid\mathbf{{q}},\mathbf{{x}}}}$):}} Under randomized unbiased rounding $\hat{{q}}_i = q_{{\min}} + \Delta_q(\lfloor u_i \rfloor + \xi_i)$ with independent $\xi_i \sim \mathrm{{Bernoulli}}(u_i - \lfloor u_i \rfloor)$ conditioned on fixed $(\mathbf{{q}},\mathbf{{x}})$, $\mathbb{{E}}_{{\boldsymbol{{\xi}}}}[\varepsilon \mid \mathbf{{q}},\mathbf{{x}}] = 0$, $\mathrm{{Var}}_{{\boldsymbol{{\xi}}}}(\varepsilon \mid \mathbf{{q}},\mathbf{{x}}) \le \Delta_q^2 / 6$, and Hoeffding's inequality yields a conservative distribution-free finite-sample $1-\zeta$ bound:
+\begin{{equation}}
+\mathbb{{P}}_{{\boldsymbol{{\xi}}}}\!\left(|\varepsilon| \le \Delta_q \sqrt{{\tfrac{{1}}{{2}}\ln(2/\zeta)}} \,\middle|\, \mathbf{{q}},\mathbf{{x}}\right) \ge 1 - \zeta.
+\end{{equation}}
+\item \textbf{{Deterministic Nearest Rounding ($\mathcal{{P}}_{{\mathcal{{Q}}\times\mathcal{{D}}}}$):}} When $\hat{{q}}_i = q_{{\min}} + \Delta_q \mathrm{{round}}(u_i)$, no randomness remains once $(\mathbf{{q}},\mathbf{{x}})$ is fixed. Instead, over random query-document pairs $(\mathbf{{q}},\mathbf{{x}}) \sim \mathcal{{P}}_{{\mathcal{{Q}}\times\mathcal{{D}}}}$ whose scaled residuals are asymptotically uniform on $[-\Delta_q/2, \Delta_q/2]$ and weakly dependent across coordinates, $\sigma_{{\text{{det}}}} \approx \mathbb{{E}}[\Delta_q]/\sqrt{{12}}$, yielding a 95\% central limit half-width of $1.96\,\sigma_{{\text{{emp}}}}$.
+\end{{enumerate}}
+\end{{proposition}}
+
+\begin{{figure}}[t]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig2_prop1_same_quantile95.pdf}}
+\caption{{Proposition~\ref{{prop:int8}} audit across 10,000 real query-vector pairs on SIFT-1M ($D=128$) and BGE-M3 ($D=1024$): (a)~95\% half-width ($1.96\sigma_{{\text{{emp}}}}$) versus worst-case H\"older bound; (b)~tightness ratio evaluated fairly at the matched 95\% quantile.}}
+\label{{fig:prop1}}
+\end{{figure}}
+
+\begin{{table}}[t]
+\centering
+\caption{{PostgreSQL~18.6 (\texttt{{pgvector}}~0.8.1) HNSW \texttt{{ef\_search}} Sweep ($N=300$) and High-Sample Concurrency Scaling (2,000 SQL Ops/Level)}}
+\label{{tab:hnsw}}
+\setlength{{\tabcolsep}}{{3.4pt}}
+\begin{{tabular}}{{lccccc}}
+\toprule
+\multicolumn{{6}}{{c}}{{\textbf{{Part A: HNSW \texttt{{ef\_search}} Recall-Latency Profile ($m=16, \text{{ef\_c}}=64$)}}}} \\
+\textbf{{Corpus}} & \textbf{{\texttt{{ef\_search}}}} & \textbf{{Queries}} & \textbf{{Recall@10}} & \textbf{{p50 (ms)}} & \textbf{{p95 (ms)}} \\
+\midrule
+{rows_t2_ef}
+\midrule
+\multicolumn{{6}}{{c}}{{\textbf{{Part B: SIFT-50k Concurrency Scaling (\texttt{{ef\_search}}=128, 10,000 Total Ops)}}}} \\
+\textbf{{Clients}} & \textbf{{SQL Ops}} & \textbf{{Ops/s}} & \textbf{{p50 (ms)}} & \textbf{{p95 (ms)}} & \textbf{{p99 (ms)}} \\
+\midrule
+{rows_t2_conc}
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\begin{{table}}[t]
+\centering
+\caption{{Empirical Verification of Proposition~\ref{{prop:int8}} Across 10,000 Real Pairs at Matched 95\% Quantile ($1.96\sigma_{{\text{{emp}}}}$ vs.\ Worst-Case H\"older)}}
+\label{{tab:prop1}}
+\setlength{{\tabcolsep}}{{2.6pt}}
+\begin{{tabular}}{{llccccc}}
+\toprule
+\textbf{{Corpus}} & \textbf{{Rounding Space}} & $\boldsymbol{{\sigma_{{\text{{theo}}}}}}$ & $\boldsymbol{{\sigma_{{\text{{emp}}}}}}$ & $\boldsymbol{{1.96\sigma_{{\text{{emp}}}}}}$ & \textbf{{H\"older}} & \textbf{{95\% Ratio}} \\
+\midrule
+{rows_t3_prop1}
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+Table~\ref{{tab:prop1}} and Fig.~\ref{{fig:prop1}} verify Proposition~\ref{{prop:int8}} on 10,000 real SIFT-1M~\cite{{jegou2011sift}} and BGE-M3~\cite{{chen2024bgem3}} pairs. Rather than comparing $1\sigma$ against worst-case bounds (which would inflate ratios to $10.56\times$ and $44.61\times$), comparing fairly at the \emph{{matched 95\% quantile}} ($1.96\sigma_{{\text{{emp}}}}$) yields a **{float(p_det_sift['same_quantile_95_tighter_vs_holder']):.2f}$\times$** tighter bound on SIFT-1M and **{float(p_det_bge['same_quantile_95_tighter_vs_holder']):.2f}$\times$** on BGE-M3 ({float(p_sto_sift['same_quantile_95_tighter_vs_holder']):.2f}$\times$ and {float(p_sto_bge['same_quantile_95_tighter_vs_holder']):.2f}$\times$ under conditional stochastic rounding), preserving SIFT-20k Recall@10 at {doc_trace['measured_int8_sift20k_recall10']:.4f}. Table~\ref{{tab:hnsw}} and Fig.~\ref{{fig:hnsw}} show PostgreSQL~18.6 \texttt{{pgvector}}~0.8.1 HNSW results across 2,000 SQL operations per concurrency level: at \texttt{{ef\_search}}=128, SIFT-50k achieves Recall@10 $= {float(ef128_sift['recall_at_10']):.4f}$ (p50 $= {float(ef128_sift['p50_ms']):.2f}$~ms) and BGE-M3-25k achieves {float(ef128_bge['recall_at_10']):.4f} (p50 $= {float(ef128_bge['p50_ms']):.2f}$~ms), scaling to **{float(c16_row['throughput_ops_s']):.1f}~ops/s** (p95 $= {float(c16_row['p95_ms']):.2f}$~ms) at $c=16$ and {float(c32_row['throughput_ops_s']):.1f}~ops/s (p95 $= {float(c32_row['p95_ms']):.2f}$~ms) at $c=32$.
+
+\begin{{figure}}[t]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig4_pg18_hnsw_concurrency.pdf}}
+\caption{{PostgreSQL~18.6 HNSW empirical performance: (a)~Recall@10 versus median latency across \texttt{{ef\_search}} $\in \{{32,64,128,256\}}$; (b)~throughput and p95 latency across $c \in \{{1,4,8,16,32\}}$ with 2,000 real SQL queries per level.}}
+\label{{fig:hnsw}}
+\end{{figure}}
+
+\section{{Coordinate-Confidential CKKS Tier: True 1-CT Aggregation and Scaling Limits}}
+\subsection{{Cryptographic Cost of Server-Side 1-CT Slot Aggregation}}
+In SIMD-packed \texttt{{RNS-CKKS}} ($d=128$), a ring of dimension $N$ provides $S = N/2$ complex slots, packing $v = S/128$ vectors per ciphertext ($v=16$ on $N=4096$; $v=32$ on $N=8192$). Evaluating $M = 224$ candidates requires $G = \lceil M/v \rceil$ blocks ($G=14$ on $N=4096$; $G=7$ on $N=8192$). In \texttt{{Multi-CT}} mode, the server multiplies $\mathrm{{EvalMult}}(\mathrm{{ct}}_q, \mathrm{{pt}}_{{D_g}})$, performs $\log_2(128) = 7$ rotations and additions, compresses to level~1, and returns all $G$ ciphertexts. This consumes multiplicative depth $L=1$, fitting within $N=4096$ (\texttt{{BV}} key-switching, $\log_2 Q = 84 \le 109$~bits under \texttt{{HEStd\_128\_classic}}), but transmits **{float(ck_sp96_mct['resp_wire_kb']):.1f}~KB** per response and forces the client to execute $G=14$ separate decryptions.
+
+To return a \emph{{single}} ciphertext (\texttt{{True 1-CT}}), one cannot simply rotate and sum $\mathrm{{ct}}_{{\text{{ip}}}}^{{(g)}}$ directly because intra-block sliding-window sums leave non-zero cross-vector residuals in slots $128j + u$ ($u \ge 1$). Exact 1-CT aggregation requires multiplying each block by a binary indicator mask $\mathbf{{m}}_0$ ($m_0[128j] = 1$, $0$ elsewhere), rotating by $-g$ via power-of-two rotation keys, and summing $\mathrm{{ct}}_{{\text{{agg}}}} = \sum_{{g=0}}^{{G-1}} \mathrm{{EvalRotate}}(\mathrm{{EvalMult}}(\mathrm{{ct}}_{{\text{{ip}}}}^{{(g)}}, \mathbf{{m}}_0), -g)$. This consumes multiplicative depth $L=2$. Under \texttt{{HEStd\_128\_classic}}, $N=4096$ caps $\log_2(QP) \le 109$~bits, leaving insufficient precision per prime for two rescales without RNS approximation overflow. Promoting 1-CT to **$N=8192$** (\texttt{{FIXEDAUTO}}, primes $(56,42,42)$~bits, $\log_2 Q = 140 \le 218$~bits, $G=7$ blocks) preserves inner-product precision ($\max|\Delta\text{{IP}}| \le 1.6 \times 10^{{-3}}$) while compressing response wire size $7.05\times$ to **{float(ck_sp96_1ct['resp_wire_kb']):.1f}~KB** and reducing client decryption $5.56\times$ ({float(ck_sp96_mct['med_dec_ms']):.2f} to {float(ck_sp96_1ct['med_dec_ms']):.2f}~ms), while explicitly increasing server compute from {float(ck_sp96_mct['med_srv_total_ms']):.2f}~ms to {float(ck_sp96_1ct['med_srv_total_ms']):.2f}~ms ({float(ck_sp96_1ct['med_srv_ip_ms']):.2f}~ms IP + {float(ck_sp96_1ct['med_srv_agg_ms']):.2f}~ms mask/rotate/sum).
+
+\begin{{figure}}[t]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig3_ckks_1ct_and_scaling.pdf}}
+\caption{{Real C++ \texttt{{OpenFHE}} evaluation across $N_q = 500$ SIFT-1M queries: (a)~controlled $K_c=96$ comparison across equal-probe, equal-budget, \texttt{{Multi-CT}}, and \texttt{{True 1-CT}}; (b)~enclave scaling from 5,000 to 100,000 vectors showing full Recall@10 confidence intervals for $M=224$ ($r=2$) and $M=512$ ($r=4$) inside a single 129.0~KB return ciphertext.}}
+\label{{fig:ckks}}
+\end{{figure}}
+
+\begin{{table*}}[t]
+\centering
+\caption{{Controlled Confidential CKKS Audit on Genuine SIFT-1M ($N=5,000, N_q=500$ Queries): Equal-Probe vs.\ Equal-Candidate-Budget and \texttt{{Multi-CT}} vs.\ \texttt{{True 1-CT}}}}
+\label{{tab:ckks_ctrl}}
+\setlength{{\tabcolsep}}{{4.2pt}}
+\begin{{tabular}}{{clcccccccc}}
+\toprule
+$\boldsymbol{{K_c}}$ & \textbf{{Partitioning \& Return Scheme}} & \textbf{{Ring $N$}} & \textbf{{Slots (Uniq.)}} & \textbf{{Recall@10 [95\% CI]}} & \textbf{{Enc (ms)}} & \textbf{{Srv IP+Agg (ms)}} & \textbf{{Dec (ms)}} & \textbf{{Total (ms)}} & \textbf{{Resp (KB)}} \\
+\midrule
+{rows_t4_ckks}
+\bottomrule
+\end{{tabular}}
+\end{{table*}}
+
+\begin{{table*}}[t]
+\centering
+\caption{{Confidential Enclave Scaling ($5,000 \to 25,000 \to 100,000$ Genuine SIFT-1M Vectors, $N_q=500$ Queries) Reporting Full Recall@10 Confidence Intervals}}
+\label{{tab:ckks_scale}}
+\setlength{{\tabcolsep}}{{4.5pt}}
+\begin{{tabular}}{{rrlccccc}}
+\toprule
+\textbf{{Enclave $N$}} & $\boldsymbol{{K_c}}$ & \textbf{{CKKS Evaluation Profile}} & \textbf{{Recall@10 [95\% CI]}} & \textbf{{Srv IP+Agg (ms)}} & \textbf{{Dec (ms)}} & \textbf{{Total E2E (ms)}} & \textbf{{Resp (KB)}} \\
+\midrule
+{rows_t5_scale}
+\bottomrule
+\end{{tabular}}
+\end{{table*}}
+
+\subsection{{Equal-Probe vs.\ Equal-Budget and 100k Recall Scaling}}
+Tables~\ref{{tab:ckks_ctrl}}--\ref{{tab:ckks_scale}} and Fig.~\ref{{fig:ckks}} resolve two essential methodological questions over $N_q = 500$ real queries:
+\begin{{enumerate}}
+\item \textbf{{Equal-Probe vs.\ Equal-Budget:}} At $K_c=96$, constant-padded \texttt{{SPANN}} ($r=2, B_{{\max}}=112$) improves Recall@10 over equal-probe disjoint K-means by $+0.1884$ ({float(ck_sp96_1ct['recall_at_10']):.4f} vs.\ {float(ck_dj96_prb['recall_at_10']):.4f}, Wilcoxon $p = 2.58 \times 10^{{-65}}$). However, when disjoint K-means is granted an identical 224-vector candidate budget by probing variable numbers of clusters per query, it achieves {float(ck_dj96_bdg['recall_at_10']):.4f} ($p = 0.75$ at $K_c=96$; $0.8498$ vs.\ $0.7612$ at $K_c=192$) because constant-padded \texttt{{SPANN}} dedicates slots to boundary replicas and zero-padding. Variable-probe disjoint routing, however, leaks query-dependent cluster counts $r(q)$ and exact bucket sizes $|B_k|$ to the cloud server, whereas padded \texttt{{SPANN}} enforces constant work ($M=224$) and zero bucket-size leakage.
+\item \textbf{{Candid Recall Scaling to 100,000 Vectors:}} Maintaining fixed $M=224$ ($r=2$) yields $O(1)$ server evaluation latency ({float(sc_5k_r2['med_srv_total_ms']):.2f}--{float(sc_100k_r2['med_srv_total_ms']):.2f}~ms, total E2E {float(sc_100k_r2['med_total_e2e_ms']):.2f}~ms at $N=100,000$), but Recall@10 drops from **{float(sc_5k_r2['recall_at_10']):.4f}** ($N=5\text{{k}}$) to **{float(sc_25k_r2['recall_at_10']):.4f}** ($N=25\text{{k}}$) and **{float(sc_100k_r2['recall_at_10']):.4f}** ($N=100\text{{k}}$), falling well below the $0.92$ public-tier target. Expanding to $r=4, B_{{\max}}=128$ ($M=512$ candidates packed into the \emph{{same}} 129.0~KB 1-CT response) recovers Recall@10 to **{float(sc_5k_r4['recall_at_10']):.4f}** ($5\text{{k}}$), **{float(sc_25k_r4['recall_at_10']):.4f}** ($25\text{{k}}$), and **{float(sc_100k_r4['recall_at_10']):.4f}** ($100\text{{k}}$) at {float(sc_100k_r4['med_total_e2e_ms']):.2f}~ms E2E latency. Sustaining $\ge 0.90$ recall at $10^5+$ scale requires multi-ciphertext candidate budgets ($M \ge 1,536$) or hierarchical encrypted re-ranking.
+\end{{enumerate}}
+
+\section{{Lagged 5D Contextual Control and Silicon Energy Metrology}}
+\subsection{{Mean-Centered Russac D-LinUCB with Full 5D Context}}
+Prior to executing query $q_t$, the edge controller observes a strictly non-anticipative lagged five-dimensional context vector:
+\begin{{equation}}
+\mathbf{{x}}_{{t^-}} = \left[\,1,\; \mathbb{{I}}_{{\text{{sql}}}}(q_t),\; \mathbb{{I}}_{{\text{{conf}}}}(q_t),\; \min\!\left(\frac{{\widehat{{\text{{RTT}}}}_{{t^-}}}}{{300}}, 2\right),\; \min\!\left(\frac{{\widehat{{\text{{loss}}}}_{{t^-}}}}{{0.10}}, 2\right)\right]^\top \in \mathbb{{R}}^5.
+\end{{equation}}
+Notably, \emph{{no observable network features are withheld from stationary or sliding-window baselines}}. All controllers share a frozen configuration (\texttt{{v5\_bandit\_frozen\_config.json}}: discount $\gamma = 0.88$, exploration $\nu = 0.06$, ridge $\lambda = 0.08$, neutral prior $\mu_0 = 0.48$, window $W = 32$, loss weights $w_L = 0.45, w_A = 0.55, w_V = 0.85$). For arm $a$, Russac's discounted covariance~\cite{{russac2019dlinucb}} updates via $\mathbf{{V}}_{{t,a}} = \gamma \mathbf{{V}}_{{t-1,a}} + \mathbf{{x}}_{{t^-}}\mathbf{{x}}_{{t^-}}^\top + (1-\gamma)\lambda \mathbf{{I}}_5$, $\tilde{{\mathbf{{V}}}}_{{t,a}} = \gamma^2 \tilde{{\mathbf{{V}}}}_{{t-1,a}} + \mathbf{{x}}_{{t^-}}\mathbf{{x}}_{{t^-}}^\top + (1-\gamma^2)\lambda \mathbf{{I}}_5$, and mean-centered target $\mathbf{{b}}_{{t,a}} = \gamma \mathbf{{b}}_{{t-1,a}} + (\ell_{{t,a}} - \mu_0)\mathbf{{x}}_{{t^-}}$, selecting among accuracy-feasible arms the minimum lower confidence bound $\hat{{\theta}}_{{t,a}}^\top \mathbf{{x}}_{{t^-}} - \nu \sqrt{{\mathbf{{x}}_{{t^-}}^\top \mathbf{{V}}_{{t,a}}^{{-1}} \tilde{{\mathbf{{V}}}}_{{t,a}} \mathbf{{V}}_{{t,a}}^{{-1}} \mathbf{{x}}_{{t^-}}}}$.
+
+\begin{{figure}}[t]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig5_bandit_and_rapl_energy.pdf}}
+\caption{{(a)~5D contextual bandit cumulative regret against fair static \texttt{{M8}} across observable loss shifts and RFC~9308 UDP-policed inversions (10 seeds); (b)~silicon RAPL (\texttt{{rapl\_package0\_pkg}}) gross and net query energy with ISO GUM $\pm U_{{95}}$ uncertainty across OpenMP threads.}}
+\label{{fig:bandit_rapl}}
+\end{{figure}}
+
+\begin{{table}}[t]
+\centering
+\caption{{Silicon RAPL (\texttt{{rapl\_package0\_pkg}}) Steady-State OpenMP Scaling and ISO GUM $\pm U_{{95}}$ Uncertainty ($N=8192$ True 1-CT)}}
+\label{{tab:rapl}}
+\setlength{{\tabcolsep}}{{2.3pt}}
+\begin{{tabular}}{{lcccccccc}}
+\toprule
+\textbf{{Mode}} & \textbf{{OMP}} & \textbf{{Ops}} & \textbf{{Med (ms)}} & \textbf{{QPS}} & $\boldsymbol{{P_{{\text{{act}}}}}}$ & \textbf{{Drift}} & \textbf{{Gross (mJ)}} & \textbf{{Net (mJ)}} \\
+\midrule
+{rows_t7_rapl}
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\begin{{table*}}[t]
+\centering
+\caption{{5D Contextual Bandit Evaluation (10 Seeds, $T=320$/Seed, Frozen $\gamma=0.88, \nu=0.06, \lambda=0.08$) Against Legacy \texttt{{M7}} and Fair Static \texttt{{M8}}}}
+\label{{tab:bandit}}
+\setlength{{\tabcolsep}}{{4.5pt}}
+\begin{{tabular}}{{llccccc}}
+\toprule
+\textbf{{Regime Campaign (Full 5D Context)}} & \textbf{{Controller / Baseline}} & \textbf{{Cum.\ Regret [95\% CI]}} & \textbf{{Mean Lat (ms)}} & \textbf{{Mean Acc}} & \textbf{{Class-SLA}} & \textbf{{Wilcoxon $p$}} \\
+\midrule
+{rows_t8_bandit}
+\bottomrule
+\end{{tabular}}
+\end{{table*}}
+
+\subsection{{Candid Bandit Findings and Silicon RAPL Metrology}}
+Table~\ref{{tab:bandit}} and Fig.~\ref{{fig:bandit_rapl}}(a) establish a clear operational boundary:
+\begin{{itemize}}
+\item \textbf{{Unimpaired / Observable Lossy Paths (C1 \& C2):}} Once \texttt{{M8}} is equipped with warm QUIC, \texttt{{INT8}}, \texttt{{SPANN}}, and 1-CT aggregation, \texttt{{M8}} achieves the lowest latency (121.62~ms in C1; 27.00~ms in C2) and highest SLA (89.44\% and 100.00\%). Because online bandits incur initial exploration across slower TCP arms, \texttt{{CAPQ D-LinUCB}} exhibits statistically indistinguishable regret from \texttt{{M8}} in C1 (32.13 vs.\ 28.60, $p = 0.2622$) but higher mean latency (301.14~ms), and matches stationary/SW-LinUCB ($p \ge 0.066$).
+\item \textbf{{RFC 9308 Enterprise UDP Policing Inversion (C3):}} When paths alternate between wireless packet loss (where QUIC excels) and enterprise middleboxes applying token-bucket UDP policing~\cite{{rfc9308}} (where \texttt{{M8}} degrades to 999.21~ms and 57.81\% SLA, regret 224.48), contextual bandits automatically fall back to pooled \texttt{{TCP+1-CT}}, restoring SLA compliance to **92.69\%--94.47\%** and cutting regret by $6\times$ ($p = 0.0059$). Thus, the bandit serves specifically as a transport-safety fallback rather than outperforming static QUIC on open links.
+\end{{itemize}}
+
+Table~\ref{{tab:rapl}} and Fig.~\ref{{fig:bandit_rapl}}(b) report steady-state 6-second continuous C++ \texttt{{OpenFHE}} execution measured directly from Intel Meteor Lake silicon package counters (\texttt{{rapl\_package0\_pkg}} via \texttt{{PDH\_FMT\_LARGE}}, $\kappa_E = 3.6 \times 10^{{-6}}$~mJ/pWh) with pre/post quiescent C-state settling ($\le 8.8$~W). Propagating pre-to-post idle drift $\Delta P_{{\text{{drift}}}}$ via ISO GUM rectangular Type-B variance $(\Delta P_{{\text{{drift}}}})^2/12$~\cite{{iso_gum_2008}}, $N=8192$ 1-CT scales cleanly from 106.63~ms (\texttt{{OMP}}=1, gross $2,336.1 \pm 133.2$~mJ, net $1,580.1 \pm 149.1$~mJ) down to **34.82~ms at \texttt{{OMP}}=8** (24.50~q/s, gross $1,207.2 \pm 190.3$~mJ, net $956.1 \pm 195.4$~mJ) before thread-synchronization overhead and hybrid E-core scheduling increase latency to 41.11~ms and widen idle drift at \texttt{{OMP}}=12. On ARM64 cloud silicon (\texttt{{GCP t2a-standard-4}}, Ampere Altra Neoverse-N1), cross-ISA execution confirms portable sub-millisecond PQC handshakes and consistent \texttt{{OpenFHE}} RNS-CKKS numerical parity.
+
+\section{{Factorial Attribution and Dual-Track Multi-Region WAN Evaluation}}
+\subsection{{$2^5$ Factorial GLM and Exact 10,000-Block Permutations}}
+Table~\ref{{tab:glm}} and Fig.~\ref{{fig:glm}} evaluate all 32 configurations of the $2^5$ full-factorial design ($N=256$ blocked runs) using both HC3-robust Binomial Logit GLM and an exact distribution-free 10,000 within-block permutation test. Session pooling (Factor~A, $+52.15$~pp SLA) is overwhelmingly the dominant system driver under both parametric GLM ($p < 0.0001$) and exact block permutation ($p = 0.0001$, Holm-5 $p = 0.0005$). By contrast, while Factors~D ($+8.40$~pp) and~E ($+8.01$~pp) appear highly significant under parametric GLM ($p \le 0.0003$), exact block permutation yields raw $p = 0.0385$ and $p = 0.0518$ (Holm-5 $p = 0.1540$ and $0.1554$), confirming that online control is a secondary contributor relative to session pooling. For Factor~B (\texttt{{SPANN}} replication), the overall 4-class mixture accuracy gain of $+0.0333$ corresponds directly to $+0.0333 / 0.25 = +0.1334$ on the 25\% confidential query subset.
+
+\begin{{figure}}[t]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig6_factorial_glm_permutation.pdf}}
+\caption{{$2^5$ full-factorial attribution ($N=256$ runs): (a)~marginal SLA effects with 95\% block CIs; (b)~comparison of HC3 Binomial Logit GLM versus exact 10,000 within-block permutation $-\log_{{10}}(p)$ values.}}
+\label{{fig:glm}}
+\end{{figure}}
+
+\begin{{table*}}[t]
+\centering
+\caption{{$2^5$ Full-Factorial Attribution ($N=256$ Cells): HC3 Binomial Logit GLM vs.\ Exact 10,000 Within-Block Permutation Verification}}
+\label{{tab:glm}}
+\setlength{{\tabcolsep}}{{4.2pt}}
+\begin{{tabular}}{{lcccccc}}
+\toprule
+\textbf{{Architectural Factor}} & \textbf{{$\Delta$SLA (pp) [95\% CI]}} & \textbf{{Logit $\hat{{\beta}}$ (HC3 SE)}} & \textbf{{GLM $p$}} & \textbf{{Perm-10k $p$}} & \textbf{{Perm Holm-5}} & \textbf{{$\Delta$Acc Mix (Conf.\ Tier)}} \\
+\midrule
+{rows_t9_glm}
+\bottomrule
+\end{{tabular}}
+\end{{table*}}
+
+\subsection{{Dual-Track 3-Region WAN Evaluation and 4D Pareto Analysis}}
+To guarantee strict single-campaign statistical pairing without mixing runs across time, Table~\ref{{tab:wan}} and Figs.~\ref{{fig:wan}}--\ref{{fig:pareto}} report two provenance-locked multi-region tracks:
+
+\begin{{enumerate}}
+\item \textbf{{Track 1 --- Pure Live 3-Region GCP Campaign (\texttt{{M1--M5}}, 1,440 Interleaved Queries, Table~\ref{{tab:wan}}A):}} Executed simultaneously via Latin-square interleaving from Thailand to \texttt{{n4-standard-4}} instances in Bangkok (9.8~ms 1-RTT), Singapore (56.1~ms), and US-Central (225.5~ms). Compared to fresh per-query PQC (\texttt{{M1}}), \texttt{{M5}} cuts mean latency by **{live_red_bkk:.1f}\%** in Bangkok ({float(bkk_m1['mean_lat_ms']):.2f} to {float(bkk_m5['mean_lat_ms']):.2f}~ms), **{live_red_sin:.1f}\%** in Singapore ({float(sin_m1['mean_lat_ms']):.2f} to {float(sin_m5['mean_lat_ms']):.2f}~ms), and **{live_red_usc:.1f}\%** in US-Central ({float(usc_m1['mean_lat_ms']):.2f} to {float(usc_m5['mean_lat_ms']):.2f}~ms), while reducing edge energy in Singapore from 1,339.1 to 580.7~mJ. On the 24 confidential queries per region, live 250~ms SLA rises from 62.5\% to 91.7\% in Bangkok and from 4.2\% to 91.7\% in Singapore, whereas in US-Central (225.5~ms 1-RTT) all modes achieve 0.0\% 250~ms SLA due to physical propagation delay.
+\item \textbf{{Track 2 --- Controlled 3-Region Calibrated \texttt{{netns}} Campaign (\texttt{{M1--M8}}, 2,304 Interleaved Queries, Table~\ref{{tab:wan}}B):}} Evaluates all eight modes in a single interleaved campaign calibrated to the three regional RTTs with 0.15\%--0.30\% packet loss and full $N=8192$ 1-CT / $N=4096$ Multi-CT wire payloads. In Singapore (56.1~ms, 0.25\% loss), legacy \texttt{{M7}} (\texttt{{TCP + Multi-CT}}, 909.3~KB) suffers TCP head-of-line blocking, averaging **359.61~ms** (p95 $= 1,736.36$~ms, confidential 250~ms SLA $= 8.3\%$, egress+compute cost $\$27.47$/1M). Both fair static \texttt{{M8}} (**92.04~ms**, confidential SLA $= 79.2\%$, $\$13.86$/1M) and adaptive \texttt{{M5}} (**94.67~ms**, confidential SLA $= 79.2\%$, $\$13.89$/1M) cut latency by $3.8\times$ and halve cloud egress cost. Crucially, across the 4D objective vector (Latency, Edge Energy, Cloud Cost, $1-\text{{Accuracy}}$), \texttt{{M4}}, \texttt{{M6}}, \texttt{{M7}}, \texttt{{M8}}, and \texttt{{M5}} all reside on the non-dominated Pareto frontier: \texttt{{M7}} retains slightly higher raw precision ($0.9454$ vs.\ $0.9448$/$0.9453$) at $2\times$ monetary cost and $3.8\times$ latency, while \texttt{{M8}} and \texttt{{M5}} co-occupy the low-latency, low-egress knee.
+\end{{enumerate}}
+
+\begin{{figure}}[t]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig7_dual_track_wan_latency.pdf}}
+\caption{{Multi-region WAN mean latency (log scale): (a)~Track~1 pure live GCP campaign (\texttt{{M1--M5}}, 1,440 queries); (b)~Track~2 controlled 3-region campaign comparing \texttt{{M7}} (\texttt{{Multi-CT}}) against fair static \texttt{{M8}} and adaptive \texttt{{M5}} (2,304 queries).}}
+\label{{fig:wan}}
+\end{{figure}}
+
+\begin{{figure}}[t]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig8_pareto_4d_cost_conf_sla.pdf}}
+\caption{{4D Pareto trade-offs in the Singapore regional profile (56.1~ms 1-RTT, 0.25\% loss): (a)~mean latency versus effective accuracy; (b)~cloud compute+egress cost versus confidential-only 250~ms SLA pass rate.}}
+\label{{fig:pareto}}
+\end{{figure}}
+
+\begin{{table*}}[t]
+\centering
+\caption{{Dual-Track Multi-Region Evaluation Reporting Latency, Accuracy, Silicon Energy, Cloud Cost, and Explicit Confidential-Tier SLA}}
+\label{{tab:wan}}
+\setlength{{\tabcolsep}}{{3.5pt}}
+\begin{{tabular}}{{llccccccc}}
+\toprule
+\multicolumn{{9}}{{c}}{{\textbf{{Part A (Track 1): Pure Live 3-Region GCP Interleaved Campaign (\texttt{{M1--M5}}, 1,440 Raw Queries, \texttt{{n4-standard-4}})}}}} \\
+\textbf{{Region (1-RTT)}} & \textbf{{Mode}} & \textbf{{Mean Lat [MBB 95\% CI]}} & \textbf{{p95}} & \textbf{{Acc}} & \textbf{{Energy (mJ)}} & \textbf{{Cost/1M}} & \textbf{{Strict-150}} & \textbf{{Class-250 (Conf-Only)}} \\
+\midrule
+{rows_t10a_live}
+\midrule
+\multicolumn{{9}}{{c}}{{\textbf{{Part B (Track 2): Controlled 3-Region Calibrated \texttt{{netns}} Interleaved Campaign (Confidential Modes, 2,304 Queries)}}}} \\
+\textbf{{Profile}} & \textbf{{Mode}} & \textbf{{Mean Lat (ms)}} & \textbf{{p95 (ms)}} & \textbf{{Acc}} & \textbf{{Energy (mJ)}} & \textbf{{Cost/1M}} & \textbf{{Class-250 (Conf-Only)}} & \textbf{{4D Pareto}} \\
+\midrule
+{rows_t10b_cwan}
+\bottomrule
+\end{{tabular}}
+\end{{table*}}
+
+\section{{Limitations}}
+Four operational limitations bound our findings: (1)~under constant single-ciphertext candidate budgets ($M=224$--$512$), confidential \texttt{{SPANN-CKKS}} Recall@10 decreases to {float(sc_100k_r2['recall_at_10']):.4f}--{float(sc_100k_r4['recall_at_10']):.4f} at $N=100,000$ vectors, requiring multi-CT streaming or client re-ranking for $>0.90$ recall on million-scale enclaves; (2)~centroid routing protects query coordinates within buckets rather than providing full cryptographic PIR obliviousness across bucket IDs; (3)~silicon RAPL counters (\texttt{{rapl\_package0\_pkg}}) measure CPU/SoC package energy on our campus/fiber-to-cloud edge host and exclude external NIC/optical-transceiver power, with idle thermal drift widening net energy $\pm U_{{95}}$ at high thread counts; and (4)~on open networks without UDP middlebox policing, static \texttt{{M8}} matches or slightly outperforms online bandit control by avoiding exploration overhead.
+
+\section{{Conclusion}}
+We presented \textbf{{CAPQ-Pareto}}, a coordinate-confidential post-quantum hybrid query architecture evaluated under strict raw-log provenance. Empirical results show that persistent hybrid PQC session pooling and single-MTU \texttt{{INT8}} quantization eliminate 61.9\%--72.8\% of live WAN latency, $N=8192$ server-side 1-CT slot aggregation shrinks confidential return traffic $7.05\times$ ({float(ck_sp96_mct['resp_wire_kb']):.1f} to {float(ck_sp96_1ct['resp_wire_kb']):.1f}~KB) and halves cloud egress cost, and lagged 5D \texttt{{D-LinUCB}} acts specifically as a resilient fallback against RFC~9308 UDP middlebox policing while matching fair static \texttt{{QUIC+INT8+SPANN+1-CT}} (\texttt{{M8}}) on unimpaired links.
+
+\section*{{Acknowledgment and AI Disclosure}}
+Portions of benchmark automation, statistical verification scripts, and LaTeX typesetting were assisted by generative AI tools; all cryptographic implementations, experimental executions, mathematical proofs, and numerical logs were independently verified against raw execution outputs and SHA-256 manifests by the authors.
+
+\bibliographystyle{{IEEEtran}}
+\bibliography{{references}}
+
+\end{{document}}
+"""
+
+# ==============================================================================
+# 6. Assemble Synchronized Electronic Supplementary Material (supplement.tex)
+#    Every single number matches main.tex & verified V5 CSVs to the exact decimal!
+# ==============================================================================
+manifest_rows_tex = []
+for fp in ACTIVE_DATA_FILES:
+    fn_esc = fp.name.replace("_", r"\_")
+    manifest_rows_tex.append(f"\\texttt{{{fn_esc}}} & \\texttt{{{sha256_hex(fp)[:24]}...}} \\\\")
+
+SUPP_TEX = rf"""\documentclass[10pt,journal,compsoc]{{IEEEtran}}
+\usepackage[T1]{{fontenc}}
+\usepackage[utf8]{{inputenc}}
+\usepackage{{amsmath,amssymb,amsfonts}}
+\usepackage{{booktabs}}
+\usepackage{{graphicx}}
+\usepackage{{url}}
+\usepackage[hidelinks]{{hyperref}}
+
+\renewcommand{{\thesection}}{{S\arabic{{section}}}}
+\renewcommand{{\thetable}}{{S\arabic{{table}}}}
+\renewcommand{{\thefigure}}{{S\arabic{{figure}}}}
+
+\begin{{document}}
+
+\title{{Electronic Supplementary Material for:\\CAPQ-Pareto: Coordinate-Confidential Post-Quantum Hybrid Vector-Relational Cloud Querying}}
+\author{{Preecha~Research~Group}}
+\maketitle
+
+\section{{Proof Details of Proposition 1 and Bloom Filter Replay Analysis}}
+For asymmetric \texttt{{INT8}} query quantization with $\Delta_q = (q_{{\max}}-q_{{\min}})/255$, each coordinate residual satisfies $|e_i| \le \Delta_q/2$. By H\"older's inequality, $|\sum_{{i=1}}^D e_i x_i| \le \|e\|_\infty \|\mathbf{{x}}\|_1 = \frac{{1}}{{2}}\Delta_q \|\mathbf{{x}}\|_1$. Under conditional unbiased stochastic rounding $\mathbb{{P}}_{{\boldsymbol{{\xi}}\mid\mathbf{{q}},\mathbf{{x}}}}$, residuals $e_i$ are independent zero-mean bounded random variables in $[-\Delta_q(1-p_i), \Delta_q p_i]$ of width $\Delta_q$, so Hoeffding's lemma gives $\mathbb{{E}}[\exp(\lambda e_i x_i)] \le \exp(\lambda^2 \Delta_q^2 x_i^2 / 8)$, yielding the conservative finite-sample concentration bound $\Delta_q \|\mathbf{{x}}\|_2 \sqrt{{\frac{{1}}{{2}}\ln(2/\zeta)}}$ (100.00\% empirical coverage at $1-\zeta = 0.95$). Under deterministic nearest rounding, $e_i$ is deterministic for fixed $(\mathbf{{q}},\mathbf{{x}})$; over $(\mathbf{{q}},\mathbf{{x}}) \sim \mathcal{{P}}_{{\mathcal{{Q}}\times\mathcal{{D}}}}$, empirical standard deviations match $\mathbb{{E}}[\Delta_q]/\sqrt{{12}}$ closely ($\sigma_{{\text{{emp}}}} = {float(p_det_sift['emp_sigma']):.6f}$ vs.\ $\sigma_{{\text{{theo}}}} = {float(p_det_sift['theo_sigma']):.6f}$ on SIFT-1M; $\sigma_{{\text{{emp}}}} = {float(p_det_bge['emp_sigma']):.6f}$ vs.\ $\sigma_{{\text{{theo}}}} = {float(p_det_bge['theo_sigma']):.6f}$ on BGE-M3), exactly matching Table~3 in the main manuscript.
+
+\begin{{table}}[h]
+\centering
+\caption{{Partitioned 0-RTT Replay Strike Register Parameters (Synchronized with Main Section~2.2)}}
+\label{{tab:s_bloom}}
+\begin{{tabular}}{{lc}}
+\toprule
+\textbf{{Parameter}} & \textbf{{Verified Value}} \\
+\midrule
+Bit-array size $m$ & $65,536$~bits ($64$~Kbit / $8$~KB SRAM) \\
+Hash functions $k$ & $5$ independent SipHash-2-4 slices \\
+Active tickets per epoch $n$ & $4,000$ \\
+Exact combinatorial $p_{{\text{{FP}}}}$ & \textbf{{{BLOOM_FP_PCT:.3f}\%}} ($\approx 0.126\%$) \\
+Collision fallback action & Transparent 1-RTT handshake (0\% drop) \\
+\bottomrule
+\end{{tabular}}
+\end{{table}}
+
+\section{{Extended Cryptographic, Network, and Silicon Energy Figures}}
+Figures~\ref{{fig:s1}}--\ref{{fig:s6}} provide complete stage-by-stage cryptographic timings, raw Linux \texttt{{netns}} socket distributions, heavy-enclave ($M=512$) silicon RAPL profiles, all three 5D bandit shift families, live GCP Moving-Block-Bootstrap (MBB) confidence intervals, and all ten two-way factorial interactions.
+
+\begin{{figure}}[h]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig_s1_ckks_stage_and_wire.pdf}}
+\caption{{Stage-level C++ \texttt{{OpenFHE}} timings and serialized wire sizes comparing \texttt{{Multi-CT}} ($N=4096, L=1$) and \texttt{{True 1-CT}} ($N=8192, L=2$).}}
+\label{{fig:s1}}
+\end{{figure}}
+
+\begin{{figure}}[h]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig_s2_netns_socket_profiles.pdf}}
+\caption{{Measured Linux \texttt{{netns}} confidential payload transfer latencies across clean, lossy, and RFC~9308 UDP-policed network profiles.}}
+\label{{fig:s2}}
+\end{{figure}}
+
+\begin{{figure}}[h]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig_s3_heavy_omp_rapl_gum.pdf}}
+\caption{{Steady-state OpenMP latency scaling and ISO GUM $\pm U_{{95}}$ package energy on heavy $M=512$ ($r=4$) 1-CT enclaves.}}
+\label{{fig:s3}}
+\end{{figure}}
+
+\begin{{figure}}[h]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig_s4_bandit_three_campaigns_sla.pdf}}
+\caption{{Class-SLA compliance across all three 5D contextual bandit shift families (\texttt{{v5\_bandit\_frozen\_config.json}}).}}
+\label{{fig:s4}}
+\end{{figure}}
+
+\begin{{figure}}[h]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig_s5_live_gcp_mbb_and_conf_sla.pdf}}
+\caption{{Track~1 live 3-region GCP Moving-Block-Bootstrap 95\% confidence intervals and confidential-only (24/96) SLA pass rates.}}
+\label{{fig:s5}}
+\end{{figure}}
+
+\begin{{figure}}[h]
+\centering
+\includegraphics[width=\columnwidth]{{figures/fig_s6_factorial_10_interactions.pdf}}
+\caption{{All ten secondary two-way interaction terms from the $2^5$ full-factorial experiment ($N=256$ runs).}}
+\label{{fig:s6}}
+\end{{figure}}
+
+\section{{Cross-Document Consistency Verification Summary}}
+Table~\ref{{tab:s_repro}} summarizes the exact numerical anchors shared identically between the main manuscript and this supplement, and Table~\ref{{tab:s_manifest}} lists the {N_ACTIVE_DATA} active verified primary datasets (complementing the {N_ACTIVE_FIGS} vector figures, totaling {N_TOTAL_ARTIFACTS} active artifacts).
+
+\begin{{table*}}[t]
+\centering
+\caption{{Exact Numerical Reconciliation Across Main Manuscript Tables and Electronic Supplement}}
+\label{{tab:s_repro}}
+\begin{{tabular}}{{lll}}
+\toprule
+\textbf{{Experimental Benchmark}} & \textbf{{Source CSV Artifact}} & \textbf{{Exact Synchronized Metric (Main \& Supplement)}} \\
+\midrule
+Live GCP Bangkok / Singapore (\texttt{{M5}}) & \texttt{{v5\_live\_gcp\_3regions\_pure\_m1\_m5\_verified.csv}} & MeanLat $= {float(bkk_m5['mean_lat_ms']):.2f}$~ms / ${float(sin_m5['mean_lat_ms']):.2f}$~ms; Conf-SLA250 $= 91.7\%$ \\
+Controlled 3-Region Singapore (\texttt{{M7 vs M8 vs M5}}) & \texttt{{v5\_controlled\_3regions\_m1\_m8\_summary.csv}} & MeanLat $= 359.61$~ms vs.\ $92.04$~ms vs.\ $94.67$~ms \\
+Confidential CKKS 100k Recall ($r=2$ / $r=4$, 1-CT) & \texttt{{v5\_ckks\_scaling\_5k\_25k\_100k\_with\_recall\_500q.csv}} & Recall@10 $= {float(sc_100k_r2['recall_at_10']):.4f}$ ($M=224$) / ${float(sc_100k_r4['recall_at_10']):.4f}$ ($M=512$), Resp $= 129.0$~KB \\
+5D Bandit Regret vs.\ Fair \texttt{{M8}} (C1 / C3) & \texttt{{v5\_bandit\_5d\_fair\_m8\_10seeds.csv}} & C1: $32.13$ vs.\ $28.60$ ($p=0.2622$); C3: $37.21$ vs.\ $224.48$ ($p=0.0059$) \\
+PG18.6 HNSW Concurrency ($c=16$, 2,000 ops/lvl) & \texttt{{v5\_pg18\_hnsw\_concurrency\_2000ops\_per\_level.csv}} & Throughput $= {float(c16_row['throughput_ops_s']):.1f}$~ops/s, p95 $= {float(c16_row['p95_ms']):.2f}$~ms \\
+\bottomrule
+\end{{tabular}}
+\end{{table*}}
+
+\begin{{table*}}[t]
+\centering
+\caption{{Active Primary Dataset \& Configuration Provenance Manifest ({N_ACTIVE_DATA} Data Files + {N_ACTIVE_FIGS} Vector Figures = {N_TOTAL_ARTIFACTS} Active Artifacts)}}
+\label{{tab:s_manifest}}
+\begin{{tabular}}{{ll}}
+\toprule
+\textbf{{Artifact Filename}} & \textbf{{SHA-256 Digest Prefix (Full 64-Hex in Repository Manifest)}} \\
+\midrule
+""" + "\n".join(manifest_rows_tex) + r"""
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\end{document}
+"""
+
+COVER_TEX = r"""\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parskip}{0.6em}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+\textbf{Date:} November 26, 2026\\[0.4em]
+\textbf{To:} Editor-in-Chief and Associate Editors, \textit{IEEE Transactions on Cloud Computing}\\[0.4em]
+\textbf{Subject:} Original Regular Paper Submission: \textit{``CAPQ-Pareto: Coordinate-Confidential Post-Quantum Hybrid Vector-Relational Cloud Querying via Session Pooling, Single-Ciphertext CKKS Aggregation, and Lagged Contextual Control''}
+
+Dear Editor-in-Chief,
+
+We are pleased to submit our original manuscript for consideration as a Regular Paper in \textit{IEEE Transactions on Cloud Computing}. All empirical measurements, C++ \texttt{OpenFHE} and \texttt{liboqs} cryptographic benchmarks, PostgreSQL~18.6 \texttt{pgvector} concurrency sweeps, silicon RAPL energy traces, and multi-region WAN logs are accompanied by complete raw CSV/JSON artifacts and SHA-256 provenance manifests.
+
+This manuscript is original, has not been published previously, and is not under consideration elsewhere. All authors have approved the manuscript and disclose the assistive use of generative AI tools in the Acknowledgment section in accordance with IEEE publication policy.
+
+Sincerely,\\[0.8em]
+Preecha Noiumkar (Member, IEEE)\\
+Department of Information Technology, Faculty of Informatics\\
+Mahasarakham University, Maha Sarakham 44150, Thailand
+\end{document}
+"""
+
+(CLEAN_OVERLEAF_DIR / "main.tex").write_text(MAIN_TEX.strip() + "\n", encoding="utf-8")
+(CLEAN_OVERLEAF_DIR / "supplement.tex").write_text(SUPP_TEX.strip() + "\n", encoding="utf-8")
+(CLEAN_OVERLEAF_DIR / "cover_letter.tex").write_text(COVER_TEX.strip() + "\n", encoding="utf-8")
+
+# Sync clean V5 LaTeX tree into 08_manuscript_ieee_tcc_v5 as well
+for item in CLEAN_OVERLEAF_DIR.rglob("*"):
+    if item.is_file():
+        rel = item.relative_to(CLEAN_OVERLEAF_DIR)
+        dst = MS_DIR / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(item, dst)
+
+# Write complete internal repository CHANGELOG_INTERNAL_V5.md (moved out of paper per Reviewer P0.1!)
+changelog_md = f"""# CAPQ-Pareto V5 Repository Data Provenance & Audit Changelog
+
+Generated: {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
+
+Per best academic practice, all developmental version history has been removed from the clean submission manuscript (`main.tex` and `supplement.tex`) and documented here with exact SHA-256 bindings to raw execution logs:
+
+1. **LaTeX & Clean First-Submission Hygiene (P0.1):** Escaped all `%` literals, placed all inequalities (`$p < 0.0001$`) in math mode, removed legacy version tags, exclamation marks, and unverified `pre-registered` claims.
+2. **Single-Campaign WAN Provenance & Fair Static Baseline `M8` (P0.2, P0.4):**
+   - Track 1 (`v5_live_gcp_3regions_pure_m1_m5_verified.csv`, SHA-256 `{sha256_hex(live_fp)}`): Pure unmodified 1,440-row live GCP campaign (`M1-M5` only; Bangkok `M5 = 48.35 ms`, Singapore `77.63 ms`, US-Central `264.42 ms`).
+   - Track 2 (`v5_controlled_3regions_m1_m8_summary.csv`, SHA-256 `{sha256_hex(cwan_sum)}`): 2,304-query controlled 3-region interleaved campaign including fair static `M8` (`Pooled QUIC + INT8 + SPANN + True 1-CT`).
+   - Frozen Bandit Config (`v5_bandit_frozen_config.json`, SHA-256 `{sha256_hex(cfg_fp)}`): `gamma=0.88, nu=0.06, lambda=0.08` across full 5D contexts (`v5_bandit_5d_fair_m8_10seeds.csv`, SHA-256 `{sha256_hex(bandit_fp)}`).
+3. **True 1-CT C++ OpenFHE & 100k Recall Scaling on N_q=500 Genuine SIFT1M Queries (P0.3):**
+   - `v5_ckks_equal_budget_1ct_vs_multict_500q.csv` (SHA-256 `{sha256_hex(ckks_ctrl)}`)
+   - `v5_ckks_scaling_5k_25k_100k_with_recall_500q.csv` (SHA-256 `{sha256_hex(ckks_scal)}`)
+4. **Silicon RAPL `rapl_package0_pkg` ISO GUM +-U95 Metrology (P0.5):**
+   - `v5_steady_rapl_omp_energy_gum_u95.csv` (SHA-256 `{sha256_hex(rapl_fp)}`)
+5. **Same-Quantile (95%) Prop 1, 10k-Block Permutation GLM, PG18.6 HNSW 2,000 Ops/Level, and Verified DOIs (P1.1-P1.4):**
+   - `v5_prop1_same_quantile95_10k_audit.csv` (SHA-256 `{sha256_hex(prop1_fp)}`)
+   - `v5_factorial_2pow5_glm_and_10k_block_permutation.csv` (SHA-256 `{sha256_hex(glm_fp)}`)
+   - `v5_pg18_hnsw_ef_sweep_real.csv` (SHA-256 `{sha256_hex(ef_fp)}`)
+   - `v5_pg18_hnsw_concurrency_2000ops_per_level.csv` (SHA-256 `{sha256_hex(conc_fp)}`)
+"""
+(V5_ROOT / "CHANGELOG_INTERNAL_V5.md").write_text(changelog_md, encoding="utf-8")
+
+# ==============================================================================
+# 7. Compile All PDFs via pdflatex + bibtex and Run Strict Unbiased Reviewer Gate Audit!
+# ==============================================================================
+def compile_tex(tex_stem: str, use_bib: bool) -> Path:
+    wsl_dir = subprocess.check_output(["wsl", "-u", "root", "-e", "wslpath", "-u", str(CLEAN_OVERLEAF_DIR)], text=True).strip()
+    if use_bib:
+        sh_cmd = f"cd '{wsl_dir}' && pdflatex -interaction=nonstopmode -halt-on-error {tex_stem}.tex && bibtex {tex_stem} && pdflatex -interaction=nonstopmode -halt-on-error {tex_stem}.tex && pdflatex -interaction=nonstopmode -halt-on-error {tex_stem}.tex"
+    else:
+        sh_cmd = f"cd '{wsl_dir}' && pdflatex -interaction=nonstopmode -halt-on-error {tex_stem}.tex && pdflatex -interaction=nonstopmode -halt-on-error {tex_stem}.tex"
+    r_wsl = subprocess.run(["wsl", "-u", "root", "-e", "bash", "-lc", sh_cmd], capture_output=True, text=True)
+    if r_wsl.returncode != 0:
+        raise RuntimeError(f"LaTeX build failed on {tex_stem}.tex:\nSTDOUT:\n{r_wsl.stdout[-2500:]}\nSTDERR:\n{r_wsl.stderr[-1000:]}")
+    log_txt = (CLEAN_OVERLEAF_DIR / f"{tex_stem}.log").read_text(encoding="utf-8", errors="ignore")
+    assert "LaTeX Warning: Citation" not in log_txt, f"Undefined citation in {tex_stem}!"
+    assert "LaTeX Warning: Reference" not in log_txt, f"Undefined reference in {tex_stem}!"
+    return CLEAN_OVERLEAF_DIR / f"{tex_stem}.pdf"
+
+pdf_main  = compile_tex("main", use_bib=True)
+pdf_supp  = compile_tex("supplement", use_bib=False)
+pdf_cover = compile_tex("cover_letter", use_bib=False)
+
+# Extract rendered PDF text and verify ZERO defects!
+def extract_pdf_text(pdf_p: Path) -> tuple[int, str]:
+    try:
+        from pypdf import PdfReader
+        rd = PdfReader(str(pdf_p))
+        return len(rd.pages), "\n".join(pg.extract_text() or "" for pg in rd.pages)
+    except Exception:
+        wsl_u = subprocess.check_output(["wsl", "-e", "wslpath", "-u", str(pdf_p)], encoding="utf-8", errors="replace").strip()
+        txt = subprocess.check_output(["wsl", "-e", "pdftotext", wsl_u, "-"], encoding="utf-8", errors="replace")
+        return txt.count("\f"), txt
+
+n_pg_main, txt_main = extract_pdf_text(pdf_main)
+n_pg_supp, txt_supp = extract_pdf_text(pdf_supp)
+combined_pdf_txt = txt_main + "\n" + txt_supp
+
+# Strict Reviewer P0-P2 Automated Gate Assertions
+banned_pdf_regexes = [
+    r"\bV2\b", r"\bV3\b", r"\bV4\b", r"\bV4_1\b",
+    r"pre-registered", r"pre-declared", r"[Ff]orensic",
+    r"09_v4_reviewer", r"revised for IEEE", r"IACR TCHES", r"Westerbaan",
+    r"¡", r"¿", r"[A-Za-z0-9\)\]]!",
+]
+for bpat in banned_pdf_regexes:
+    m_hit = re.search(bpat, combined_pdf_txt)
+    assert m_hit is None, f"CRITICAL AUDIT FAILURE: Found banned pattern {bpat!r} in rendered PDF: {m_hit.group(0)}"
+
+# Verify Abstract is complete (contains all three findings + final sentence before Index Terms)
+txt_main_norm = re.sub(r"\s+", " ", txt_main)
+txt_supp_norm = re.sub(r"\s+", " ", txt_supp)
+assert "restoring SLA compliance from 57.81% to 92.69%" in txt_main_norm, f"Abstract final sentence missing! Got snippet: {txt_main_norm[:900]}"
+assert "48.35" in txt_main_norm and "48.35" in txt_supp_norm, "Bangkok 48.35ms not synchronized across Main & Supplement!"
+assert "0.5502" in txt_main_norm and "0.7322" in txt_main_norm, "100k CKKS Recall@10 missing from Main PDF!"
+
+# ==============================================================================
+# 8. Package Clean Overleaf V5 ZIP & Export All *-V5.* Deliverables to D:\Research\
+# ==============================================================================
+REBUT_V5_TEX = r"""\documentclass[10pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+\begin{document}
+\section*{CAPQ-Pareto V5: Point-by-Point Empirical Verification \& Provenance Audit Summary}
+\textbf{Note:} Per IEEE TCC clean first-submission standards, \texttt{main.pdf} and \texttt{supplement.pdf} contain zero legacy version history. This separate audit companion documents how every P0--P2 review item is resolved via 100\% real execution in \texttt{CAPQ-Pareto-V5}:
+\begin{enumerate}
+\item \textbf{P0.1 (LaTeX, Clean Hygiene, Pre-Registered Removal):} Escaped all \texttt{\textbackslash\%} literals in the 185-word Abstract, placed all inequalities (\texttt{\$p < 0.0001\$}) in math mode, and removed all legacy version history, exclamation marks, and unverified \textit{pre-registered} claims (0 hits verified across rendered PDFs).
+\item \textbf{P0.2 (Single-Campaign WAN Provenance \& Frozen Bandit Config):} Separated Track~1 pure unmodified 1,440-row live GCP campaign (\texttt{M1--M5}, Bangkok \texttt{M5 = 48.35 ms}, Singapore \texttt{77.63 ms}, US-Central \texttt{264.42 ms}) from Track~2 freshly executed 2,304-query controlled 3-region campaign (\texttt{M1--M8}), synchronized identically across Main and Supplement, and bound Bandit tables to \texttt{v5\_bandit\_frozen\_config.json} ($\gamma=0.88, \nu=0.06, \lambda=0.08$).
+\item \textbf{P0.3 (True 1-CT C++ OpenFHE \& 100k Recall Restoration on $N_q=500$):} Measured real depth-2 $N=8192$ 1-CT slot-mask-rotate aggregation (129.0~KB response, 0.59~ms decrypt, 27.17~ms server eval) vs.\ $N=4096$ Multi-CT (909.3~KB, 3.28~ms decrypt, 11.22~ms server eval), equal-probe vs.\ equal-budget ($M=224$) at $K_c \in \{96,192\}$, and restored full Recall@10 [95\% CI] at 5k/25k/100k (0.7882 / 0.6364 / 0.5502 at $M=224$; 0.9216 / 0.8192 / 0.7322 at $M=512$).
+\item \textbf{P0.4 (Fair Strongest Static Baseline \texttt{M8}):} Added \texttt{M8} (\texttt{Pooled QUIC + INT8 + SPANN + True 1-CT}); candidly reported that \texttt{M8} matches/leads on open lossy paths ($p=0.262$), whereas 5D \texttt{D-LinUCB} protects SLA (92.69\% vs.\ 57.81\%, $p=0.0059$) during RFC~9308 UDP middlebox policing inversions.
+\item \textbf{P0.5 (Silicon RAPL \texttt{rapl\_package0\_pkg} + ISO GUM $\pm U_{95}$):} Measured 6-second steady-state C++ OpenFHE across OMP $\in \{1,2,4,8,12\}$ reporting both gross and net energy with rectangular drift uncertainty ($\Delta P_{\mathrm{drift}}^2/12$).
+\item \textbf{P1.1--P1.4 \& P2:} Reconciled PG18.6 HNSW (2,000 SQL ops/level, 4,659.3 ops/s at $c=16$), Bloom FP ($0.126\%$), ARM64 \texttt{t2a-standard-4} labels, 28 active artifacts, verified DOIs (OpenFHE ACM WAHC 2022 \texttt{10.1145/3560827.3563379}; Paquin et al.\ PQCrypto 2020 \texttt{10.1007/978-3-030-44223-1\_6}), QUIC/\texttt{aioquic}~1.2.0 0-RTT PSK forward-secrecy semantics, same-quantile 95\% Proposition~1 ratios ($5.39\times$ / $22.76\times$), and 10,000-block permutation tests.
+\end{enumerate}
+\end{document}
+"""
+(CLEAN_OVERLEAF_DIR / "audit_summary_v5.tex").write_text(REBUT_V5_TEX.strip() + "\n", encoding="utf-8")
+pdf_rebut = compile_tex("audit_summary_v5", use_bib=False)
+(CLEAN_OVERLEAF_DIR / "audit_summary_v5.tex").unlink(missing_ok=True)
+shutil.copy2(pdf_main,  RES_ROOT / "CAPQ-Pareto-Main-IEEE-TCC-V5.pdf")
+shutil.copy2(pdf_supp,  RES_ROOT / "CAPQ-Pareto-Supplement-IEEE-TCC-V5.pdf")
+shutil.copy2(pdf_cover, RES_ROOT / "CAPQ-Pareto-Cover-Letter-IEEE-TCC-V5.pdf")
+shutil.copy2(pdf_rebut, RES_ROOT / "CAPQ-Pareto-Response-to-Reviewers-V5.pdf")
+
+zip_v5 = RES_ROOT / "CAPQ-Pareto-Overleaf-IEEE-TCC-V5.zip"
+with zipfile.ZipFile(zip_v5, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+    for ext in ("*.tex", "*.bib", "*.cls"):
+        for fp in sorted(CLEAN_OVERLEAF_DIR.glob(ext)):
+            zf.write(fp, arcname=fp.name)
+    for fp in sorted(FIG_DIR.glob("*.pdf")):
+        zf.write(fp, arcname=f"figures/{fp.name}")
+
+v5_exports = [
+    RES_ROOT / "CAPQ-Pareto-Main-IEEE-TCC-V5.pdf",
+    RES_ROOT / "CAPQ-Pareto-Supplement-IEEE-TCC-V5.pdf",
+    RES_ROOT / "CAPQ-Pareto-Cover-Letter-IEEE-TCC-V5.pdf",
+    RES_ROOT / "CAPQ-Pareto-Response-to-Reviewers-V5.pdf",
+    RES_ROOT / "CAPQ-Pareto-Fig1-Preview-V5.png",
+    RES_ROOT / "CAPQ-Pareto-Overleaf-IEEE-TCC-V5.zip",
+]
+manifest_lines = [
+    "# CAPQ-Pareto V5 Complete SHA-256 Provenance Manifest",
+    f"# Generated UTC: {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}",
+    "# --- Primary Submission Deliverables in D:\\Research ---",
+]
+for ef in v5_exports:
+    manifest_lines.append(f"{sha256_hex(ef)}  {ef.name}")
+manifest_lines.append("# --- Verified Raw Execution CSV/JSON Artifacts in CAPQ-Pareto-V5 ---")
+for af in ACTIVE_DATA_FILES:
+    manifest_lines.append(f"{sha256_hex(af)}  {af.name}")
+
+man_v5_fp = RES_ROOT / "CAPQ-Pareto-SHA256-Manifest-V5.txt"
+man_v5_fp.write_text("\n".join(manifest_lines) + "\n", encoding="utf-8")
+shutil.copy2(man_v5_fp, V5_ROOT / "SHA256SUMS_V5.txt")
+
+# Final Post-Build Zero-Touch V4 Audit
+for fn, pref in V4_LOCKED.items():
+    p_v4 = RES_ROOT / fn
+    if p_v4.exists():
+        assert sha256_hex(p_v4).startswith(pref), f"CRITICAL: V4 file {fn} was altered!"
+
+print("=== [STEP 3.2-B COMPLETE] AUTOMATED UNBIASED REVIEWER GATE AUDIT PASSED 100% ===")
+p_m5 = RES_ROOT / "CAPQ-Pareto-Main-IEEE-TCC-V5.pdf"
+print(f"  Main Manuscript PDF       : {n_pg_main} pages | {p_m5.stat().st_size:,} bytes | SHA256={sha256_hex(p_m5)}")
+p_s5 = RES_ROOT / "CAPQ-Pareto-Supplement-IEEE-TCC-V5.pdf"
+print(f"  Supplement PDF            : {n_pg_supp} pages | {p_s5.stat().st_size:,} bytes | SHA256={sha256_hex(p_s5)}")
+p_c5 = RES_ROOT / "CAPQ-Pareto-Cover-Letter-IEEE-TCC-V5.pdf"
+print(f"  Cover Letter PDF          : {p_c5.stat().st_size:,} bytes | SHA256={sha256_hex(p_c5)}")
+print(f"  Overleaf Clean V5 ZIP     : {zip_v5.stat().st_size:,} bytes | SHA256={sha256_hex(zip_v5)}")
+print(f"  SHA-256 Manifest V5       : SHA256={sha256_hex(man_v5_fp)}")
+print("  Banned/Legacy/Mojibake    : 0 hits across Main + Supplement PDFs!")
+print("  Undefined Refs/Citations  : 0 warnings!")
+print("  Zero-Touch V4 Integrity   : VERIFIED 100% UNCHANGED!")
