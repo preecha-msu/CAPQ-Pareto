@@ -197,16 +197,16 @@ p_sto_bge  = next(r for r in r_prop1 if r["corpus"] == "BGEM3_1024d" and r["roun
 x2 = np.arange(2)
 w2 = 0.24
 ax2a.bar(x2 - w2, [float(p_det_sift["clt95_halfwidth_196sigma"]) * 1e3, float(p_det_bge["clt95_halfwidth_196sigma"]) * 1e3],
-         width=w2, label="Det. Nearest (1.96σ)", color="#2b5c8f", edgecolor="#1a1a1a", linewidth=0.6)
+         width=w2, label=r"Det. Nearest ($1.96\sigma$)", color="#2b5c8f", edgecolor="#1a1a1a", linewidth=0.6)
 ax2a.bar(x2,      [float(p_sto_sift["clt95_halfwidth_196sigma"]) * 1e3, float(p_sto_bge["clt95_halfwidth_196sigma"]) * 1e3],
-         width=w2, label="Stoch. Unbiased (1.96σ)", color="#66c2a5", edgecolor="#1a1a1a", linewidth=0.6)
+         width=w2, label=r"Stoch. Unbiased ($1.96\sigma$)", color="#66c2a5", edgecolor="#1a1a1a", linewidth=0.6)
 ax2a.bar(x2 + w2, [float(p_det_sift["worst_case_holder_bound"]) * 1e3, float(p_det_bge["worst_case_holder_bound"]) * 1e3],
          width=w2, label="Worst-Case Holder", color="#d95f02", edgecolor="#1a1a1a", linewidth=0.6)
 ax2a.set_yscale("log")
 ax2a.set_ylim(0.3, 45.0)
 ax2a.set_xticks(x2)
 ax2a.set_xticklabels(["SIFT-1M (D=128)", "BGE-M3 (D=1024)"])
-ax2a.set_ylabel("Error Bound (×10⁻³, log scale)")
+ax2a.set_ylabel(r"Error Bound ($\times 10^{-3}$, log scale)")
 ax2a.set_title("(a) 95% Half-Width vs. Holder Bound", pad=22)
 ax2a.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=2, frameon=False, fontsize=6.9, columnspacing=0.8)
 ax2a.grid(axis="y", linestyle=":", alpha=0.55)
@@ -216,12 +216,12 @@ ratios_sto = [float(p_sto_sift["same_quantile_95_tighter_vs_holder"]), float(p_s
 ax2b.bar(x2 - 0.17, ratios_det, width=0.31, label="Det. P(q,x)", color="#377eb8", edgecolor="#1a1a1a", linewidth=0.6)
 ax2b.bar(x2 + 0.17, ratios_sto, width=0.31, label="Stoch. P(ξ|q,x)", color="#4daf4a", edgecolor="#1a1a1a", linewidth=0.6)
 for xi, vd, vs in zip(x2, ratios_det, ratios_sto):
-    ax2b.text(xi - 0.17, vd + 0.7, f"{vd:.2f}×", ha="center", va="bottom", fontsize=7.3, fontweight="bold")
-    ax2b.text(xi + 0.17, vs + 0.7, f"{vs:.2f}×", ha="center", va="bottom", fontsize=7.3)
+    ax2b.text(xi - 0.17, vd + 0.7, f"{vd:.2f}x", ha="center", va="bottom", fontsize=7.3, fontweight="bold")
+    ax2b.text(xi + 0.17, vs + 0.7, f"{vs:.2f}x", ha="center", va="bottom", fontsize=7.3)
 ax2b.set_xticks(x2)
 ax2b.set_xticklabels(["SIFT-1M (D=128)", "BGE-M3 (D=1024)"])
 ax2b.set_ylim(0, 28.5)
-ax2b.set_ylabel("Matched 95%-Quantile Tightness (×)")
+ax2b.set_ylabel("Matched 95%-Quantile Tightness (x)")
 ax2b.set_title("(b) Tightness Ratio at Matched 95% Level", pad=22)
 ax2b.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=2, frameon=False, fontsize=7.1)
 ax2b.grid(axis="y", linestyle=":", alpha=0.55)
@@ -344,13 +344,13 @@ gross_u = [float(r["gross_u95_mj"]) for r in e_m224]
 net_v   = [float(r["net_energy_mj"]) for r in e_m224]
 net_u   = [float(r["net_u95_mj"]) for r in e_m224]
 
-ax5b.errorbar(omps, gross_v, yerr=gross_u, marker="o", markersize=4.8, linewidth=1.6, capsize=3, color="#d95f02", label="Gross Energy ± U95")
-ax5b.errorbar(omps, net_v, yerr=net_u, marker="s", markersize=4.8, linewidth=1.6, capsize=3, color="#1b9e77", label="Net Energy ± U95")
+ax5b.errorbar(omps, gross_v, yerr=gross_u, marker="o", markersize=4.8, linewidth=1.6, capsize=3, color="#d95f02", label=r"Gross Energy $\pm U_{95}$")
+ax5b.errorbar(omps, net_v, yerr=net_u, marker="s", markersize=4.8, linewidth=1.6, capsize=3, color="#1b9e77", label=r"Net Energy $\pm U_{95}$")
 ax5b.set_xticks(omps)
 ax5b.set_ylim(400, 2750)
 ax5b.set_xlabel("OpenMP Threads (N=8192 1-CT, M=224)")
 ax5b.set_ylabel("Silicon Energy per Query (mJ)")
-ax5b.set_title("(b) Silicon RAPL Energy & ISO GUM ±U95", pad=24)
+ax5b.set_title(r"(b) Silicon RAPL Energy & ISO GUM $\pm U_{95}$", pad=24)
 ax5b.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=2, frameon=False, fontsize=6.9, columnspacing=0.7)
 ax5b.grid(True, linestyle=":", alpha=0.55)
 fig5.subplots_adjust(wspace=0.31, top=0.78, bottom=0.16, left=0.09, right=0.98)
@@ -370,17 +370,17 @@ ax6a.set_yticks(y6)
 ax6a.set_yticklabels(f_short)
 ax6a.set_xlim(-5, 62)
 ax6a.set_xlabel("Marginal Strict-SLA Gain (pp, 95% CI)")
-ax6a.set_title("(a) 2⁵ Factorial Main Effects (256 Runs)", pad=20)
+ax6a.set_title(r"(a) $2^5$ Factorial Main Effects (256 Runs)", pad=20)
 ax6a.grid(axis="x", linestyle=":", alpha=0.55)
 
 glm_p = [-math.log10(max(float(r["logit_p_raw"]), 1e-6)) for r in main5]
 prm_p = [-math.log10(max(float(r["block_perm10k_p_sla"]), 1e-6)) for r in main5]
 ax6b.barh(y6 + 0.16, glm_p, height=0.30, label="Logit GLM (HC3)", color="#2b5c8f", edgecolor="#1a1a1a", linewidth=0.5)
 ax6b.barh(y6 - 0.16, prm_p, height=0.30, label="10k Block Perm.", color="#d95f02", edgecolor="#1a1a1a", linewidth=0.5)
-ax6b.axvline(-math.log10(0.05), color="#c0392b", linestyle="--", linewidth=1.1, label="α = 0.05")
+ax6b.axvline(-math.log10(0.05), color="#c0392b", linestyle="--", linewidth=1.1, label=r"$\alpha = 0.05$")
 ax6b.set_yticks(y6)
 ax6b.set_yticklabels(f_short)
-ax6b.set_xlabel("-log₁₀(p-value)")
+ax6b.set_xlabel(r"$-\log_{10}(p\mathrm{-value})$")
 ax6b.set_title("(b) Parametric GLM vs. Block Permutation", pad=20)
 ax6b.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=3, frameon=False, fontsize=6.7, columnspacing=0.6)
 ax6b.grid(axis="x", linestyle=":", alpha=0.55)
@@ -534,12 +534,12 @@ axs3a.set_title("(a) Steady-State OpenMP Latency Scaling", pad=20)
 axs3a.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=2, frameon=False, fontsize=7.0)
 axs3a.grid(True, linestyle=":", alpha=0.55)
 
-axs3b.errorbar(omps5, [float(r["gross_energy_mj"]) for r in e_512], yerr=[float(r["gross_u95_mj"]) for r in e_512], marker="o", capsize=3, color="#d95f02", linewidth=1.5, label="Gross ± U95")
-axs3b.errorbar(omps5, [float(r["net_energy_mj"]) for r in e_512], yerr=[float(r["net_u95_mj"]) for r in e_512], marker="s", capsize=3, color="#377eb8", linewidth=1.5, label="Net ± U95")
+axs3b.errorbar(omps5, [float(r["gross_energy_mj"]) for r in e_512], yerr=[float(r["gross_u95_mj"]) for r in e_512], marker="o", capsize=3, color="#d95f02", linewidth=1.5, label=r"Gross $\pm U_{95}$")
+axs3b.errorbar(omps5, [float(r["net_energy_mj"]) for r in e_512], yerr=[float(r["net_u95_mj"]) for r in e_512], marker="s", capsize=3, color="#377eb8", linewidth=1.5, label=r"Net $\pm U_{95}$")
 axs3b.set_xticks(omps5)
 axs3b.set_xlabel("OpenMP Threads (Heavy M=512)")
 axs3b.set_ylabel("Energy per Query (mJ)")
-axs3b.set_title("(b) Heavy Enclave Silicon Energy ±U95", pad=20)
+axs3b.set_title(r"(b) Heavy Enclave Silicon Energy $\pm U_{95}$", pad=20)
 axs3b.legend(loc="lower center", bbox_to_anchor=(0.5, 1.01), ncol=2, frameon=False, fontsize=7.0)
 axs3b.grid(True, linestyle=":", alpha=0.55)
 fig_s3.subplots_adjust(wspace=0.30, top=0.80, bottom=0.16)
@@ -616,7 +616,7 @@ axs6.axvline(0, color="#333333", linewidth=0.85)
 axs6.set_yticks(yl6)
 axs6.set_yticklabels([r["term"].replace("_Interaction", "") for r in inter10], fontsize=7.4)
 axs6.set_xlabel("Two-Way Interaction Effect on Strict-SLA (pp, 95% Block CI)")
-axs6.set_title("2⁵ Factorial Secondary Two-Way Interactions (All Non-Significant Under 10k Block Permutation)", pad=10)
+axs6.set_title(r"$2^5$ Factorial Secondary Two-Way Interactions (Non-Significant Under 10k Permutations)", pad=10)
 axs6.grid(axis="x", linestyle=":", alpha=0.55)
 fig_s6.subplots_adjust(left=0.14, right=0.98, top=0.88, bottom=0.16)
 fig_s6.savefig(FIG_DIR / "fig_s6_factorial_10_interactions.pdf", bbox_inches="tight", pad_inches=0.03)
@@ -832,7 +832,9 @@ MAIN_TEX = rf"""\documentclass[10pt,journal,compsoc]{{IEEEtran}}
 \usepackage[hidelinks]{{hyperref}}
 
 \Urlmuskip=0mu plus 2mu\relax
-\emergencystretch=1.6em
+\tolerance=2400
+\hbadness=2400
+\emergencystretch=3.0em
 \extrafloats{{48}}
 \newtheorem{{proposition}}{{Proposition}}
 
@@ -846,7 +848,7 @@ MAIN_TEX = rf"""\documentclass[10pt,journal,compsoc]{{IEEEtran}}
 
 \IEEEtitleabstractindextext{{%
 \begin{{abstract}}
-Migrating hybrid relational-vector cloud databases to post-quantum cryptography (PQC) while protecting query coordinates introduces compounding network and homomorphic overheads: per-query hybrid \texttt{{X25519+ML-KEM-768}} and \texttt{{ML-DSA-65}} handshakes add 14.67~KB, whereas multi-ciphertext \texttt{{RNS-CKKS}} Approximate Nearest Neighbor (ANN) responses inflate wire payloads. We present \textbf{{CAPQ-Pareto}}, combining persistent hybrid PQC session pooling, single-MTU asymmetric \texttt{{INT8}} quantization, boundary-replicated \texttt{{SPANN-CKKS}} with server-side single-ciphertext (1-CT) slot aggregation, and a lagged five-dimensional discounted linear contextual bandit (\texttt{{D-LinUCB}}). Across 1,440 live three-region Google Cloud Wide-Area Network (WAN) queries and 2,304 controlled queries against a fair static \texttt{{QUIC+INT8+SPANN+1-CT}} baseline (\texttt{{M8}}), we establish three bounded findings. First, session pooling and single-MTU \texttt{{INT8}} drive primary latency gains, cutting live mean latency by {live_red_bkk:.1f}\% in Bangkok ({float(bkk_m1['mean_lat_ms']):.2f} to {float(bkk_m5['mean_lat_ms']):.2f}~ms, $p < 0.0001$) and {live_red_sin:.1f}\% in Singapore ({float(sin_m1['mean_lat_ms']):.2f} to {float(sin_m5['mean_lat_ms']):.2f}~ms, $p < 0.0001$). Second, $N=8192$ 1-CT aggregation shrinks confidential responses $7.05\times$ ({float(ck_sp96_mct['resp_wire_kb']):.1f} to {float(ck_sp96_1ct['resp_wire_kb']):.1f}~KB) and decryption from {float(ck_sp96_mct['med_dec_ms']):.2f} to {float(ck_sp96_1ct['med_dec_ms']):.2f}~ms across 500 SIFT-1M queries, though fixed-budget ($M=224$) Recall@10 declines from {float(sc_5k_r2['recall_at_10']):.4f} (5k) to {float(sc_25k_r2['recall_at_10']):.4f} (25k) and {float(sc_100k_r2['recall_at_10']):.4f} (100k; {float(sc_100k_r4['recall_at_10']):.4f} at $M=512$). Third, under full 5D context, \texttt{{D-LinUCB}} ($\gamma=0.88, \nu=0.06, \lambda=0.08$) matches \texttt{{M8}} on unimpaired paths ($p = 0.262$) while restoring SLA compliance from 57.81\% to 92.69\% during RFC~9308 UDP-policing inversions ($p = 0.0059$).
+Migrating hybrid relational-vector cloud databases to post-quantum cryptography (PQC) while protecting query coordinates introduces compounding network and homomorphic overheads: per-query hybrid \nolinkurl{X25519+ML-KEM-768} and \texttt{{ML-DSA-65}} handshakes add 14.67~KB, whereas multi-ciphertext \texttt{{RNS-CKKS}} Approximate Nearest Neighbor (ANN) responses inflate wire payloads. We present \textbf{{CAPQ-Pareto}}, combining persistent hybrid PQC session pooling, single-MTU asymmetric \texttt{{INT8}} quantization, boundary-replicated \texttt{{SPANN-CKKS}} with server-side single-ciphertext (1-CT) slot aggregation, and a lagged five-dimensional discounted linear contextual bandit (\texttt{{D-LinUCB}}). Across 1,440 live three-region Google Cloud Wide-Area Network (WAN) queries and 2,304 controlled queries against a fair static \texttt{{QUIC+INT8+SPANN+1-CT}} baseline (\texttt{{M8}}), we establish three bounded findings. First, session pooling and single-MTU \texttt{{INT8}} drive primary latency gains, cutting live mean latency by {live_red_bkk:.1f}\% in Bangkok ({float(bkk_m1['mean_lat_ms']):.2f} to {float(bkk_m5['mean_lat_ms']):.2f}~ms, $p < 0.0001$) and {live_red_sin:.1f}\% in Singapore ({float(sin_m1['mean_lat_ms']):.2f} to {float(sin_m5['mean_lat_ms']):.2f}~ms, $p < 0.0001$). Second, $N=8192$ 1-CT aggregation shrinks confidential responses $7.05\times$ ({float(ck_sp96_mct['resp_wire_kb']):.1f} to {float(ck_sp96_1ct['resp_wire_kb']):.1f}~KB) and decryption from {float(ck_sp96_mct['med_dec_ms']):.2f} to {float(ck_sp96_1ct['med_dec_ms']):.2f}~ms across 500 SIFT-1M queries, though fixed-budget ($M=224$) Recall@10 declines from {float(sc_5k_r2['recall_at_10']):.4f} (5k) to {float(sc_25k_r2['recall_at_10']):.4f} (25k) and {float(sc_100k_r2['recall_at_10']):.4f} (100k; {float(sc_100k_r4['recall_at_10']):.4f} at $M=512$). Third, under full 5D context, \texttt{{D-LinUCB}} ($\gamma=0.88, \nu=0.06, \lambda=0.08$) matches \texttt{{M8}} on unimpaired paths ($p = 0.262$) while restoring SLA compliance from 57.81\% to 92.69\% during RFC~9308 UDP-policing inversions ($p = 0.0059$).
 \end{{abstract}}
 
 \begin{{IEEEkeywords}}
@@ -876,8 +878,8 @@ Modern enterprise retrieval-augmented generation (RAG) and transactional analyti
 \subsection{{Contributions and Empirical Scope}}
 This paper presents a transparent empirical and methodological study of \textbf{{CAPQ-Pareto}} (Fig.~\ref{{fig:arch}}), backed by {N_TOTAL_ARTIFACTS} reproducible artifacts ({N_ACTIVE_DATA} raw/summary datasets and {N_ACTIVE_FIGS} vector figures; Table~\ref{{tab:taxonomy}}):
 \begin{{itemize}}
-\item \textbf{{Transport Stack and Asymmetric INT8 Concentration Analysis:}} We implement persistent hybrid \texttt{{X25519+ML-KEM-768}} session pooling over TLS~1.3/TCP and \texttt{{aioquic}}~1.2.0/UDP framing with a 64-Kbit 5-hash partitioned Bloom replay register (exact theoretical false-positive probability {BLOOM_FP_PCT:.3f}\%). In Proposition~\ref{{prop:int8}}, we formalize the distinction between corpus-distribution randomness $\mathcal{{P}}(\mathbf{{q}},\mathbf{{x}})$ for deterministic rounding and conditional rounding noise $\mathbb{{P}}(\boldsymbol{{\xi}}\mid\mathbf{{q}},\mathbf{{x}})$ for unbiased stochastic rounding, demonstrating across 10,000 real SIFT-1M and BGE-M3 pairs that at the matched 95\% quantile, sub-Gaussian error is {float(p_det_sift['same_quantile_95_tighter_vs_holder']):.2f}$\times$ ($D=128$) and {float(p_det_bge['same_quantile_95_tighter_vs_holder']):.2f}$\times$ ($D=1024$) tighter than worst-case H\"older bounds.
-\item \textbf{{True 1-CT RNS-CKKS Aggregation and Controlled Equal-Budget Audit:}} Using a native C++ \texttt{{OpenFHE}}~\cite{{albadawi2022openfhe}} bridge under strict \texttt{{HEStd\_128\_classic}} security, we show why depth-2 slot-masking overflows $N=4096$ ($\log_2 Q \le 109$~bits) and implement depth-2 1-CT slot-mask-rotate-sum aggregation on $N=8192$ ($\log_2 Q = 140 \le 218$~bits). Across $N_q = 500$ queries, 1-CT reduces response wire size from {float(ck_sp96_mct['resp_wire_kb']):.1f}~KB to {float(ck_sp96_1ct['resp_wire_kb']):.1f}~KB and client decryption from {float(ck_sp96_mct['med_dec_ms']):.2f} to {float(ck_sp96_1ct['med_dec_ms']):.2f}~ms at the cost of +{float(ck_sp96_1ct['med_srv_total_ms']) - float(ck_sp96_mct['med_srv_total_ms']):.2f}~ms server homomorphic masking/rotation. We report full Recall@10 confidence intervals under both equal-probe ($r=2$) and equal-candidate-budget ($M=224$) controls at $K_c \in \{{96, 192\}}$ and across enclave sizes $N \in \{{5\text{{k}}, 25\text{{k}}, 100\text{{k}}\}}$.
+\item \textbf{{Transport Stack and Asymmetric INT8 Concentration Analysis:}} We implement persistent hybrid \nolinkurl{X25519+ML-KEM-768} session pooling over TLS~1.3/TCP and \texttt{{aioquic}}~1.2.0/UDP framing with a 64-Kbit 5-hash partitioned Bloom replay register (exact theoretical false-positive probability {BLOOM_FP_PCT:.3f}\%). In Proposition~\ref{{prop:int8}}, we formalize the distinction between corpus-distribution randomness $\mathcal{{P}}(\mathbf{{q}},\mathbf{{x}})$ for deterministic rounding and conditional rounding noise $\mathbb{{P}}(\boldsymbol{{\xi}}\mid\mathbf{{q}},\mathbf{{x}})$ for unbiased stochastic rounding, demonstrating across 10,000 real SIFT-1M and BGE-M3 pairs that at the matched 95\% quantile, sub-Gaussian error is {float(p_det_sift['same_quantile_95_tighter_vs_holder']):.2f}$\times$ ($D=128$) and {float(p_det_bge['same_quantile_95_tighter_vs_holder']):.2f}$\times$ ($D=1024$) tighter than worst-case H\"older bounds.
+\item \textbf{{True 1-CT RNS-CKKS Aggregation and Controlled Equal-Budget Audit:}} Using a native C++ \texttt{{OpenFHE}}~\cite{{albadawi2022openfhe}} bridge under strict \nolinkurl{HEStd_128_classic} security, we show why depth-2 slot-masking overflows $N=4096$ ($\log_2 Q \le 109$~bits) and implement depth-2 1-CT slot-mask-rotate-sum aggregation on $N=8192$ ($\log_2 Q = 140 \le 218$~bits). Across $N_q = 500$ queries, 1-CT reduces response wire size from {float(ck_sp96_mct['resp_wire_kb']):.1f}~KB to {float(ck_sp96_1ct['resp_wire_kb']):.1f}~KB and client decryption from {float(ck_sp96_mct['med_dec_ms']):.2f} to {float(ck_sp96_1ct['med_dec_ms']):.2f}~ms at the cost of +{float(ck_sp96_1ct['med_srv_total_ms']) - float(ck_sp96_mct['med_srv_total_ms']):.2f}~ms server homomorphic masking/rotation. We report full Recall@10 confidence intervals under both equal-probe ($r=2$) and equal-candidate-budget ($M=224$) controls at $K_c \in \{{96, 192\}}$ and across enclave sizes $N \in \{{5\text{{k}}, 25\text{{k}}, 100\text{{k}}\}}$.
 \item \textbf{{Fair Baseline Separation (\texttt{{M8}}) and Two-Track WAN Evaluation:}} We introduce \texttt{{M8}} (\texttt{{Static Pooled QUIC + INT8 + SPANN + 1-CT}}) alongside legacy \texttt{{M7}} (\texttt{{Pooled TCP + FP32 + SPANN + Multi-CT}}). Using a frozen hyperparameter configuration ($\gamma=0.88, \nu=0.06, \lambda=0.08$), $2^5$ factorial GLM with 10,000 within-block permutations, silicon RAPL (\nolinkurl{{rapl_package0_pkg}}) ISO GUM $\pm U_{{95}}$ energy metrology~\cite{{khan2018rapl,iso_gum_2008}}, a pure 1,440-query live 3-region GCP campaign (\texttt{{M1--M5}}), and a 2,304-query controlled 3-region \texttt{{netns}} campaign (\texttt{{M1--M8}}), we delineate where static engineering suffices and where online adaptation prevents SLA collapse.
 \end{{itemize}}
 
@@ -906,14 +908,14 @@ This paper presents a transparent empirical and methodological study of \textbf{
 
 \section{{System Model, Threat Model, and Transport Stack}}
 \subsection{{Coordinate-Confidential Threat Model}}
-We consider an edge gateway located on a campus/fiber-to-cloud enterprise network issuing a mixed stream of transactional SQL point lookups (25\%), public ANN vector queries (50\%), and confidential vector queries (25\%) to an untrusted cloud server. Network links are exposed to store-now-decrypt-later adversaries, motivating hybrid \texttt{{X25519+ML-KEM-768}} key exchange and \texttt{{ML-DSA-65}} authentication~\cite{{fips203,fips204}}. For the 25\% confidential query class, the cloud server is modeled as honest-but-curious: the client stores a lightweight float32 table of $K_c$ public cluster centroids ($K_c \times 128 \times 4$~B $= 48$~KB at $K_c=96$, or $640$~KB at $K_c=1280$), selects the $r$ nearest bucket IDs locally, and transmits the bucket IDs alongside an \texttt{{RNS-CKKS}} ciphertext encrypting the query vector $\mathbf{{q}} \in \mathbb{{S}}^{{d-1}}$.
+We consider an edge gateway located on a campus/fiber-to-cloud enterprise network issuing a mixed stream of transactional SQL point lookups (25\%), public ANN vector queries (50\%), and confidential vector queries (25\%) to an untrusted cloud server. Network links are exposed to store-now-decrypt-later adversaries, motivating hybrid \nolinkurl{X25519+ML-KEM-768} key exchange and \texttt{{ML-DSA-65}} authentication~\cite{{fips203,fips204}}. For the 25\% confidential query class, the cloud server is modeled as honest-but-curious: the client stores a lightweight float32 table of $K_c$ public cluster centroids ($K_c \times 128 \times 4$~B $= 48$~KB at $K_c=96$, or $640$~KB at $K_c=1280$), selects the $r$ nearest bucket IDs locally, and transmits the bucket IDs alongside an \texttt{{RNS-CKKS}} ciphertext encrypting the query vector $\mathbf{{q}} \in \mathbb{{S}}^{{d-1}}$.
 
-Crucially, we avoid overclaiming ``zero-trust'' obliviousness: like cluster-routed private search systems such as Tiptoe~\cite{{henzinger2023tiptoe}}, coarse bucket IDs are visible to the server, whereas fine-grained vector coordinates within probed regions remain computationally indistinguishable under Ring-LWE (\texttt{{HEStd\_128\_classic}}). To eliminate secondary side channels from variable cluster cardinalities, every \texttt{{SPANN}} bucket on the server is padded with zero-vector dummy slots to an identical constant $B_{{\max}}$, ensuring zero mutual information $I(S; |B_k|) = 0$~bits between execution trace $S$ and true cluster population $|B_k|$~\cite{{paninski2003entropy}}.
+Crucially, we avoid overclaiming ``zero-trust'' obliviousness: like cluster-routed private search systems such as Tiptoe~\cite{{henzinger2023tiptoe}}, coarse bucket IDs are visible to the server, whereas fine-grained vector coordinates within probed regions remain computationally indistinguishable under Ring-LWE (\nolinkurl{HEStd_128_classic}). To eliminate secondary side channels from variable cluster cardinalities, every \texttt{{SPANN}} bucket on the server is padded with zero-vector dummy slots to an identical constant $B_{{\max}}$, ensuring zero mutual information $I(S; |B_k|) = 0$~bits between execution trace $S$ and true cluster population $|B_k|$~\cite{{paninski2003entropy}}.
 
 \subsection{{QUIC Transport Implementation and Hybrid PQC 0-RTT Security Semantics}}
-Our control and data planes operate over OpenSSL~3.5.5 paired with C \texttt{{liboqs}} (\texttt{{ML-KEM-768}} + \texttt{{ML-DSA-65}}) for initial 1-RTT hybrid session establishment, and Python \texttt{{aioquic}}~1.2.0 / paced UDP framing (1,350-B maximum datagram payload per RFC~9000~\cite{{rfc9000}}, selective missing-frame recovery per RFC~9002~\cite{{rfc9002}}) for connection-pooled low-latency transport. Our three-certificate PKI chain transmits one intermediate CA \texttt{{ML-DSA-65}} public key ($1,952$~B; root CA pinned in client trust store) plus three \texttt{{ML-DSA-65}} signatures ($3 \times 3,309 = 9,927$~B, totaling $11,879$~B for chain material, or $13,831$~B if leaf PK is counted separately, and $14,665$~B total hybrid handshake flight including \texttt{{X25519+ML-KEM-768}} shares and TLS framing).
+Our control and data planes operate over OpenSSL~3.5.5 paired with C \texttt{{liboqs}} (\texttt{{ML-KEM-768}} + \texttt{{ML-DSA-65}}) for initial 1-RTT hybrid session establishment, and Python \texttt{{aioquic}}~1.2.0 / paced UDP framing (1,350-B maximum datagram payload per RFC~9000~\cite{{rfc9000}}, selective missing-frame recovery per RFC~9002~\cite{{rfc9002}}) for connection-pooled low-latency transport. Our three-certificate PKI chain transmits one intermediate CA \texttt{{ML-DSA-65}} public key ($1,952$~B; root CA pinned in client trust store) plus three \texttt{{ML-DSA-65}} signatures ($3 \times 3,309 = 9,927$~B, totaling $11,879$~B for chain material, or $13,831$~B if leaf PK is counted separately, and $14,665$~B total hybrid handshake flight including \nolinkurl{X25519+ML-KEM-768} shares and TLS framing).
 
-A critical cryptographic distinction governs QUIC 0-RTT early data: 0-RTT resumption encrypts early frames under a Pre-Shared Key (PSK) resumption secret derived from the preceding 1-RTT hybrid \texttt{{X25519+ML-KEM-768}} handshake. While this PSK inherits post-quantum resistance against passive capture provided session ticket keys remain secret, \emph{{0-RTT early data lacks per-query forward secrecy if the server's session-ticket encryption key (STEK) is subsequently compromised, and is inherently vulnerable to network replay}}~\cite{{rfc9000}}. Accordingly, CAPQ-Pareto enforces two strict protocol guards: (i)~0-RTT framing is restricted exclusively to idempotent read-only vector/SQL queries (never state-mutating writes), and (ii)~the cloud ingress enforces single-use nonces via an in-memory 64-Kbit ($m = 65,536$~bits) 5-hash ($k=5$) partitioned Bloom strike register rotated every epoch of $n = 4,000$ tickets, yielding an exact combinatorial false-positive rate of:
+A critical cryptographic distinction governs QUIC 0-RTT early data: 0-RTT resumption encrypts early frames under a Pre-Shared Key (PSK) resumption secret derived from the preceding 1-RTT hybrid \nolinkurl{X25519+ML-KEM-768} handshake. While this PSK inherits post-quantum resistance against passive capture provided session ticket keys remain secret, \emph{{0-RTT early data lacks per-query forward secrecy if the server's session-ticket encryption key (STEK) is subsequently compromised, and is inherently vulnerable to network replay}}~\cite{{rfc9000}}. Accordingly, CAPQ-Pareto enforces two strict protocol guards: (i)~0-RTT framing is restricted exclusively to idempotent read-only vector/SQL queries (never state-mutating writes), and (ii)~the cloud ingress enforces single-use nonces via an in-memory 64-Kbit ($m = 65,536$~bits) 5-hash ($k=5$) partitioned Bloom strike register rotated every epoch of $n = 4,000$ tickets, yielding an exact combinatorial false-positive rate of:
 \begin{{equation}}
 p_{{\text{{FP}}}} = \left(1 - \left(1 - \frac{{1}}{{m}}\right)^{{kn}}\right)^k = 0.001258 \approx 0.126\%,
 \end{{equation}}
@@ -992,9 +994,13 @@ Table~\ref{{tab:prop1}} and Fig.~\ref{{fig:prop1}} verify Proposition~\ref{{prop
 
 \section{{Coordinate-Confidential CKKS Tier: True 1-CT Aggregation and Scaling Limits}}
 \subsection{{Cryptographic Cost of Server-Side 1-CT Slot Aggregation}}
-In SIMD-packed \texttt{{RNS-CKKS}} ($d=128$), a ring of dimension $N$ provides $S = N/2$ complex slots, packing $v = S/128$ vectors per ciphertext ($v=16$ on $N=4096$; $v=32$ on $N=8192$). Evaluating $M = 224$ candidates requires $G = \lceil M/v \rceil$ blocks ($G=14$ on $N=4096$; $G=7$ on $N=8192$). In \texttt{{Multi-CT}} mode, the server multiplies $\mathrm{{EvalMult}}(\mathrm{{ct}}_q, \mathrm{{pt}}_{{D_g}})$, performs $\log_2(128) = 7$ rotations and additions, compresses to level~1, and returns all $G$ ciphertexts. This consumes multiplicative depth $L=1$, fitting within $N=4096$ (\texttt{{BV}} key-switching, $\log_2 Q = 84 \le 109$~bits under \texttt{{HEStd\_128\_classic}}), but transmits **{float(ck_sp96_mct['resp_wire_kb']):.1f}~KB** per response and forces the client to execute $G=14$ separate decryptions.
+In SIMD-packed \texttt{{RNS-CKKS}} ($d=128$), a ring of dimension $N$ provides $S = N/2$ complex slots, packing $v = S/128$ vectors per ciphertext ($v=16$ on $N=4096$; $v=32$ on $N=8192$). Evaluating $M = 224$ candidates requires $G = \lceil M/v \rceil$ blocks ($G=14$ on $N=4096$; $G=7$ on $N=8192$). In \texttt{{Multi-CT}} mode, the server multiplies $\mathrm{{EvalMult}}(\mathrm{{ct}}_q, \mathrm{{pt}}_{{D_g}})$, performs $\log_2(128) = 7$ rotations and additions, compresses to level~1, and returns all $G$ ciphertexts. This consumes multiplicative depth $L=1$, fitting within $N=4096$ (\texttt{{BV}} key-switching, $\log_2 Q = 84 \le 109$~bits under \nolinkurl{HEStd_128_classic}), but transmits **{float(ck_sp96_mct['resp_wire_kb']):.1f}~KB** per response and forces the client to execute $G=14$ separate decryptions.
 
-To return a \emph{{single}} ciphertext (\texttt{{True 1-CT}}), one cannot simply rotate and sum $\mathrm{{ct}}_{{\text{{ip}}}}^{{(g)}}$ directly because intra-block sliding-window sums leave non-zero cross-vector residuals in slots $128j + u$ ($u \ge 1$). Exact 1-CT aggregation requires multiplying each block by a binary indicator mask $\mathbf{{m}}_0$ ($m_0[128j] = 1$, $0$ elsewhere), rotating by $-g$ via power-of-two rotation keys, and summing $\mathrm{{ct}}_{{\text{{agg}}}} = \sum_{{g=0}}^{{G-1}} \mathrm{{EvalRotate}}(\mathrm{{EvalMult}}(\mathrm{{ct}}_{{\text{{ip}}}}^{{(g)}}, \mathbf{{m}}_0), -g)$. This consumes multiplicative depth $L=2$. Under \texttt{{HEStd\_128\_classic}}, $N=4096$ caps $\log_2(QP) \le 109$~bits, leaving insufficient precision per prime for two rescales without RNS approximation overflow. Promoting 1-CT to **$N=8192$** (\texttt{{FIXEDAUTO}}, primes $(56,42,42)$~bits, $\log_2 Q = 140 \le 218$~bits, $G=7$ blocks) preserves inner-product precision ($\max|\Delta\text{{IP}}| \le 1.6 \times 10^{{-3}}$) while compressing response wire size $7.05\times$ to **{float(ck_sp96_1ct['resp_wire_kb']):.1f}~KB** and reducing client decryption $5.56\times$ ({float(ck_sp96_mct['med_dec_ms']):.2f} to {float(ck_sp96_1ct['med_dec_ms']):.2f}~ms), while explicitly increasing server compute from {float(ck_sp96_mct['med_srv_total_ms']):.2f}~ms to {float(ck_sp96_1ct['med_srv_total_ms']):.2f}~ms ({float(ck_sp96_1ct['med_srv_ip_ms']):.2f}~ms IP + {float(ck_sp96_1ct['med_srv_agg_ms']):.2f}~ms mask/rotate/sum).
+To return a \emph{{single}} ciphertext (\texttt{{True 1-CT}}), one cannot simply rotate and sum $\mathrm{{ct}}_{{\text{{ip}}}}^{{(g)}}$ directly because intra-block sliding-window sums leave non-zero cross-vector residuals in slots $128j + u$ ($u \ge 1$). Exact 1-CT aggregation requires multiplying each block by a binary indicator mask $\mathbf{{m}}_0$ ($m_0[128j] = 1$, $0$ elsewhere), rotating by $-g$ via power-of-two rotation keys, and summing across all $G$ blocks:
+\begin{{equation}}
+\mathrm{{ct}}_{{\text{{agg}}}} = \sum_{{g=0}}^{{G-1}} \mathrm{{EvalRotate}}\!\left(\mathrm{{EvalMult}}\!\left(\mathrm{{ct}}_{{\text{{ip}}}}^{{(g)}}, \mathbf{{m}}_0\right), -g\right).
+\end{{equation}}
+This consumes multiplicative depth $L=2$. Under \nolinkurl{HEStd_128_classic}, $N=4096$ caps $\log_2(QP) \le 109$~bits, leaving insufficient precision per prime for two rescales without RNS approximation overflow. Promoting 1-CT to **$N=8192$** (\texttt{{FIXEDAUTO}}, primes $(56,42,42)$~bits, $\log_2 Q = 140 \le 218$~bits, $G=7$ blocks) preserves inner-product precision ($\max|\Delta\text{{IP}}| \le 1.6 \times 10^{{-3}}$) while compressing response wire size $7.05\times$ to **{float(ck_sp96_1ct['resp_wire_kb']):.1f}~KB** and reducing client decryption $5.56\times$ ({float(ck_sp96_mct['med_dec_ms']):.2f} to {float(ck_sp96_1ct['med_dec_ms']):.2f}~ms), while explicitly increasing server compute from {float(ck_sp96_mct['med_srv_total_ms']):.2f}~ms to {float(ck_sp96_1ct['med_srv_total_ms']):.2f}~ms ({float(ck_sp96_1ct['med_srv_ip_ms']):.2f}~ms IP + {float(ck_sp96_1ct['med_srv_agg_ms']):.2f}~ms mask/rotate/sum).
 
 \begin{{figure}}[!t]
 \centering
@@ -1048,7 +1054,13 @@ Prior to executing query $q_t$, the edge controller observes a strictly non-anti
 \begin{{equation}}
 \mathbf{{x}}_{{t^-}} = \left[\,1,\; \mathbb{{I}}_{{\text{{sql}}}}(q_t),\; \mathbb{{I}}_{{\text{{conf}}}}(q_t),\; \min\!\left(\frac{{\widehat{{\text{{RTT}}}}_{{t^-}}}}{{300}}, 2\right),\; \min\!\left(\frac{{\widehat{{\text{{loss}}}}_{{t^-}}}}{{0.10}}, 2\right)\right]^\top \in \mathbb{{R}}^5.
 \end{{equation}}
-Notably, \emph{{no observable network features are withheld from stationary or sliding-window baselines}}. All controllers share a frozen configuration (\nolinkurl{{v5_bandit_frozen_config.json}}: discount $\gamma = 0.88$, exploration $\nu = 0.06$, ridge $\lambda = 0.08$, neutral prior $\mu_0 = 0.48$, window $W = 32$, loss weights $w_L = 0.45, w_A = 0.55, w_V = 0.85$). For arm $a$, Russac's discounted covariance~\cite{{russac2019dlinucb}} updates via $\mathbf{{V}}_{{t,a}} = \gamma \mathbf{{V}}_{{t-1,a}} + \mathbf{{x}}_{{t^-}}\mathbf{{x}}_{{t^-}}^\top + (1-\gamma)\lambda \mathbf{{I}}_5$, $\tilde{{\mathbf{{V}}}}_{{t,a}} = \gamma^2 \tilde{{\mathbf{{V}}}}_{{t-1,a}} + \mathbf{{x}}_{{t^-}}\mathbf{{x}}_{{t^-}}^\top + (1-\gamma^2)\lambda \mathbf{{I}}_5$, and mean-centered target $\mathbf{{b}}_{{t,a}} = \gamma \mathbf{{b}}_{{t-1,a}} + (\ell_{{t,a}} - \mu_0)\mathbf{{x}}_{{t^-}}$, selecting among accuracy-feasible arms the minimum lower confidence bound $\hat{{\theta}}_{{t,a}}^\top \mathbf{{x}}_{{t^-}} - \nu \sqrt{{\mathbf{{x}}_{{t^-}}^\top \mathbf{{V}}_{{t,a}}^{{-1}} \tilde{{\mathbf{{V}}}}_{{t,a}} \mathbf{{V}}_{{t,a}}^{{-1}} \mathbf{{x}}_{{t^-}}}}$.
+Notably, \emph{{no observable network features are withheld from stationary or sliding-window baselines}}. All controllers share a frozen configuration (\nolinkurl{{v5_bandit_frozen_config.json}}: discount $\gamma = 0.88$, exploration $\nu = 0.06$, ridge $\lambda = 0.08$, neutral prior $\mu_0 = 0.48$, window $W = 32$, loss weights $w_L = 0.45, w_A = 0.55, w_V = 0.85$). For arm $a$, Russac's discounted covariance~\cite{{russac2019dlinucb}} updates via:
+\begin{{align}}
+\mathbf{{V}}_{{t,a}} &= \gamma \mathbf{{V}}_{{t-1,a}} + \mathbf{{x}}_{{t^-}}\mathbf{{x}}_{{t^-}}^\top + (1-\gamma)\lambda \mathbf{{I}}_5, \nonumber\\
+\tilde{{\mathbf{{V}}}}_{{t,a}} &= \gamma^2 \tilde{{\mathbf{{V}}}}_{{t-1,a}} + \mathbf{{x}}_{{t^-}}\mathbf{{x}}_{{t^-}}^\top + (1-\gamma^2)\lambda \mathbf{{I}}_5, \nonumber\\
+\mathbf{{b}}_{{t,a}} &= \gamma \mathbf{{b}}_{{t-1,a}} + (\ell_{{t,a}} - \mu_0)\mathbf{{x}}_{{t^-}},
+\end{{align}}
+selecting among accuracy-feasible arms the minimum lower confidence bound $\hat{{\theta}}_{{t,a}}^\top \mathbf{{x}}_{{t^-}} - \nu s_{{t,a}}$, where $s_{{t,a}} = \sqrt{{\mathbf{{x}}_{{t^-}}^\top \mathbf{{V}}_{{t,a}}^{{-1}} \tilde{{\mathbf{{V}}}}_{{t,a}} \mathbf{{V}}_{{t,a}}^{{-1}} \mathbf{{x}}_{{t^-}}}}$.
 
 \begin{{figure}}[!t]
 \centering
@@ -1224,7 +1236,9 @@ SUPP_TEX = rf"""\documentclass[10pt,journal,compsoc]{{IEEEtran}}
 \usepackage[hidelinks]{{hyperref}}
 
 \Urlmuskip=0mu plus 2mu\relax
-\emergencystretch=1.6em
+\tolerance=2400
+\hbadness=2400
+\emergencystretch=3.0em
 \extrafloats{{48}}
 \renewcommand{{\thesection}}{{S\arabic{{section}}}}
 \renewcommand{{\thetable}}{{S\arabic{{table}}}}
