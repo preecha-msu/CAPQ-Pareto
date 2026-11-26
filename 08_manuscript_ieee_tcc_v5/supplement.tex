@@ -1,12 +1,18 @@
 \documentclass[10pt,journal,compsoc]{IEEEtran}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage{microtype}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{placeins}
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
 
+\Urlmuskip=0mu plus 2mu\relax
+\emergencystretch=1.6em
+\extrafloats{48}
 \renewcommand{\thesection}{S\arabic{section}}
 \renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\thefigure}{S\arabic{figure}}
@@ -14,16 +20,24 @@
 \begin{document}
 
 \title{Electronic Supplementary Material for:\\CAPQ-Pareto: Coordinate-Confidential Post-Quantum Hybrid Vector-Relational Cloud Querying}
-\author{Preecha~Research~Group}
+\author{Preecha~Noiumkar,~\IEEEmembership{Member,~IEEE}}
 \maketitle
 
 \section{Proof Details of Proposition 1 and Bloom Filter Replay Analysis}
-For asymmetric \texttt{INT8} query quantization with $\Delta_q = (q_{\max}-q_{\min})/255$, each coordinate residual satisfies $|e_i| \le \Delta_q/2$. By H\"older's inequality, $|\sum_{i=1}^D e_i x_i| \le \|e\|_\infty \|\mathbf{x}\|_1 = \frac{1}{2}\Delta_q \|\mathbf{x}\|_1$. Under conditional unbiased stochastic rounding $\mathbb{P}_{\boldsymbol{\xi}\mid\mathbf{q},\mathbf{x}}$, residuals $e_i$ are independent zero-mean bounded random variables in $[-\Delta_q(1-p_i), \Delta_q p_i]$ of width $\Delta_q$, so Hoeffding's lemma gives $\mathbb{E}[\exp(\lambda e_i x_i)] \le \exp(\lambda^2 \Delta_q^2 x_i^2 / 8)$, yielding the conservative finite-sample concentration bound $\Delta_q \|\mathbf{x}\|_2 \sqrt{\frac{1}{2}\ln(2/\zeta)}$ (100.00\% empirical coverage at $1-\zeta = 0.95$). Under deterministic nearest rounding, $e_i$ is deterministic for fixed $(\mathbf{q},\mathbf{x})$; over $(\mathbf{q},\mathbf{x}) \sim \mathcal{P}_{\mathcal{Q}\times\mathcal{D}}$, empirical standard deviations match $\mathbb{E}[\Delta_q]/\sqrt{12}$ closely ($\sigma_{\text{emp}} = 0.000306$ vs.\ $\sigma_{\text{theo}} = 0.000277$ on SIFT-1M; $\sigma_{\text{emp}} = 0.000417$ vs.\ $\sigma_{\text{theo}} = 0.000435$ on BGE-M3), exactly matching Table~3 in the main manuscript.
+For asymmetric \texttt{INT8} query quantization with $\Delta_q = (q_{\max}-q_{\min})/255$, each coordinate residual satisfies $|e_i| \le \Delta_q/2$. By H\"older's inequality, $|\sum_{i=1}^D e_i x_i| \le \|e\|_\infty \|\mathbf{x}\|_1 = \frac{1}{2}\Delta_q \|\mathbf{x}\|_1$. Under conditional unbiased stochastic rounding $\mathbb{P}_{\boldsymbol{\xi}\mid\mathbf{q},\mathbf{x}}$, residuals $e_i$ are independent zero-mean bounded random variables in $[-\Delta_q(1-p_i), \Delta_q p_i]$ of width $\Delta_q$, so Hoeffding's lemma gives $\mathbb{E}[\exp(\lambda e_i x_i)] \le \exp(\lambda^2 \Delta_q^2 x_i^2 / 8)$, yielding the conservative finite-sample concentration bound:
+\begin{align}
+\mathbb{P}_{\boldsymbol{\xi}}\!\left(\left|\sum_{i=1}^D e_i x_i\right| \ge t \,\middle|\, \mathbf{q},\mathbf{x}\right)
+&\le 2\exp\!\left(-\frac{2t^2}{\Delta_q^2 \|\mathbf{x}\|_2^2}\right) \nonumber\\
+&\le \zeta \iff t = \Delta_q \sqrt{\frac{\ln(2/\zeta)}{2}},
+\end{align}
+which achieves 100.00\% empirical coverage at $1-\zeta = 0.95$. Under deterministic nearest rounding, $e_i$ is deterministic for fixed $(\mathbf{q},\mathbf{x})$; over $(\mathbf{q},\mathbf{x}) \sim \mathcal{P}_{\mathcal{Q}\times\mathcal{D}}$, empirical standard deviations match $\mathbb{E}[\Delta_q]/\sqrt{12}$ closely ($\sigma_{\text{emp}} = 0.000306$ vs.\ $\sigma_{\text{theo}} = 0.000277$ on SIFT-1M; $\sigma_{\text{emp}} = 0.000417$ vs.\ $\sigma_{\text{theo}} = 0.000435$ on BGE-M3), identical to Main Table~3.
 
-\begin{table}[h]
+\begin{table}[!t]
 \centering
 \caption{Partitioned 0-RTT Replay Strike Register Parameters (Synchronized with Main Section~2.2)}
 \label{tab:s_bloom}
+\footnotesize
+\begin{adjustbox}{max width=\columnwidth}
 \begin{tabular}{lc}
 \toprule
 \textbf{Parameter} & \textbf{Verified Value} \\
@@ -35,97 +49,139 @@ Exact combinatorial $p_{\text{FP}}$ & \textbf{0.126\%} ($\approx 0.126\%$) \\
 Collision fallback action & Transparent 1-RTT handshake (0\% drop) \\
 \bottomrule
 \end{tabular}
+\end{adjustbox}
 \end{table}
 
 \section{Extended Cryptographic, Network, and Silicon Energy Figures}
-Figures~\ref{fig:s1}--\ref{fig:s6} provide complete stage-by-stage cryptographic timings, raw Linux \texttt{netns} socket distributions, heavy-enclave ($M=512$) silicon RAPL profiles, all three 5D bandit shift families, live GCP Moving-Block-Bootstrap (MBB) confidence intervals, and all ten two-way factorial interactions.
+Figures~\ref{fig:s1}--\ref{fig:s6} present full stage-by-stage cryptographic timings, raw Linux \texttt{netns} socket distributions, heavy-enclave ($M=512$) silicon RAPL profiles, all three 5D bandit shift families, live GCP Moving-Block-Bootstrap (MBB) confidence intervals, and all ten two-way factorial interactions, formatted cleanly as full-width floats to prevent column collisions. Table~\ref{tab:s_glm15} reports the complete 15-term $2^5$ factorial model.
 
-\begin{figure}[h]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_s1_ckks_stage_and_wire.pdf}
+\includegraphics[width=0.88\textwidth]{figures/fig_s1_ckks_stage_and_wire.pdf}
 \caption{Stage-level C++ \texttt{OpenFHE} timings and serialized wire sizes comparing \texttt{Multi-CT} ($N=4096, L=1$) and \texttt{True 1-CT} ($N=8192, L=2$).}
 \label{fig:s1}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[h]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_s2_netns_socket_profiles.pdf}
+\includegraphics[width=0.88\textwidth]{figures/fig_s2_netns_socket_profiles.pdf}
 \caption{Measured Linux \texttt{netns} confidential payload transfer latencies across clean, lossy, and RFC~9308 UDP-policed network profiles.}
 \label{fig:s2}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[h]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_s3_heavy_omp_rapl_gum.pdf}
+\includegraphics[width=0.88\textwidth]{figures/fig_s3_heavy_omp_rapl_gum.pdf}
 \caption{Steady-state OpenMP latency scaling and ISO GUM $\pm U_{95}$ package energy on heavy $M=512$ ($r=4$) 1-CT enclaves.}
 \label{fig:s3}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[h]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_s4_bandit_three_campaigns_sla.pdf}
-\caption{Class-SLA compliance across all three 5D contextual bandit shift families (\texttt{v5\_bandit\_frozen\_config.json}).}
+\includegraphics[width=0.88\textwidth]{figures/fig_s4_bandit_three_campaigns_sla.pdf}
+\caption{Class-SLA compliance across all three 5D contextual bandit shift families (\nolinkurl{v5_bandit_frozen_config.json}).}
 \label{fig:s4}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[h]
+\clearpage
+
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_s5_live_gcp_mbb_and_conf_sla.pdf}
+\includegraphics[width=0.88\textwidth]{figures/fig_s5_live_gcp_mbb_and_conf_sla.pdf}
 \caption{Track~1 live 3-region GCP Moving-Block-Bootstrap 95\% confidence intervals and confidential-only (24/96) SLA pass rates.}
 \label{fig:s5}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[h]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_s6_factorial_10_interactions.pdf}
+\includegraphics[width=0.88\textwidth]{figures/fig_s6_factorial_10_interactions.pdf}
 \caption{All ten secondary two-way interaction terms from the $2^5$ full-factorial experiment ($N=256$ runs).}
 \label{fig:s6}
-\end{figure}
+\end{figure*}
 
-\section{Cross-Document Consistency Verification Summary}
-Table~\ref{tab:s_repro} summarizes the exact numerical anchors shared identically between the main manuscript and this supplement, and Table~\ref{tab:s_manifest} lists the 14 active verified primary datasets (complementing the 14 vector figures, totaling 28 active artifacts).
+\begin{table*}[!t]
+\centering
+\caption{Complete 15-Term $2^5$ Full-Factorial Spectrum (5 Main Effects + 10 Two-Way Interactions) Verified by 10,000 Within-Block Permutations}
+\label{tab:s_glm15}
+\footnotesize
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lccrrr}
+\toprule
+\textbf{Factorial Term} & \textbf{$\Delta$SLA (pp) [95\% CI]} & \textbf{Logit $\hat{\beta}$ (HC3 SE)} & \textbf{GLM $p$} & \textbf{Perm-10k $p$} & \textbf{$\Delta$Lat (ms)} \\
+\midrule
+A PQC Session Pooling & +52.15 [+26.18, +78.11] & +2.974 (0.199) & $<0.0001$ & 0.0001 & -188.80 \\
+B SPANN Boundary Replication & +4.49 [+0.34, +8.65] & +0.281 (0.133) & 0.0348 & 0.2851 & +3.53 \\
+C SIMD RNS PreEncoding & +3.32 [+0.67, +5.97] & +0.218 (0.134) & 0.1025 & 0.4363 & -21.53 \\
+D Lagged Discounted Bandit & +8.40 [+5.89, +10.91] & +0.485 (0.133) & 0.0003 & 0.0385 & -9.73 \\
+E Dual SLA Feasibility Gate & +8.01 [+2.81, +13.21] & +0.486 (0.133) & 0.0002 & 0.0518 & +7.57 \\
+\midrule
+AxB Interaction & +2.15 [+0.31, +3.99] & +0.099 (0.131) & 0.4489 & 0.6242 & -0.00 \\
+AxC Interaction & +0.98 [-1.53, +3.49] & +0.036 (0.130) & 0.7828 & 0.8468 & -0.00 \\
+AxD Interaction & +6.05 [+1.73, +10.38] & +0.272 (0.130) & 0.0360 & 0.1411 & -7.12 \\
+AxE Interaction & +4.10 [+0.76, +7.45] & +0.159 (0.132) & 0.2268 & 0.3290 & -0.00 \\
+BxC Interaction & +3.32 [+0.67, +5.97] & +0.227 (0.129) & 0.0772 & 0.4448 & -2.02 \\
+BxD Interaction & -0.98 [-2.82, +0.86] & -0.044 (0.127) & 0.7312 & 0.8483 & -2.60 \\
+BxE Interaction & +1.76 [+0.46, +3.05] & +0.129 (0.128) & 0.3109 & 0.7002 & -1.68 \\
+CxD Interaction & -0.59 [-1.97, +0.80] & -0.024 (0.128) & 0.8505 & 0.9203 & +1.49 \\
+CxE Interaction & +1.37 [+0.53, +2.20] & +0.100 (0.128) & 0.4357 & 0.7785 & -3.95 \\
+DxE Interaction & -4.49 [-7.24, -1.75] & -0.262 (0.125) & 0.0366 & 0.2894 & +2.60 \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table*}
 
-\begin{table*}[t]
+\clearpage
+
+\section{Cross-Document Consistency and Full 64-Hex SHA-256 Provenance}
+Table~\ref{tab:s_repro} summarizes the numerical anchors synchronized across the main manuscript and this supplement, and Table~\ref{tab:s_manifest} records the complete 64-character SHA-256 digests of all 14 active primary datasets (complementing the 14 vector figures, totaling 28 active artifacts).
+
+\begin{table*}[!t]
 \centering
 \caption{Exact Numerical Reconciliation Across Main Manuscript Tables and Electronic Supplement}
 \label{tab:s_repro}
+\footnotesize
+\begin{adjustbox}{max width=\textwidth}
 \begin{tabular}{lll}
 \toprule
 \textbf{Experimental Benchmark} & \textbf{Source CSV Artifact} & \textbf{Exact Synchronized Metric (Main \& Supplement)} \\
 \midrule
-Live GCP Bangkok / Singapore (\texttt{M5}) & \texttt{v5\_live\_gcp\_3regions\_pure\_m1\_m5\_verified.csv} & MeanLat $= 48.35$~ms / $77.63$~ms; Conf-SLA250 $= 91.7\%$ \\
-Controlled 3-Region Singapore (\texttt{M7 vs M8 vs M5}) & \texttt{v5\_controlled\_3regions\_m1\_m8\_summary.csv} & MeanLat $= 359.61$~ms vs.\ $92.04$~ms vs.\ $94.67$~ms \\
-Confidential CKKS 100k Recall ($r=2$ / $r=4$, 1-CT) & \texttt{v5\_ckks\_scaling\_5k\_25k\_100k\_with\_recall\_500q.csv} & Recall@10 $= 0.5502$ ($M=224$) / $0.7322$ ($M=512$), Resp $= 129.0$~KB \\
-5D Bandit Regret vs.\ Fair \texttt{M8} (C1 / C3) & \texttt{v5\_bandit\_5d\_fair\_m8\_10seeds.csv} & C1: $32.13$ vs.\ $28.60$ ($p=0.2622$); C3: $37.21$ vs.\ $224.48$ ($p=0.0059$) \\
-PG18.6 HNSW Concurrency ($c=16$, 2,000 ops/lvl) & \texttt{v5\_pg18\_hnsw\_concurrency\_2000ops\_per\_level.csv} & Throughput $= 4659.3$~ops/s, p95 $= 3.38$~ms \\
+Live GCP Bangkok / Singapore (\texttt{M5}) & \nolinkurl{v5_live_gcp_3regions_pure_m1_m5_verified.csv} & MeanLat $= 48.35$~ms / $77.63$~ms; Conf-SLA250 $= 91.7\%$ \\
+Controlled 3-Region Singapore (\texttt{M7 vs M8 vs M5}) & \nolinkurl{v5_controlled_3regions_m1_m8_summary.csv} & MeanLat $= 359.61$~ms vs.\ $92.04$~ms vs.\ $94.67$~ms \\
+Confidential CKKS 100k Recall ($r=2$ / $r=4$, 1-CT) & \nolinkurl{v5_ckks_scaling_5k_25k_100k_with_recall_500q.csv} & Recall@10 $= 0.5502$ ($M=224$) / $0.7322$ ($M=512$), Resp $= 129.0$~KB \\
+5D Bandit Regret vs.\ Fair \texttt{M8} (C1 / C3) & \nolinkurl{v5_bandit_5d_fair_m8_10seeds.csv} & C1: $32.13$ vs.\ $28.60$ ($p=0.2622$); C3: $37.21$ vs.\ $224.48$ ($p=0.0059$) \\
+PG18.6 HNSW Concurrency ($c=16$, 2,000 ops/lvl) & \nolinkurl{v5_pg18_hnsw_concurrency_2000ops_per_level.csv} & Throughput $= 4659.3$~ops/s, p95 $= 3.38$~ms \\
 \bottomrule
 \end{tabular}
+\end{adjustbox}
 \end{table*}
 
-\begin{table*}[t]
+\begin{table*}[!t]
 \centering
 \caption{Active Primary Dataset \& Configuration Provenance Manifest (14 Data Files + 14 Vector Figures = 28 Active Artifacts)}
 \label{tab:s_manifest}
+\scriptsize
+\begin{adjustbox}{max width=\textwidth}
 \begin{tabular}{ll}
 \toprule
-\textbf{Artifact Filename} & \textbf{SHA-256 Digest Prefix (Full 64-Hex in Repository Manifest)} \\
+\textbf{Artifact Filename} & \textbf{Full 64-Character SHA-256 Digest} \\
 \midrule
-\texttt{v5\_bandit\_frozen\_config.json} & \texttt{48fad122716e4649a42e3aa7...} \\
-\texttt{v5\_ckks\_equal\_budget\_1ct\_vs\_multict\_500q.csv} & \texttt{457280320a74feadaa02e553...} \\
-\texttt{v5\_ckks\_scaling\_5k\_25k\_100k\_with\_recall\_500q.csv} & \texttt{1ace2278c9398ae5026a06d1...} \\
-\texttt{v5\_bandit\_5d\_fair\_m8\_10seeds.csv} & \texttt{2d1587521777b040f0f32cf2...} \\
-\texttt{v5\_real\_netns\_socket\_traces\_m1\_m8.json} & \texttt{7b086cd8b71709418a66ed39...} \\
-\texttt{v5\_steady\_rapl\_omp\_energy\_gum\_u95.csv} & \texttt{bce44879c973a6c03e8a9644...} \\
-\texttt{v5\_prop1\_same\_quantile95\_10k\_audit.csv} & \texttt{7c63804ac8f1f22e13ddf74d...} \\
-\texttt{v5\_factorial\_2pow5\_glm\_and\_10k\_block\_permutation.csv} & \texttt{52b6bc530bb416dcb6d95c9e...} \\
-\texttt{v5\_pg18\_hnsw\_ef\_sweep\_real.csv} & \texttt{e2ddb61948b773b57682a1f6...} \\
-\texttt{v5\_pg18\_hnsw\_concurrency\_2000ops\_per\_level.csv} & \texttt{025effe5331f078cbf1502bb...} \\
-\texttt{v5\_live\_gcp\_3regions\_pure\_m1\_m5\_verified.csv} & \texttt{8eab27ac4800bc66739a18c1...} \\
-\texttt{v5\_controlled\_3regions\_m1\_m8\_summary.csv} & \texttt{a6117f6ada91caf43f7ad282...} \\
-\texttt{v5\_controlled\_3regions\_m1\_m8\_interleaved\_2304raw.csv} & \texttt{dfc045399c300a2d5976ffc9...} \\
-\texttt{v2\_wan\_3regions\_interleaved\_raw.csv} & \texttt{7457faee41c40c8bedf85653...} \\
+\nolinkurl{v5_bandit_frozen_config.json} & \texttt{48fad122716e4649a42e3aa7ed3734207b5f98f51a36ddf4af01ab486640ee58} \\
+\nolinkurl{v5_ckks_equal_budget_1ct_vs_multict_500q.csv} & \texttt{457280320a74feadaa02e55350939587411cffe5c3b61336f7eb5230ab1ff796} \\
+\nolinkurl{v5_ckks_scaling_5k_25k_100k_with_recall_500q.csv} & \texttt{1ace2278c9398ae5026a06d18b87b9a12d1ffe0f674620a9cec4f62c0cb76f67} \\
+\nolinkurl{v5_bandit_5d_fair_m8_10seeds.csv} & \texttt{2d1587521777b040f0f32cf209dd436a89138019e0cd8d1ed3842bbbd5a3d3dd} \\
+\nolinkurl{v5_real_netns_socket_traces_m1_m8.json} & \texttt{7b086cd8b71709418a66ed390b07861bfe92db8a2a2f33d19c817ea4e48fcafe} \\
+\nolinkurl{v5_steady_rapl_omp_energy_gum_u95.csv} & \texttt{bce44879c973a6c03e8a9644385fd7102709fee67082fa44755712649d5f9f7e} \\
+\nolinkurl{v5_prop1_same_quantile95_10k_audit.csv} & \texttt{7c63804ac8f1f22e13ddf74d76154730753150818a87a2b1aabe2f0a8758d793} \\
+\nolinkurl{v5_factorial_2pow5_glm_and_10k_block_permutation.csv} & \texttt{52b6bc530bb416dcb6d95c9e39f3a282a78fb53d58b5bf7393327653050d047e} \\
+\nolinkurl{v5_pg18_hnsw_ef_sweep_real.csv} & \texttt{e2ddb61948b773b57682a1f6c8f58a5009c8f0d655d4278fe5a60404478b253c} \\
+\nolinkurl{v5_pg18_hnsw_concurrency_2000ops_per_level.csv} & \texttt{025effe5331f078cbf1502bb2be13c2dc5b8bdaa122eddda11979e8ebd07d7fd} \\
+\nolinkurl{v5_live_gcp_3regions_pure_m1_m5_verified.csv} & \texttt{8eab27ac4800bc66739a18c149278a524bc380fe66955aa04c609cb968201995} \\
+\nolinkurl{v5_controlled_3regions_m1_m8_summary.csv} & \texttt{a6117f6ada91caf43f7ad2825de08ca075ed840ef433e9150fca9618aa9f918d} \\
+\nolinkurl{v5_controlled_3regions_m1_m8_interleaved_2304raw.csv} & \texttt{dfc045399c300a2d5976ffc9403e3d7643020f63f0c9ca304530e4235eab8141} \\
+\nolinkurl{v2_wan_3regions_interleaved_raw.csv} & \texttt{7457faee41c40c8bedf85653e24f49ab6923c400d25e7942d201e96f62134cb7} \\
 \bottomrule
 \end{tabular}
+\end{adjustbox}
 \end{table*}
 
 \end{document}
