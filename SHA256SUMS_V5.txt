@@ -1,13 +1,11 @@
-# CAPQ-Pareto V5 Complete SHA-256 Provenance Manifest
-# Generated UTC: 2026-11-26T06:39:38Z
-# --- Primary Submission Deliverables in D:\Research ---
-6eed926ebc1c9a2b50e2fa8bdd0ff68fc476239faebb3c13393dcebc997dc8ab  CAPQ-Pareto-Main-IEEE-TCC-V5.pdf
-d43f47e847c16291eed4adab636e34bdf94d82fe52e78c6a88123918fadc02bc  CAPQ-Pareto-Supplement-IEEE-TCC-V5.pdf
-4ba4f724e7f991d44b37a97f07a1e4b69202f72067eaa0f84d0da29a4b751cee  CAPQ-Pareto-Cover-Letter-IEEE-TCC-V5.pdf
+# CAPQ-Pareto V5 Complete SHA-256 Provenance Manifest (Zero-Overfull Layout Verified)
+# Generated UTC: 2026-11-26T07:22:22Z
+7fc5dd4792e925e4a0df7d687c857b31df8610eda5af218776d14ed1a100965d  CAPQ-Pareto-Main-IEEE-TCC-V5.pdf
+b309df60b4f22ef401cbe68d0b1cf5b4aae7f4830ef60c042ee35bfca20db8ce  CAPQ-Pareto-Supplement-IEEE-TCC-V5.pdf
+b808aefb4141224b4883e15955bd290983c72dfd1879cc124ee91db2cd3ac8e1  CAPQ-Pareto-Cover-Letter-IEEE-TCC-V5.pdf
 30326f6e776cdd95765c4464d3a77fee4a7b0883c03b9a5b9f398ebaea54bdd1  CAPQ-Pareto-Response-to-Reviewers-V5.pdf
-faeb125943a9aed47f78778367790f99c4853953e61b06d7ab3c9987a8fcb347  CAPQ-Pareto-Fig1-Preview-V5.png
-23458f513d99bcb1ee9cfa6ea7cd24061c490d48facc4dffa163720e26c310c5  CAPQ-Pareto-Overleaf-IEEE-TCC-V5.zip
-# --- Verified Raw Execution CSV/JSON Artifacts in CAPQ-Pareto-V5 ---
+18f5de06ce8af6cb660aedcce6e67d8fc1d07f2afb687c51a4a2c649b16e9efb  CAPQ-Pareto-Fig1-Preview-V5.png
+5ae8be25ab8598366c878384a79ad899f7d9c1f34ee6c7bff474f69f6e9fcfc5  CAPQ-Pareto-Overleaf-IEEE-TCC-V5.zip
 48fad122716e4649a42e3aa7ed3734207b5f98f51a36ddf4af01ab486640ee58  v5_bandit_frozen_config.json
 457280320a74feadaa02e55350939587411cffe5c3b61336f7eb5230ab1ff796  v5_ckks_equal_budget_1ct_vs_multict_500q.csv
 1ace2278c9398ae5026a06d18b87b9a12d1ffe0f674620a9cec4f62c0cb76f67  v5_ckks_scaling_5k_25k_100k_with_recall_500q.csv
