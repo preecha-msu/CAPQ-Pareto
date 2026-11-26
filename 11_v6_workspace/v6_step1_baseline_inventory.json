@@ -1,0 +1,187 @@
+{
+  "v5_locked_hashes": {
+    "CAPQ-Pareto-Cover-Letter-IEEE-TCC-V5.pdf": "b808aefb4141224b4883e15955bd290983c72dfd1879cc124ee91db2cd3ac8e1",
+    "CAPQ-Pareto-Fig1-Preview-V5.png": "18f5de06ce8af6cb660aedcce6e67d8fc1d07f2afb687c51a4a2c649b16e9efb",
+    "CAPQ-Pareto-Main-IEEE-TCC-V5.pdf": "7fc5dd4792e925e4a0df7d687c857b31df8610eda5af218776d14ed1a100965d",
+    "CAPQ-Pareto-Overleaf-IEEE-TCC-V5.zip": "5ae8be25ab8598366c878384a79ad899f7d9c1f34ee6c7bff474f69f6e9fcfc5",
+    "CAPQ-Pareto-Response-to-Reviewers-V5.pdf": "30326f6e776cdd95765c4464d3a77fee4a7b0883c03b9a5b9f398ebaea54bdd1",
+    "CAPQ-Pareto-SHA256-Manifest-V5.txt": "167bc20436d8a71496a94d43d0537e96a21e14c20451be804ef47d1932bace24",
+    "CAPQ-Pareto-Supplement-IEEE-TCC-V5.pdf": "b309df60b4f22ef401cbe68d0b1cf5b4aae7f4830ef60c042ee35bfca20db8ce"
+  },
+  "git_info": {
+    "has_git": true,
+    "active_branch": "v6",
+    "dirty_file_count": 91,
+    "dirty_sample": [
+      "M 01_workloads/build_real_datasets.py",
+      " M 04_testbed_infra/edge_multiregion_client.py",
+      " M 05_telemetry_audit/energy_rapl_scaphandre/hardware_energy_meter.py",
+      " M 06_experiments_results/plotting_scripts/generate_q1_figures_and_stats.py",
+      " M 09_v4_reviewer_rebuttal_audit/phase4_5_energy_pareto_prop1_crossisa.py",
+      " M 09_v4_reviewer_rebuttal_audit/v4_phase4_fair_confidential_wan_dual_strict_sla.csv",
+      " M 09_v4_reviewer_rebuttal_audit/v4_phase4_omp_energy_uncertainty_real.csv",
+      " M 09_v4_reviewer_rebuttal_audit/v4_phase4_prop1_unified_sift_bgem3_10k.csv",
+      " M 09_v4_reviewer_rebuttal_audit/v4_phase4_raw_per_query_crypto_socket_audit.csv",
+      " M scripts/audit_and_fix_formatting.py",
+      " M scripts/build_and_sync_tex.py",
+      " M scripts/final_polish_and_pdf_audit.py",
+      " M scripts/finalize_step_c5_ieee_tcc.py",
+      " M scripts/quick_finish_pdfs.py",
+      " M scripts/upgrade_fig1_and_build.py"
+    ],
+    "recent_commits": [
+      "b1e5336 style(v5-zero-overfull-verified): 0.00pt Overfull hbox/vbox across Main & Supplement PDFs and refreshed V5 deliverables",
+      "fa81673 style(v5-zero-overfull): break display equations, upgrade mathtext vector labels, and export verified V5 PDFs",
+      "f2fcfd4 style(v5-layout-verified): eliminate all table/figure overlaps, enforce 0.00pt Overfull hbox/vbox, and upgrade Fig 1-8 & S1-S6",
+      "ed88a09 feat(v5-verified-release): complete zero-estimation V5 experiments, fair M8 baseline, 1-CT N=8192 CKKS, and verified IEEE TCC V5 package",
+      "524c9c4 docs(v4-release): complete verified IEEE TCC V4 main (9p, 8 V4 figs), supplement (8p, 6 V4 figs, S1-S13), and 55-file SHA-256 manifest"
+    ]
+  },
+  "datasets_count": 9,
+  "experiment_logs": {
+    "raw_logs": {
+      "csv": 10,
+      "json": 0
+    },
+    "v2_raw_logs": {
+      "csv": 18,
+      "json": 2
+    },
+    "v3_cleanroom_reexec": {
+      "csv": 0,
+      "json": 1
+    },
+    "v3_raw_logs": {
+      "csv": 14,
+      "json": 2
+    },
+    "v5_raw_logs": {
+      "csv": 11,
+      "json": 3
+    }
+  },
+  "v6_workspace_scripts": [
+    "build_all_14_v6_figures.py",
+    "build_and_audit_v6_complete.py",
+    "build_complete_12p_v6_manuscript_and_package.py",
+    "finish_phase3_glm_and_rho3.py",
+    "init_v6_from_v4.py",
+    "init_v6_from_v5.py",
+    "patch_selective_quic_v6.py",
+    "patch_udp_pacer_v6.py",
+    "phase1_forensic_and_math_audit.py",
+    "phase2_real_bandit_10seeds_audit.py",
+    "phase3_openfhe_100k_disjoint_and_glm.py",
+    "phase4_5_energy_pareto_prop1_crossisa.py",
+    "phase6_2_compile_and_verify_v6_package.py",
+    "probe_pg18_hnsw_v6.py",
+    "repair_v6_figures_and_tables_layout.py",
+    "run_complete_phase6_v6.py",
+    "run_step2_1_ckks_v6.py",
+    "run_step2_2a_bandit_m8_v6.py",
+    "run_step2_2b_rfc9308_v6.py",
+    "run_step2_2c_dual_wan_provenance_v6.py",
+    "run_step2_2c_live_gcp_m1_m8_v6.py",
+    "run_step2_3_energy_gum_v6.py",
+    "run_step2_3_rapl_pkg_fixed.py",
+    "run_step2_4_prop1_perm_v6.py",
+    "run_step2_4bc_glm_perm_hnsw2000.py",
+    "run_step3_1_assets_and_bib_v6.py",
+    "step1_forensic_scan.py",
+    "step5_quiescent_omp_refinement.py",
+    "step6_0_reconcile_and_preflight.py",
+    "step6_1_inspect_and_plot_v6.py",
+    "step6_2_build_v6_manuscript_package.py",
+    "step6_3_deep_audit_v2_v3_v6.py",
+    "step6_4_read_fig1_and_tables.py",
+    "stepA_full_inventory_check.py",
+    "stepB_build_all_14_v6_figures.py",
+    "stepC1_generate_all_23_v6_tables.py",
+    "stepC2_compile_full_12p_v6_and_export.py",
+    "v6_step1_baseline_scan.py",
+    "wsl_dualring_omp_worker.py",
+    "wsl_omp_fhe_worker.py",
+    "wsl_omp_steady_worker.py",
+    "wsl_phase2_netem_probe.py",
+    "wsl_phase3_openfhe_100k.py",
+    "wsl_raw_crypto_socket_worker.py"
+  ],
+  "manuscript_v6": {
+    "exists": true,
+    "tex_files": [
+      "cover_letter.tex",
+      "cover_letter_v4.tex",
+      "main.tex",
+      "response_to_reviewers_v4.tex",
+      "supplement.tex"
+    ],
+    "figure_count": 33,
+    "figures": [
+      "fig1_architecture.pdf",
+      "fig1_v4_architecture.pdf",
+      "fig1_v5_architecture.pdf",
+      "fig1_v5_architecture.png",
+      "fig2_prop1_same_quantile95.pdf",
+      "fig2_v4_prop1_10k_and_leakage.pdf",
+      "fig3_ckks_1ct_and_scaling.pdf",
+      "fig3_v4_spann_control_and_100k_scaling.pdf",
+      "fig4_pg18_hnsw_concurrency.pdf",
+      "fig4_v4_million_hnsw_and_concurrency.pdf",
+      "fig5_bandit_and_rapl_energy.pdf",
+      "fig5_v4_cross_isa_and_omp_rapl.pdf",
+      "fig6_factorial_glm_permutation.pdf",
+      "fig6_v4_centered_bandit_and_latent_shift.pdf",
+      "fig7_dual_track_wan_latency.pdf",
+      "fig7_v4_ablation_10modes_and_logit_glm.pdf",
+      "fig8_pareto_4d_cost_conf_sla.pdf",
+      "fig8_v4_fair_confidential_wan_3regions.pdf",
+      "fig_s1_ckks_stage_and_wire.pdf",
+      "fig_s1_v4_ckks_rings_and_mldsa.pdf",
+      "fig_s2_netns_socket_profiles.pdf",
+      "fig_s2_v4_raw_socket_crypto_distributions.pdf",
+      "fig_s3_heavy_omp_rapl_gum.pdf",
+      "fig_s3_v4_netem_profiles_and_9faults.pdf",
+      "fig_s4_bandit_three_campaigns_sla.pdf",
+      "fig_s4_v4_cloud_economics_and_weights.pdf",
+      "fig_s5_live_gcp_mbb_and_conf_sla.pdf",
+      "fig_s5_v4_wan_temporal_windows_mbb.pdf",
+      "fig_s6_factorial_10_interactions.pdf",
+      "fig_s6_v4_bandit_350_seed_distributions.pdf",
+      "fig_v5_bandit_and_rapl_energy.pdf",
+      "fig_v5_ckks_1ct_and_scaling.pdf",
+      "fig_v5_dual_track_wan_m1_m8.pdf"
+    ],
+    "table_files_count": 22,
+    "residual_v5_tokens": {}
+  },
+  "v6_deliverables": {
+    "CAPQ-Pareto-Cover-Letter-IEEE-TCC-V6.pdf": {
+      "bytes": 39725,
+      "sha256": "b808aefb4141224b4883e15955bd290983c72dfd1879cc124ee91db2cd3ac8e1"
+    },
+    "CAPQ-Pareto-Fig1-Preview-V6.png": {
+      "bytes": 479321,
+      "sha256": "18f5de06ce8af6cb660aedcce6e67d8fc1d07f2afb687c51a4a2c649b16e9efb"
+    },
+    "CAPQ-Pareto-Main-IEEE-TCC-V6.pdf": {
+      "bytes": 656771,
+      "sha256": "7fc5dd4792e925e4a0df7d687c857b31df8610eda5af218776d14ed1a100965d"
+    },
+    "CAPQ-Pareto-Overleaf-IEEE-TCC-V6.zip": {
+      "bytes": 345342,
+      "sha256": "5ae8be25ab8598366c878384a79ad899f7d9c1f34ee6c7bff474f69f6e9fcfc5"
+    },
+    "CAPQ-Pareto-Response-to-Reviewers-V6.pdf": {
+      "bytes": 116829,
+      "sha256": "30326f6e776cdd95765c4464d3a77fee4a7b0883c03b9a5b9f398ebaea54bdd1"
+    },
+    "CAPQ-Pareto-SHA256-Manifest-V6.txt": {
+      "bytes": 700,
+      "sha256": "0194c22d5301d8f1a1cd2bde092a7b51dbf63667cba0adf2e101b7f03464f8ea"
+    },
+    "CAPQ-Pareto-Supplement-IEEE-TCC-V6.pdf": {
+      "bytes": 351319,
+      "sha256": "b309df60b4f22ef401cbe68d0b1cf5b4aae7f4830ef60c042ee35bfca20db8ce"
+    }
+  }
+}

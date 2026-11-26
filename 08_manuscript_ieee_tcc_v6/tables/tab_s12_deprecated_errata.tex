@@ -1,0 +1,16 @@
+\begin{table*}[t]
+\centering
+\caption{Table S12: Segregated Deprecated / Superseded V1--V3 Artifact Errata Registry (Retained for Audit Provenance Only; Excluded from All V4 Claims)}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llp{0.42\textwidth}l@{}}
+\toprule
+\textbf{Suite} & \textbf{Deprecated Filename} & \textbf{Explicit Erratum \& V4 Replacement} & \textbf{Historical 64-Hex SHA-256} \\
+\midrule
+\texttt{raw\_logs} & \texttt{hw\_energy\_calibration\_audit.csv} & DEPRECATED: Early V1 short-window calibration; superseded by quiescent-settled dual-ring v4\_phase4\_omp\_energy\_uncertainty\_real.csv & \texttt{d239bc98284b07e56cf8fb1cb0e2a7dea0a80857a667336e06d40a500ef2393b} \\
+\texttt{v3\_raw\_logs} & \texttt{v3\_cross\_isa\_e2e\_continuum.csv} & RETIRED: V3 deterministic offset addition (C1==C4, C2==C3); superseded by raw per-query v4\_phase4\_raw\_per\_query\_crypto\_socket\_audit.csv & \texttt{493413edd978bfd2dc777f5d97f80511d6b0e88c3d7411f872332f831e214347} \\
+\texttt{v3\_raw\_logs} & \texttt{v3\_n7\_outage\_recovery\_trajectory.csv} & SUPERSEDED: V3 trajectory from uncentered D-LinUCB prior-drift run; superseded by 350-run v4\_phase2\_bandit\_10seeds\_raw.csv & \texttt{d2d2e8445cb1adeee63e98b2d4d5f4b97912734b80ba2b9fe84b562183ee62b0} \\
+\texttt{v3\_raw\_logs} & \texttt{v3\_network\_shock\_matrix\_n0\_n7.csv} & SUPERSEDED: V3 uncentered b0=0.20 prior-shrinkage drift in D-LinUCB; superseded by v4\_phase2\_bandit\_10seeds\_summary.csv and v4\_phase3\_latent\_shift\_bandit\_10seeds.csv & \texttt{41277418bb924ea2f60df280ab4bb636fbff64f0e98faeee3daab7c8a8c28c7b} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

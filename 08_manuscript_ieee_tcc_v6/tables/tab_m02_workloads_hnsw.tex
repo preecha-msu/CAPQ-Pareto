@@ -1,0 +1,26 @@
+\begin{table}[t]
+\centering
+\caption{Workloads, Million-Scale HNSW Operating Points, and Mixed Read/Write Concurrency (\texttt{PostgreSQL 18.6} \& \texttt{Qdrant})}
+\label{tab:workloads_concurrency_v4}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+\textbf{Dataset / Workload} & \textbf{Engine / Mode} & \textbf{Scale / Ops} & \textbf{p50 / p95 (ms)} & \textbf{Recall@10 / Tput} \\
+\midrule
+\texttt{TPC-C\_Rev5.11\_SQL} & Structured\_SQL & 1,000 & --- & 7\_cols\_ACID \\
+\texttt{YCSB\_WorkloadA\_JSON} & Structured\_JSON & 1,800 & --- & 256/1024/4096B \\
+\texttt{SIFT\_128d\_OfficialSplit} & Vector\_ANN & 5,200 & --- & 128d\_FP32 \\
+\texttt{Wikipedia\_BGE\_M3\_1024d} & Vector\_RAG & 5,200 & --- & 1024d\_FP32 \\
+\midrule
+\texttt{SIFT1M} ($ef=128$) & PG18.6\_pgvector0.8.1 & 1,000,000 & 5.12 / 7.02 & Rec=0.9915 \\
+\texttt{SIFT1M} ($ef=128$) & Qdrant\_Rust\_HNSW\_Matched & 1,000,000 & 1.27 / 1.43 & Rec=0.9980 \\
+\texttt{BGEM3} ($ef=128$) & PG18.6\_pgvector0.8.1 & 100,000 & 3.27 / 5.43 & Rec=0.9785 \\
+\texttt{BGEM3} ($ef=128$) & Qdrant\_Rust\_HNSW\_Matched & 100,000 & 2.02 / 2.42 & Rec=0.9820 \\
+\midrule
+Mixed R/W/ANN ($c=1$) & PG18.6 MVCC+HNSW & 480 ops & 2.51 / 7.66 & 282.4 ops/s \\
+Mixed R/W/ANN ($c=8$) & PG18.6 MVCC+HNSW & 480 ops & 4.26 / 11.05 & 1600.5 ops/s \\
+Mixed R/W/ANN ($c=32$) & PG18.6 MVCC+HNSW & 480 ops & 15.03 / 26.28 & 1831.2 ops/s \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

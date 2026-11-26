@@ -1,0 +1,16 @@
+\begin{table}[t]
+\centering
+\caption{Balanced-$K_c$ Confidential CKKS Enclave Scaling ($5\text{k} \to 100\text{k}$ \texttt{SIFT1M} Vectors, $r=2, B_{\max}=112$)}
+\label{tab:scaling_100k_v4}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}rrrrrrr@{}}
+\toprule
+\textbf{$N_{\text{vec}}$} & \textbf{$K_c$} & \textbf{Cli RAM} & \textbf{Route (ms)} & \textbf{Srv Eval (ms)} & \textbf{Total p50 / p95 (ms)} & \textbf{1-CT Req/Resp} \\
+\midrule
+5,000 & 64 & 32.0~KB & 0.055 & 60.70 & 83.12 / 85.52 & 128.8 / 128.8~KB \\
+25,000 & 320 & 160.0~KB & 0.114 & 58.58 & 80.14 / 81.90 & 128.8 / 128.8~KB \\
+100,000 & 1250 & 625.0~KB & 0.180 & 52.31 & 72.04 / 78.57 & 128.8 / 128.8~KB \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

@@ -1,0 +1,11 @@
+sensor_channel,workload_mode,omp_threads,n_steady_ops,med_lat_ms,mean_lat_ms,p95_lat_ms,throughput_qps,p_idle_pre_w,p_active_w,p_idle_post_w,idle_drift_pct,gross_energy_mj,gross_u95_mj,net_energy_mj,net_u95_mj,net_rel_u95_pct
+rapl_package0_pkg_PDH_LARGE,single_1ct_m224,1,57,106.63,106.25,110.64,9.41,7.38,21.99,6.85,-7.26,2336.14,133.19,1580.05,149.05,9.43
+rapl_package0_pkg_PDH_LARGE,single_1ct_m224,2,94,65.6,64.15,70.87,15.59,7.99,29.61,7.77,-2.72,1899.7,125.55,1393.96,133.79,9.6
+rapl_package0_pkg_PDH_LARGE,single_1ct_m224,4,133,43.85,45.14,54.18,22.15,6.83,32.94,6.74,-1.4,1486.91,153.43,1180.66,155.41,13.16
+rapl_package0_pkg_PDH_LARGE,single_1ct_m224,8,148,34.82,40.82,57.42,24.5,6.78,29.57,5.52,-18.55,1207.2,190.35,956.1,195.37,20.43
+rapl_package0_pkg_PDH_LARGE,single_1ct_m224,12,126,41.11,48.09,71.45,20.79,5.94,25.85,12.85,116.41,1243.06,184.01,791.44,289.12,36.53
+rapl_package0_pkg_PDH_LARGE,enclave_heavy_1ct_m512,1,24,253.34,260.24,293.45,3.84,20.62,20.54,6.93,-66.4,5344.45,545.22,1759.61,2366.84,134.51
+rapl_package0_pkg_PDH_LARGE,enclave_heavy_1ct_m512,2,41,149.0,149.51,168.82,6.69,34.19,31.5,7.9,-76.9,4709.16,388.67,1562.72,2493.52,159.56
+rapl_package0_pkg_PDH_LARGE,enclave_heavy_1ct_m512,4,67,88.88,90.26,104.27,11.08,6.8,38.38,6.79,-0.12,3464.15,210.75,2851.02,239.67,8.41
+rapl_package0_pkg_PDH_LARGE,enclave_heavy_1ct_m512,8,88,68.02,68.52,72.72,14.59,5.81,41.29,8.6,48.07,2829.25,124.36,2335.53,215.07,9.21
+rapl_package0_pkg_PDH_LARGE,enclave_heavy_1ct_m512,12,88,68.49,68.38,72.96,14.62,5.2,43.43,10.49,101.52,2969.67,171.49,2433.08,330.42,13.58

@@ -1,0 +1,34 @@
+{
+  "timestamp_utc": "2026-11-26T01:39:49Z",
+  "corpus_source": "v5_sift100k_1000q_real.npz",
+  "openfhe_params": {
+    "N4096_D1": {
+      "log2_Q": 84.0,
+      "log2_QP": 84.0
+    },
+    "N8192_D1": {
+      "log2_Q": 98.0,
+      "log2_QP": 98.0
+    },
+    "N8192_D2": {
+      "log2_Q": 140.0,
+      "log2_QP": 140.0
+    }
+  },
+  "paired_wilcoxon_500q": {
+    "Kc96": {
+      "delta_vs_equal_probe": 0.1884,
+      "p_wilcoxon_vs_equal_probe": 2.58e-65,
+      "delta_vs_equal_budget_M224": 0.0006,
+      "p_wilcoxon_vs_equal_budget_M224": 0.75
+    },
+    "Kc192": {
+      "delta_vs_equal_probe": 0.228,
+      "p_wilcoxon_vs_equal_probe": 9.88e-74,
+      "delta_vs_equal_budget_M224": -0.0886,
+      "p_wilcoxon_vs_equal_budget_M224": 5.573e-23
+    }
+  },
+  "sha256_ctrl_csv": "457280320a74feadaa02e55350939587411cffe5c3b61336f7eb5230ab1ff796",
+  "sha256_scale_csv": "1ace2278c9398ae5026a06d18b87b9a12d1ffe0f674620a9cec4f62c0cb76f67"
+}

@@ -1,0 +1,20 @@
+\begin{table*}[t]
+\centering
+\caption{10-Seed Counterfactual Bandit Evaluation Over Real Kernel \texttt{tc netem} Socket Traces: Observable-EWMA Portfolio vs.\ Unannounced Latent Link Shift}
+\label{tab:bandit_10seeds_v4}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+\textbf{Controller Policy} & \textbf{S1 Clean} & \textbf{S2 Reg.} & \textbf{S3 Loss} & \textbf{S4 Wave} & \textbf{S5 Outage} & \textbf{5-Scen.\ Portfolio [95\% CI]} & \textbf{Latent Shift Regret [95\% CI]} & \textbf{Latent SLA / $p_{\text{Wilc}}$} \\
+\midrule
+Single Global Fixed (TCP-Pool MP) & 1.90 & 9.51 & 29.25 & 81.27 & 142.24 & 264.16 [258.4, 269.9] & 94.42 [93.1, 95.7] & 63.33\% ($p=0.0019$) \\
+Single Global Fixed (QUIC-0RTT MP) & 24.71 & 28.39 & 25.95 & 24.27 & 28.24 & 131.57 [130.4, 132.8] & 36.21 [35.3, 37.1] & 98.33\% ($p=0.4922$) \\
+Stationary LinUCB + Gate ($\gamma=1.00$) & 13.11 & 22.75 & 25.58 & 31.52 & 33.03 & 125.98 [101.6, 150.3] & 58.14 [52.7, 63.6] & 85.12\% ($p=0.0019$) \\
+Sliding-Window LinUCB + Gate ($W=24$) & 13.37 & 23.87 & 25.66 & 27.78 & 32.23 & 122.92 [100.8, 145.1] & 36.80 [32.3, 41.3] & 93.71\% ($p=0.6250$) \\
+Dual SLA Gate Only (Uniform Feasible) & 19.59 & 32.80 & 54.28 & 78.78 & 118.60 & 304.04 [293.9, 314.2] & --- & --- \\
+Discounted Bandit Without SLA Gate & 247.97 & 306.67 & 337.07 & 251.24 & 392.95 & 1535.90 [1021.2, 2050.6] & --- & --- \\
+\textbf{CAPQ Centered Lagged D-LinUCB ($\gamma=0.88$)} & 14.24 & 24.40 & 27.92 & 28.81 & 33.30 & 128.67 [108.4, 149.0] & 34.98 [31.7, 38.2] & 95.12\% ($p=1.0000$) \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

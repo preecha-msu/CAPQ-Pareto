@@ -1,0 +1,28 @@
+{
+  "config_id": "CAPQ_V5_BANDIT_FROZEN_CONFIG",
+  "context_dimension_d": 5,
+  "context_features": [
+    "bias_1",
+    "is_sql_query",
+    "is_confidential_query",
+    "lagged_ewma_rtt_div_300ms",
+    "lagged_ewma_loss_div_10pct"
+  ],
+  "discount_gamma": 0.88,
+  "exploration_nu": 0.06,
+  "ridge_lambda": 0.08,
+  "prior_neutral_loss_mu0": 0.48,
+  "sliding_window_W": 32,
+  "loss_weights": {
+    "w_latency": 0.45,
+    "w_accuracy": 0.55,
+    "w_sla_violation": 0.85
+  },
+  "sla_thresholds": {
+    "min_recall_or_integrity": 0.92,
+    "strict_deadline_ms": 150.0,
+    "confidential_class_deadline_ms": 250.0
+  },
+  "random_seeds_count": 10,
+  "horizon_queries_per_seed": 320
+}
