@@ -66,7 +66,7 @@ Tables~1--2 and Figs.~S1--S6 provide the granular link-bandwidth crossover sched
 \texttt{F1\_Replay\_0RTT\_Attack} & 1,000 verbatim 0-RTT early-data replay packets & 1000 & 100.0\% & 0.012~ms & True \\
 \texttt{F2\_Bloom\_False\_Positive\_Quantification} & 5,000 fresh unseen 0-RTT nonces after 4,000 insertions (m=64Kb, k=5) & 5000 & 99.8\% & 0.24~ms & True \\
 \texttt{F3\_Bloom\_False\_Negative\_Zero\_Proof} & 4,000 previously seen nonces within active epoch & 4000 & 100.0\% & 0.0~ms & True \\
-\texttt{F4\_Strike\_Register\_Epoch\_Expiry} & Expired timestamp (>TTL) + register salt rotation across epoch boundary & 100 & 100.0\% & 0.09~ms & True \\
+\texttt{F4\_Strike\_Register\_Epoch\_Expiry} & Expired timestamp ($>$TTL) + register salt rotation across epoch boundary & 100 & 100.0\% & 0.09~ms & True \\
 \texttt{F5\_Duplicate\_Query\_Idempotency} & 0-RTT mutating SQL injection + duplicate read-query retransmission & 200 & 100.0\% & 0.008~ms & True \\
 \texttt{F6\_MTU\_Fragmentation\_Reassembly} & 16,384 B ciphertext fragmented into 14x 1,200 B sub-MTU segments & 50 & 100.0\% & 6.239~ms & True \\
 \texttt{F7\_TLS\_Session\_Expiration\_Reconnect} & Server invalidates pooled session / ticket mid-stream & 50 & 100.0\% & 21.675~ms & True \\

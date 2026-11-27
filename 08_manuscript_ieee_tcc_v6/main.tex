@@ -29,10 +29,8 @@
 \title{Empirical Systems Characterization of Post-Quantum Session Pooling, Single-Ciphertext CKKS Retrieval, and Transport Fallback Across Cloud-Edge Vector-SQL Streams}
 
 \author{Preecha~Noiumkar,~\IEEEmembership{Member,~IEEE}%
-\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem P. Noiumkar is with the Department of Information Technology, Faculty of Informatics, Mahasarakham University, Maha Sarakham 44150, Thailand (e-mail: preecha.n@msu.ac.th; ORCID: \protect\url{https://orcid.org/0009-0000-5964-4896}).\protect\\
-Corresponding author: Preecha Noiumkar (e-mail: preecha.n@msu.ac.th).}%
-\thanks{This research project was financially supported by the Faculty of Informatics, Mahasarakham University. Public code, raw execution logs, and full 64-character SHA-256 manifests are available at \protect\url{https://github.com/preecha-msu/CAPQ-Pareto/tree/v6} (permanent Zenodo archive: \url{https://doi.org/10.5281/zenodo.24575614}).}}
-
+\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem P. Noiumkar is with the Department of Information Technology, Faculty of Informatics, Mahasarakham University, Maha Sarakham 44150, Thailand (e-mail: preecha.n@msu.ac.th; ORCID: \protect\url{https://orcid.org/0009-0000-5964-4896}). Corresponding author: Preecha Noiumkar (e-mail: preecha.n@msu.ac.th).%
+\IEEEcompsocthanksitem This research project was financially supported by the Faculty of Informatics, Mahasarakham University. Public code, raw execution logs, and full 64-character SHA-256 manifests are available at \protect\url{https://github.com/preecha-msu/CAPQ-Pareto/tree/v6} (permanent Zenodo archive: \protect\url{https://doi.org/10.5281/zenodo.24575614}).}}
 \markboth{IEEE TRANSACTIONS ON CLOUD COMPUTING}%
 {NOIUMKAR: EMPIRICAL CHARACTERIZATION OF PQC POOLING, 1-CT CKKS RETRIEVAL, AND TRANSPORT FALLBACK}
 
@@ -147,7 +145,7 @@ Let $\mathbf{x} \in \mathbb{S}^{D-1}$ ($\|\mathbf{x}\|_2 = 1$) be a unit-normali
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig3_pg18_hnsw_million_and_concurrency.pdf}
-\caption{Public tier \texttt{PostgreSQL~18.6} (\texttt{pgvector~0.8.1}) evaluation: (a)~million-scale \texttt{SIFT1M} ($10^6$ vectors) and $100\text{k}$ \texttt{BGE-M3} HNSW recall-latency trade-off; (b)~multi-client throughput and p95 latency ($2{,}000$ SQL ops/level).}
+\caption{Public tier \texttt{PostgreSQL~18.6} (\texttt{pgvector~0.8.1}) evaluation: (a)~million-scale \texttt{SIFT1M} ($10^6$ vectors) and $100\text{k}$ \texttt{BGE-M3} HNSW recall-latency trade-off; (b)~filtered hybrid SQL+HNSW Recall@10 across \texttt{WHERE} selectivities.}
 \label{fig:hnsw}
 \end{figure}
 
@@ -166,7 +164,7 @@ To return a single ciphertext (\textbf{True 1-CT Aggregation}), the server multi
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig4_ckks_1ct_scaling_and_crossover.pdf}
-\caption{Coordinate-confidential CKKS evaluation ($N_q=500$ SIFT queries): (a)~Plaintext FP64 vs.\ OpenFHE CKKS Recall@10 across $5\text{k}\to 100\text{k}$ vectors ($|\Delta R_{\text{CKKS}}|\le 0.0052$); (b)~1-CT vs.\ Multi-CT compute+downlink latency crossover ($B^\star = 426.2$~Mbps at $N=5\text{k}$).}
+\caption{Coordinate-confidential CKKS evaluation ($N_q=500$ SIFT queries): (a)~$N=8192$ 1-CT slot-provisioning curves ($M\in[128,3072]$) across 5k--100k vectors; (b)~1-CT vs.\ Multi-CT compute+downlink latency crossover ($B^\star = 426.2$~Mbps at $N=5\text{k}$).}
 \label{fig:ckks}
 \end{figure}
 
@@ -211,7 +209,7 @@ Table~\ref{tab:bandit} and Fig.~\ref{fig:bandit_rapl}(a) reveal three candid ope
 
 \subsection{Silicon RAPL Energy Metrology and Idle-Drift Uncertainty Limits}
 \input{tables/tab6_rapl.tex}
-Table~\ref{tab:rapl} and Fig.~\ref{fig:bandit_rapl}(b) report continuous C++ \texttt{OpenFHE} package energy via Intel hardware \texttt{RAPL} (\nolinkurl{rapl_package0_pkg}) with JCGM GUM~\cite{bipm2008gum,david2010rapl} expanded uncertainty $U_{95}$. Internally, gross energy matches physical active power times duration (\emph{e.g.}, $21.99\text{ W} \times 0.1066\text{ s} \approx 2.34\text{ J}$ at \texttt{OMP=1}). However, unpinned OS background tasks and thermal P/E-core boost states induce substantial pre-to-post idle power drift ($-76.9\%$ to $+116.4\%$, Fig.~S3b). In the Heavy 12-block mode at \texttt{OMP=1,2}, long execution durations ($396\text{--}663$~ms) amplify baseline idle uncertainty so severely that $U_{95}$ ($\pm 2{,}367\text{--}2{,}494$~mJ) exceeds the idle-subtracted net energy point estimates ($1{,}563\text{--}1{,}760$~mJ), precluding reliable net-energy ranking at low thread counts. Similarly, for single 1-CT ($M=224$), net energy drops from \texttt{OMP=1} ($1{,}580 \pm 149$~mJ) to \texttt{OMP=8} ($960 \pm 93$~mJ) and \texttt{OMP=12} ($956 \pm 115$~mJ), where \texttt{OMP=8} and \texttt{OMP=12} are statistically indistinguishable within $\pm U_{95}$ (reversing short-burst quiescent rankings in earlier exploratory runs and underscoring sensitivity to thermal window duration).
+Table~\ref{tab:rapl} and Fig.~\ref{fig:bandit_rapl}(b) report continuous C++ \texttt{OpenFHE} package energy via Intel hardware \texttt{RAPL} (\nolinkurl{rapl_package0_pkg}) with JCGM GUM~\cite{bipm2008gum,david2010rapl} expanded uncertainty $U_{95}$. Internally, gross energy matches physical active power times duration (\emph{e.g.}, $21.99\text{ W} \times 0.1066\text{ s} \approx 2.34\text{ J}$ at \texttt{OMP=1}). However, unpinned OS background tasks and thermal P/E-core boost states induce substantial pre-to-post idle power drift ($-76.9\%$ to $+116.4\%$, Fig.~S3b). In the Heavy 12-block mode at \texttt{OMP=1,2}, long execution durations ($396\text{--}663$~ms) amplify baseline idle uncertainty so severely that $U_{95}$ ($\pm 2{,}367\text{--}2{,}494$~mJ) exceeds the idle-subtracted net energy point estimates ($1{,}563\text{--}1{,}760$~mJ), precluding reliable net-energy ranking at low thread counts. Similarly, for single 1-CT ($M=224$), net energy drops from \texttt{OMP=1} ($1{,}580 \pm 149$~mJ) to \texttt{OMP=8} ($956\pm 195$~mJ) and \texttt{OMP=12} ($791\pm 289$~mJ), where \texttt{OMP=8} and \texttt{OMP=12} are statistically indistinguishable within $\pm U_{95}$ (reversing short-burst quiescent rankings in earlier exploratory runs and underscoring sensitivity to thermal window duration).
 
 \section{Factorial Attribution and Reconciled Multi-Region WAN Evaluation}\label{sec:wan}
 \subsection{\texorpdfstring{$2^5$}{2\^{}5} Factorial Monte Carlo Within-Block Randomization}
@@ -235,7 +233,7 @@ Table~\ref{tab:factorial} and Fig.~\ref{fig:fact_leak}(a) analyze the $2^5 \time
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig8_unified_cost_and_per_class_sla.pdf}
-\caption{Singapore Track~2 reconciled trade-offs: (a)~Unified cloud CPU+egress cost vs.\ mean latency (\texttt{*}~denotes plaintext non-FHE modes); (b)~per-class confidential latency compliance ($\le 250$~ms) vs.\ measured confidential $\mathrm{Recall}@10$ at $M=224$.}
+\caption{Singapore Track~2 reconciled trade-offs: (a)~Unified cloud CPU+egress cost vs.\ mean latency (\texttt{*}~denotes plaintext non-FHE modes); (b)~confidential SLA pass rate vs.\ deadline threshold ($\tau_R=0.75$).}
 \label{fig:pareto}
 \end{figure}
 
