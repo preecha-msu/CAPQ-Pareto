@@ -1,0 +1,7 @@
+# CAPQ-Pareto V6 Final Hardened Deliverables SHA-256 Manifest (Full 64-Hex, Groups A & B Complete)
+8e29cb418f40b633efca1722ca89027fc130af14157baea1d0433ba2cdc588c5  CAPQ-Pareto-Main-IEEE-TCC-V6.pdf
+a2be6bfb6a9f297b3db17702c3a973c5ba0999f25fb762725b85c6966dd5d00b  CAPQ-Pareto-Supplement-IEEE-TCC-V6.pdf
+7ab862d14f4cad013328035a8be4aed03683a196e9479a8f69596090c131f718  CAPQ-Pareto-Response-to-Reviewers-V6.pdf
+a4df3b671ce8af63c0bd2909a10f58db1f3b8f40ad847adb43a395ce576bf272  CAPQ-Pareto-Cover-Letter-IEEE-TCC-V6.pdf
+07439d25c68087e941034b38679a049838dde2f6c20c76a40dc6b966a10a7630  CAPQ-Pareto-Fig1-Preview-V6.png
+48a70f4dcee48b6d48f2f535ef70fa19b359da20c59d825a11a468a5c62bb3d0  CAPQ-Pareto-Overleaf-IEEE-TCC-V6.zip
