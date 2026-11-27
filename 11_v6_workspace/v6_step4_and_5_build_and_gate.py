@@ -432,6 +432,8 @@ MAIN_V6_TEX = r"""\documentclass[10pt,journal,compsoc]{IEEEtran}
 
 \Urlmuskip=0mu plus 2mu\relax
 \emergencystretch=2.0em
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
 \newtheorem{proposition}{Proposition}
 
 \begin{document}
@@ -667,8 +669,10 @@ This empirical study decoupled transport, quantization, homomorphic aggregation,
 \section*{Acknowledgment, Data Availability, and AI Disclosure}
 This research project was financially supported by the Faculty of Informatics, Mahasarakham University. Source code, C++ OpenFHE/liboqs bridges, raw CSV/JSON execution logs, and full 64-character SHA-256 verification manifests are publicly available at \url{https://github.com/preecha-msu/CAPQ-Pareto}. In accordance with IEEE publication policies, generative AI tools (Claude and Gemini) assisted in Python data-processing/plotting script maintenance and LaTeX prose editing; all experimental logs, mathematical proofs, statistical tests, and numerical claims were executed and verified programmatically against ground-truth hardware outputs by the author.
 
+{\emergencystretch=3em\sloppy
 \bibliographystyle{IEEEtran}
 \bibliography{references}
+}
 
 \begin{IEEEbiographynophoto}{Preecha Noiumkar}
 (Member, IEEE) received the M.Sc. degree in information technology from the Faculty of Information Technology, King Mongkut's Institute of Technology North Bangkok (KMITNB), Bangkok, Thailand. He is currently a Lecturer and Researcher with the Department of Information Technology, Faculty of Informatics, Mahasarakham University, Maha Sarakham, Thailand. His research interests include machine learning, cloud-edge systems security, post-quantum database optimization, and enterprise data engineering.
@@ -751,6 +755,8 @@ r"""\documentclass[10pt,journal,compsoc]{IEEEtran}
 \usepackage[hidelinks]{hyperref}
 \Urlmuskip=0mu plus 2mu\relax
 \emergencystretch=2.0em
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
 
 \begin{document}
 \title{Electronic Supplementary Material for ``Empirical Systems Characterization of Post-Quantum Session Pooling, Single-Ciphertext CKKS Retrieval, and Transport Fallback Across Cloud-Edge Vector-SQL Streams''}
@@ -941,7 +947,7 @@ rm -rf /tmp/capq_v6_build_{stem} && mkdir -p /tmp/capq_v6_build_{stem}
 cp -a "{wsl_ms}/." /tmp/capq_v6_build_{stem}/
 cd /tmp/capq_v6_build_{stem}
 pdflatex -interaction=nonstopmode -halt-on-error {stem}.tex > build.log 2>&1 || (tail -n 50 build.log && exit 1)
-if grep -q "\\\\bibdata" {stem}.aux 2>/dev/null; then
+if [ "{stem}" = "main" ]; then
   bibtex {stem} >> build.log 2>&1 || (cat {stem}.blg && exit 1)
 fi
 pdflatex -interaction=nonstopmode -halt-on-error {stem}.tex >> build.log 2>&1 || (tail -n 50 build.log && exit 1)
