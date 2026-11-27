@@ -1,0 +1,13 @@
+arch_host,hw_aes_pmull,payload_bytes,aes_hot_us,chacha_hot_us,aes_hot_mbps,chacha_hot_mbps,aes_cold_ctx_us,chacha_cold_ctx_us,aes_asymp_gbps,chacha_asymp_gbps
+x86_64_MeteorLake,True/True,64,0.0905,0.2386,706.9,268.2,0.3803,0.4834,7.348,2.584
+x86_64_MeteorLake,True/True,256,0.12,0.3418,2134.0,749.0,0.4012,0.5938,7.348,2.584
+x86_64_MeteorLake,True/True,1024,0.2207,0.7841,4640.6,1305.9,0.5012,0.7992,7.348,2.584
+x86_64_MeteorLake,True/True,4096,0.6477,1.733,6323.7,2363.5,0.9032,1.8813,7.348,2.584
+x86_64_MeteorLake,True/True,16384,2.2064,6.0979,7425.6,2686.8,2.535,6.2952,7.348,2.584
+x86_64_MeteorLake,True/True,65536,9.0073,25.6305,7275.9,2557.0,10.8186,24.2339,7.348,2.584
+ARM64_NeoverseN1,True/True,64,0.3127,0.5906,204.7,108.4,1.0052,1.2428,2.377,0.866
+ARM64_NeoverseN1,True/True,256,0.403,0.884,635.2,289.6,1.0997,1.5676,2.377,0.866
+ARM64_NeoverseN1,True/True,1024,0.7337,1.6711,1395.7,612.8,1.412,2.3567,2.377,0.866
+ARM64_NeoverseN1,True/True,4096,2.0147,5.2072,2033.0,786.6,2.7048,5.9269,2.377,0.866
+ARM64_NeoverseN1,True/True,16384,7.1456,19.3941,2292.9,844.8,7.9348,20.0863,2.377,0.866
+ARM64_NeoverseN1,True/True,65536,27.868,76.1576,2351.7,860.5,28.6448,77.0682,2.377,0.866

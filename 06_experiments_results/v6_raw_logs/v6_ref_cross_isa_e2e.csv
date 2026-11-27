@@ -1,0 +1,9 @@
+config_id,edge_isa,cloud_isa,orchestration_policy,bandit_selected_aead,mean_e2e_lat_ms,p95_e2e_lat_ms,mean_recall_acc,sla_150ms_compliance_pct,cloud_cpu_util_pct,baremetal_edge_energy_mj,cloud_cost_usd_1m,cost_usd_per_1m_sla_compliant
+C1_x86_Edge_to_x86_Cloud,x86_64 (Ultra 9 185H),x86_64 (GCP n4/e2),CAPQ_Pareto_Adaptive,AES-256-GCM (HW Crypto Ext),49.0,85.31,0.988,93.75,24.9,21.56,0.5113,0.5454
+C1_x86_Edge_to_x86_Cloud,x86_64 (Ultra 9 185H),x86_64 (GCP n4/e2),Static_Fresh_PQC_Baseline,Static Suite,129.66,181.48,0.988,68.75,24.9,57.05,0.7589,1.1039
+C2_x86_Edge_to_ARM64_Cloud,x86_64 (Ultra 9 185H),ARM64 (GCP t2a Altra),CAPQ_Pareto_Adaptive,AES-256-GCM (HW Crypto Ext),55.25,108.75,0.988,93.75,39.6,24.31,0.6362,0.6786
+C2_x86_Edge_to_ARM64_Cloud,x86_64 (Ultra 9 185H),ARM64 (GCP t2a Altra),Static_Fresh_PQC_Baseline,Static Suite,135.92,204.92,0.988,68.75,39.6,59.8,0.8838,1.2856
+C3_ARM64_Edge_to_ARM64_Cloud,ARM64 (Neoverse-N1),ARM64 (GCP t2a Altra),CAPQ_Pareto_Adaptive,AES-256-GCM (HW Crypto Ext),55.25,108.75,0.988,93.75,39.6,N/A_VM_NO_HOST_RAPL,0.6362,0.6786
+C3_ARM64_Edge_to_ARM64_Cloud,ARM64 (Neoverse-N1),ARM64 (GCP t2a Altra),Static_Fresh_PQC_Baseline,Static Suite,135.96,204.96,0.988,68.75,39.6,N/A_VM_NO_HOST_RAPL,0.8838,1.2856
+C4_ARM64_Edge_to_x86_Cloud,ARM64 (Neoverse-N1),x86_64 (GCP n4/e2),CAPQ_Pareto_Adaptive,AES-256-GCM (HW Crypto Ext),49.0,85.31,0.988,93.75,24.9,N/A_VM_NO_HOST_RAPL,0.5113,0.5454
+C4_ARM64_Edge_to_x86_Cloud,ARM64 (Neoverse-N1),x86_64 (GCP n4/e2),Static_Fresh_PQC_Baseline,Static Suite,129.7,181.52,0.988,68.75,24.9,N/A_VM_NO_HOST_RAPL,0.7589,1.1039

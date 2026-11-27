@@ -1,0 +1,34 @@
+\begin{table*}[t]
+\centering
+\caption{Coordinate-Confidential OpenFHE RNS-CKKS Evaluation ($N_q=500$ Real SIFT Queries): Equal-Probe vs.\ Equal-Candidate-Budget Controls, Plaintext-vs.-CKKS Recall Decomposition, 100k Corpus Scaling, and Downlink Bandwidth Crossover $B^\star$}
+\label{tab:ckks_full}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}rrlrrrrrrrrc@{}}
+\toprule
+\textbf{$N_{\text{vec}}$} & \textbf{$K_c$} & \textbf{Indexing \& Return Mode (Ring $N$)} & \textbf{Uniq.\ Cands} & \textbf{Plain FP64 R@10} & \textbf{CKKS R@10 [95\% CI]} & \textbf{$\Delta R_{\text{CKKS}}$} & \textbf{Srv / Dec (ms)} & \textbf{Med.\ E2E (ms)} & \textbf{Req / Resp (KiB)} & \textbf{Max $|\Delta\text{IP}|$} & \textbf{Crossover $B^\star$} \\
+\midrule
+\multicolumn{12}{@{}l@{}}{\textit{Part A: Controlled Disjoint vs.\ SPANN Evaluation at $N_{\text{vec}}=5{,}000$ (Separating Equal-Probe $r=2$ from Equal-Budget $M=224$)}} \\
+5,000 & 96 & Disjoint Equal-Probe $r=2$, 1-CT ($8192$) & 113.3 & 0.5950 & 0.5968 [0.574, 0.619] & $-0.0018$ & 15.89 / 0.54 & 19.30 & 384.9 / 129.0 & 0.00095 & --- \\
+5,000 & 96 & Disjoint Equal-Budget $M=224$, 1-CT ($8192$) & 224.0 & 0.7834 & 0.7846 [0.767, 0.802] & $-0.0012$ & 26.64 / 0.57 & 29.84 & 384.9 / 129.0 & 0.00109 & --- \\
+5,000 & 96 & SPANN $r=2, M=224$, Multi-CT ($4096$) & 202.3 & 0.7826 & 0.7856 [0.767, 0.804] & $-0.0030$ & 11.23 / 3.28 & 15.55 & 128.8 / 909.3 & 0.00018 & --- \\
+5,000 & 96 & SPANN $r=2, M=224$, True 1-CT ($8192$) & 202.3 & 0.7826 & 0.7852 [0.767, 0.803] & $-0.0026$ & 27.33 / 0.59 & 30.66 & 384.9 / 129.0 & 0.00106 & 423.1~Mbps \\
+5,000 & 192 & Disjoint Equal-Probe $r=2$, 1-CT ($8192$) & 64.7 & 0.5304 & 0.5332 [0.511, 0.555] & $-0.0028$ & 12.36 / 0.52 & 15.44 & 384.9 / 129.0 & 0.00093 & --- \\
+5,000 & 192 & Disjoint Equal-Budget $M=224$, 1-CT ($8192$) & 224.0 & 0.8478 & 0.8498 [0.835, 0.864] & $-0.0020$ & 27.20 / 0.58 & 30.55 & 384.9 / 129.0 & 0.00110 & --- \\
+5,000 & 192 & SPANN $r=2, M=224$, Multi-CT ($4096$) & 155.5 & 0.7586 & 0.7618 [0.743, 0.781] & $-0.0032$ & 11.31 / 3.31 & 15.70 & 128.8 / 909.3 & 0.00020 & --- \\
+5,000 & 192 & SPANN $r=2, M=224$, True 1-CT ($8192$) & 155.5 & 0.7586 & 0.7612 [0.742, 0.780] & $-0.0026$ & 27.27 / 0.58 & 30.60 & 384.9 / 129.0 & 0.00110 & 429.0~Mbps \\
+\midrule
+\multicolumn{12}{@{}l@{}}{\textit{Part B: Enclave Corpus Scaling ($5{,}000 \to 25{,}000 \to 100{,}000$ Vectors; Median Rank-10/11 Score Gap $\Delta s_{10,11} = 3.8\text{--}5.9\times 10^{-3}$)}} \\
+5,000 & 96 & SPANN $r=2, M=224$, Multi-CT ($4096$) & $M=224$ & 0.7862 & 0.7890 [0.771, 0.807] & $-0.0028$ & 11.49 / 3.40 & 15.99 & 128.8 / 909.3 & 0.00019 & --- \\
+5,000 & 96 & SPANN $r=2, M=224$, True 1-CT ($8192$) & $M=224$ & 0.7862 & 0.7882 [0.770, 0.806] & $-0.0020$ & 27.58 / 0.58 & 30.99 & 384.9 / 129.0 & 0.00108 & 426.2~Mbps \\
+5,000 & 96 & SPANN $r=4, M=512$, True 1-CT ($8192$) & $M=512$ & 0.9218 & 0.9216 [0.911, 0.932] & $+0.0002$ & 60.30 / 0.60 & 63.79 & 384.9 / 129.0 & 0.00164 & --- \\
+25,000 & 384 & SPANN $r=2, M=224$, Multi-CT ($4096$) & $M=224$ & 0.6370 & 0.6368 [0.616, 0.658] & $+0.0002$ & 11.56 / 3.29 & 15.98 & 128.8 / 909.3 & 0.00021 & --- \\
+25,000 & 384 & SPANN $r=2, M=224$, True 1-CT ($8192$) & $M=224$ & 0.6370 & 0.6364 [0.616, 0.657] & $+0.0006$ & 26.66 / 0.57 & 30.09 & 384.9 / 129.0 & 0.00113 & 453.0~Mbps \\
+25,000 & 384 & SPANN $r=4, M=512$, True 1-CT ($8192$) & $M=512$ & 0.8168 & 0.8192 [0.804, 0.834] & $-0.0024$ & 60.03 / 0.60 & 63.54 & 384.9 / 129.0 & 0.00136 & --- \\
+100,000 & 1280 & SPANN $r=2, M=224$, Multi-CT ($4096$) & $M=224$ & 0.5452 & 0.5504 [0.528, 0.573] & $-0.0052$ & 11.58 / 3.25 & 16.08 & 128.8 / 909.3 & 0.00019 & --- \\
+100,000 & 1280 & SPANN $r=2, M=224$, True 1-CT ($8192$) & $M=224$ & 0.5452 & 0.5502 [0.527, 0.573] & $-0.0050$ & 26.45 / 0.57 & 29.85 & 384.9 / 129.0 & 0.00111 & 464.2~Mbps \\
+100,000 & 1280 & SPANN $r=4, M=512$, True 1-CT ($8192$) & $M=512$ & 0.7318 & 0.7322 [0.713, 0.751] & $-0.0004$ & 57.92 / 0.59 & 61.44 & 384.9 / 129.0 & 0.00135 & --- \\
+\bottomrule
+\multicolumn{12}{@{}p{0.99\textwidth}@{}}{\scriptsize Paired effect sizes ($N_q=500$): at equal candidate budget $M=224$, SPANN minus Disjoint yields $\Delta\text{Recall@10} = -0.0008$ (95\% CI $[-0.0158, +0.0142]$, $d_z=-0.005$) at $K_c=96$ and $-0.0892$ ($[-0.1055, -0.0729]$, $d_z=-0.479$) at $K_c=192$. Wire sizes are exact binary KiB ($1\text{ KiB}=1{,}024\text{ B}$; $909.33\text{ KiB}=931{,}154\text{ B}$ vs.\ $129.01\text{ KiB}=132{,}106\text{ B}$).} \\
+\end{tabular}%
+}
+\end{table*}

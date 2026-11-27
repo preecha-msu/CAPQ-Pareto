@@ -1,0 +1,20 @@
+\begin{table*}[t]
+\centering
+\caption{Proposition~1 Verification on 10,000 Real Vector Pairs (Distinguishing Sharp Conditional Bound $\Delta_q^2/4$ vs.\ Marginal $\Delta_q^2/6$) and Public Tier PG18.6 HNSW Benchmarks}
+\label{tab:prop1_hnsw}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llrrrrrrrrr@{}}
+\toprule
+\textbf{Corpus ($D$)} & \textbf{Rounding Mode} & \textbf{Mean $\Delta_q$} & \textbf{Sharp Cond.\ $\sigma \le \Delta_q/2$} & \textbf{Marg.\ $\sigma_{\text{theo}}$} & \textbf{Emp.\ $\sigma_{\text{emp}}$} & \textbf{\% Pairs $>\Delta_q^2/6$ ($\le \Delta_q^2/4$)} & \textbf{Emp.\ $Q_{95}(|\mathcal{E}|)$} & \textbf{$1.96\sigma_{\text{marg}}$} & \textbf{H\"older $\ell_1$} & \textbf{95\% Tighter} \\
+\midrule
+SIFT1M (128) & Determ.\ Nearest & 0.000961 & N/A (det.) & 0.000277 & 0.000306 & N/A & 0.000594 & 0.000599 & 0.003228 & \textbf{5.39$\times$} \\
+SIFT1M (128) & Unbiased Stoch. & 0.000961 & 0.000480 & 0.000392 & 0.000324 & 3.26\% (100\%) & 0.000642 & 0.000635 & 0.003228 & \textbf{5.08$\times$} \\
+BGE-M3 (1024) & Determ.\ Nearest & 0.001507 & N/A (det.) & 0.000435 & 0.000417 & N/A & 0.000810 & 0.000817 & 0.018593 & \textbf{22.76$\times$} \\
+BGE-M3 (1024) & Unbiased Stoch. & 0.001507 & 0.000753 & 0.000615 & 0.000592 & 0.05\% (100\%) & 0.001165 & 0.001161 & 0.018593 & \textbf{16.01$\times$} \\
+\midrule
+\multicolumn{11}{@{}l@{}}{\textbf{Public Tier PostgreSQL 18.6 (\texttt{pgvector 0.8.1}) Production-Scale Indexing \& Mixed Read/Write Concurrency Summary:}} \\
+\multicolumn{11}{@{}p{0.99\textwidth}@{}}{\scriptsize (i)~\textbf{1M-Scale HNSW (\texttt{ef\_search=128}, \nolinkurl{v6_ref_million_hnsw_ef_sweep.csv}):} SIFT1M ($1{,}000{,}000$ vectors, $128$d) achieves Recall@10 $= 0.9915$ at p50 $= 5.12$~ms, p95 $= 7.02$~ms; BGE-M3 ($100{,}000$ vectors, $1024$d) achieves Recall@10 $= 0.9785$ at p50 $= 3.27$~ms, p95 $= 5.43$~ms. (ii)~\textbf{Read Concurrency ($2{,}000$ SQL ops/level):} Scales to $3973.5$~ops/s at $c=32$ (p50 $= 4.53$~ms, p95 $= 7.90$~ms). (iii)~\textbf{Mixed Relational+Vector R/W ($c=32$, TPC-C/YCSB writes + 1M ANN, \nolinkurl{v6_ref_mixed_rw_concurrency.csv}):} Sustains $1831.2$~ops/s (overall p95 $= 26.28$~ms, 1M-ANN p95 $= 28.31$~ms, SQL write p95 $= 15.61$~ms).} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

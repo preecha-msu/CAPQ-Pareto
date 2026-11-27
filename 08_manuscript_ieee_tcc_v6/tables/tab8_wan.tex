@@ -1,0 +1,53 @@
+\begin{table*}[t]
+\centering
+\caption{Reconciled Multi-Region WAN Evaluation Under Per-Class SLA Accounting and the Unified Cloud CPU+Egress Cost Model}
+\label{tab:wan_reconciled}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llrrrrrrrrrr@{}}
+\toprule
+\textbf{Track / Region (1-RTT, BW)} & \textbf{Execution Mode} & \textbf{Mean (ms)} & \textbf{P50 (ms)} & \textbf{P95 (ms)} & \textbf{Conf.\ R@10} & \textbf{Pub.\ SLA$_{150}$} & \textbf{Conf.\ Lat$_{250}$} & \textbf{Conf.\ SLA$_{0.92}$} & \textbf{Stream SLA$_{0.92}$} & \textbf{Client Edge E} & \textbf{Unified Cost / 1M} \\
+\midrule
+\multicolumn{12}{@{}l@{}}{\textit{Track 1: Historical Live Wireless/Cellular-to-GCP Campaign (\nolinkurl{v2_wan_3regions_interleaved_raw.csv}, SHA \texttt{7457faee...}; 1,440 Queries: 25\% SQL, 25\% JSON, 25\% Vec-1024d, 25\% Dense $N=5\text{k},K_c=64$ CKKS)}} \\
+Bangkok (9.8~ms, Live) & M1: Fresh Hybrid PQC TLS ($r=2$ MCT) & 126.89 & 86.86 & 296.03 & 0.9625 & 80.6\% & 66.7\% & 50.0\% & 72.9\% & 513.6~mJ & \$27.26 (\$1.11$^\dagger$) \\
+Bangkok (9.8~ms, Live) & M2: Pooled Classical TLS (Plaintext, No FHE) & 23.81 & 14.77 & 72.12 & 0.0000 & 91.7\% & 0.0\% & 0.0\% & 68.8\% & 65.8~mJ & \$0.17 (\$0.09$^\dagger$) \\
+Bangkok (9.8~ms, Live) & M3: Pooled Hybrid PQC TLS ($r=1$ MCT) & 26.92 & 15.97 & 74.27 & 0.4875 & 91.7\% & 100.0\% & 8.3\% & 70.8\% & 107.7~mJ & \$26.29 (\$0.25$^\dagger$) \\
+Bangkok (9.8~ms, Live) & M4: Pooled Hybrid PQC + INT8 ($r=1$ 1-CT) & 25.86 & 14.49 & 71.88 & 0.4875 & 88.9\% & 100.0\% & 8.3\% & 68.8\% & 100.7~mJ & \$3.96 (\$0.25$^\dagger$) \\
+Bangkok (9.8~ms, Live) & M5: Adaptive Pooled Hybrid ($r=2$ 1-CT) & 48.35 & 15.81 & 169.96 & 0.9500 & 90.3\% & 95.8\% & 66.7\% & 84.4\% & 388.4~mJ & \$4.79 (\$0.97$^\dagger$) \\
+Singapore (56.0~ms, Live) & M1: Fresh Hybrid PQC TLS ($r=2$ MCT) & 266.33 & 219.88 & 414.34 & 0.9625 & 2.8\% & 4.2\% & 4.2\% & 3.1\% & 1339.1~mJ & \$27.22 (\$1.07$^\dagger$) \\
+Singapore (56.0~ms, Live) & M2: Pooled Classical TLS (Plaintext, No FHE) & 49.37 & 40.70 & 93.65 & 0.0000 & 94.4\% & 0.0\% & 0.0\% & 70.8\% & 145.5~mJ & \$0.17 (\$0.09$^\dagger$) \\
+Singapore (56.0~ms, Live) & M3: Pooled Hybrid PQC TLS ($r=1$ MCT) & 60.23 & 51.83 & 121.27 & 0.4875 & 94.4\% & 100.0\% & 8.3\% & 72.9\% & 242.7~mJ & \$26.28 (\$0.24$^\dagger$) \\
+Singapore (56.0~ms, Live) & M4: Pooled Hybrid PQC + INT8 ($r=1$ 1-CT) & 62.43 & 48.39 & 125.28 & 0.4875 & 88.9\% & 100.0\% & 8.3\% & 68.8\% & 272.4~mJ & \$3.96 (\$0.24$^\dagger$) \\
+Singapore (56.0~ms, Live) & M5: Adaptive Pooled Hybrid ($r=2$ 1-CT) & 77.63 & 47.10 & 202.58 & 0.9500 & 91.7\% & 95.8\% & 66.7\% & 85.4\% & 580.7~mJ & \$4.75 (\$0.94$^\dagger$) \\
+US-Central (225.5~ms, Live) & M1: Fresh Hybrid PQC TLS ($r=2$ MCT) & 971.24 & 937.00 & 1100.91 & 0.9625 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & 84.7~mJ & \$19.47 (\$1.01$^\dagger$) \\
+US-Central (225.5~ms, Live) & M2: Pooled Classical TLS (Plaintext, No FHE) & 229.15 & 228.42 & 237.43 & 0.0000 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & 19.1~mJ & \$0.13 (\$0.08$^\dagger$) \\
+US-Central (225.5~ms, Live) & M3: Pooled Hybrid PQC TLS ($r=1$ MCT) & 239.15 & 230.48 & 266.56 & 0.4875 & 0.0\% & 12.5\% & 0.0\% & 0.0\% & 32.0~mJ & \$18.65 (\$0.22$^\dagger$) \\
+US-Central (225.5~ms, Live) & M4: Pooled Hybrid PQC + INT8 ($r=1$ 1-CT) & 240.65 & 229.60 & 262.16 & 0.4875 & 0.0\% & 20.8\% & 0.0\% & 0.0\% & 14.6~mJ & \$2.84 (\$0.22$^\dagger$) \\
+US-Central (225.5~ms, Live) & M5: Adaptive Pooled Hybrid ($r=2$ 1-CT) & 264.42 & 229.47 & 387.92 & 0.9500 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & 46.4~mJ & \$3.53 (\$0.89$^\dagger$) \\
+\midrule
+\multicolumn{12}{@{}l@{}}{\textit{Track 2: Calibrated Kernel \texttt{netns + tc netem} Campaign (\nolinkurl{v5_controlled_3regions_m1_m8_interleaved_2304raw.csv}, SHA \texttt{dfc04539...}; 2,304 Queries: 25\% SQL, 50\% Vec-128d, 25\% $N=5\text{k},K_c=96,M=224$ CKKS)}} \\
+Bangkok (9.8~ms, 300M) & M1: Fresh PQC TCP + SPANN Multi-CT & 69.83 & 42.18 & 146.25 & 0.7856 & 98.6\% & 100.0\% & 0.0\% & 74.0\% & See Table~\ref{tab:rapl} & \$32.01 \\
+Bangkok (9.8~ms, 300M) & M3: Pooled Classical Plaintext (No FHE) & 11.18 & 11.14 & 12.11 & 0.0000 & 100.0\% & 0.0\% & 0.0\% & 75.0\% & See Table~\ref{tab:rapl} & \$0.24 \\
+Bangkok (9.8~ms, 300M) & M4: Pooled PQC TCP + Disjoint $r=1$ 1-CT & 22.21 & 11.44 & 57.07 & 0.4120 & 100.0\% & 100.0\% & 0.0\% & 75.0\% & See Table~\ref{tab:rapl} & \$14.99 \\
+Bangkok (9.8~ms, 300M) & M6: Pooled PQC TCP + Disjoint $r=2$ 1-CT & 25.13 & 11.23 & 63.57 & 0.5968 & 98.6\% & 100.0\% & 0.0\% & 74.0\% & See Table~\ref{tab:rapl} & \$15.11 \\
+Bangkok (9.8~ms, 300M) & M7: Pooled PQC TCP + SPANN Multi-CT & 38.33 & 11.34 & 136.66 & 0.7856 & 100.0\% & 100.0\% & 0.0\% & 75.0\% & See Table~\ref{tab:rapl} & \$30.03 \\
+Bangkok (9.8~ms, 300M) & M8: Static Paced UDP + INT8 + SPANN 1-CT & 26.37 & 12.84 & 81.54 & 0.7852 & 100.0\% & 100.0\% & 0.0\% & 75.0\% & See Table~\ref{tab:rapl} & \$15.25 \\
+Bangkok (9.8~ms, 300M) & M5: Online 5D Bandit + SPANN 1-CT & 28.57 & 11.80 & 77.50 & 0.7852 & 98.6\% & 100.0\% & 0.0\% & 74.0\% & See Table~\ref{tab:rapl} & \$15.29 \\
+Singapore (56.0~ms, 250M) & M1: Fresh PQC TCP + SPANN Multi-CT & 400.90 & 229.64 & 905.75 & 0.7856 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & See Table~\ref{tab:rapl} & \$32.01 \\
+Singapore (56.0~ms, 250M) & M3: Pooled Classical Plaintext (No FHE) & 58.11 & 58.07 & 60.32 & 0.0000 & 100.0\% & 0.0\% & 0.0\% & 75.0\% & See Table~\ref{tab:rapl} & \$0.24 \\
+Singapore (56.0~ms, 250M) & M4: Pooled PQC TCP + Disjoint $r=1$ 1-CT & 224.26 & 58.15 & 808.11 & 0.4120 & 100.0\% & 0.0\% & 0.0\% & 75.0\% & See Table~\ref{tab:rapl} & \$14.99 \\
+Singapore (56.0~ms, 250M) & M6: Pooled PQC TCP + Disjoint $r=2$ 1-CT & 200.15 & 58.39 & 840.92 & 0.5968 & 98.6\% & 12.5\% & 0.0\% & 74.0\% & See Table~\ref{tab:rapl} & \$15.10 \\
+Singapore (56.0~ms, 250M) & M7: Pooled PQC TCP + SPANN Multi-CT & 359.61 & 58.39 & 1736.36 & 0.7856 & 100.0\% & 8.3\% & 0.0\% & 75.0\% & See Table~\ref{tab:rapl} & \$30.03 \\
+Singapore (56.0~ms, 250M) & M8: Static Paced UDP + INT8 + SPANN 1-CT & 92.04 & 59.54 & 212.77 & 0.7852 & 100.0\% & 79.2\% & 0.0\% & 75.0\% & See Table~\ref{tab:rapl} & \$15.24 \\
+Singapore (56.0~ms, 250M) & M5: Online 5D Bandit + SPANN 1-CT & 94.67 & 57.90 & 211.88 & 0.7852 & 100.0\% & 79.2\% & 0.0\% & 75.0\% & See Table~\ref{tab:rapl} & \$15.28 \\
+US-Central (225.5~ms, 200M) & M1: Fresh PQC TCP + SPANN Multi-CT & 1472.44 & 914.19 & 3046.06 & 0.7856 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & See Table~\ref{tab:rapl} & \$22.70 \\
+US-Central (225.5~ms, 200M) & M3: Pooled Classical Plaintext (No FHE) & 233.34 & 228.90 & 233.38 & 0.0000 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & See Table~\ref{tab:rapl} & \$0.18 \\
+US-Central (225.5~ms, 200M) & M4: Pooled PQC TCP + Disjoint $r=1$ 1-CT & 856.40 & 230.17 & 3436.08 & 0.4120 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & See Table~\ref{tab:rapl} & \$10.64 \\
+US-Central (225.5~ms, 200M) & M6: Pooled PQC TCP + Disjoint $r=2$ 1-CT & 692.65 & 228.57 & 2752.09 & 0.5968 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & See Table~\ref{tab:rapl} & \$10.74 \\
+US-Central (225.5~ms, 200M) & M7: Pooled PQC TCP + SPANN Multi-CT & 1064.58 & 228.55 & 4645.99 & 0.7856 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & See Table~\ref{tab:rapl} & \$21.30 \\
+US-Central (225.5~ms, 200M) & M8: Static Paced UDP + INT8 + SPANN 1-CT & 311.28 & 229.68 & 616.82 & 0.7852 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & See Table~\ref{tab:rapl} & \$10.86 \\
+US-Central (225.5~ms, 200M) & M5: Online 5D Bandit + SPANN 1-CT & 520.46 & 230.07 & 2091.44 & 0.7852 & 0.0\% & 0.0\% & 0.0\% & 0.0\% & See Table~\ref{tab:rapl} & \$10.88 \\
+\bottomrule
+\multicolumn{12}{@{}p{0.99\textwidth}@{}}{\scriptsize $^\dagger$Parenthesized Track~1 cost reflects V2's CPU-dominant compact-payload billing prior to standardizing full OpenFHE RNS ciphertext egress ($909.33$~KiB Multi-CT vs.\ $129.01$~KiB 1-CT) across both tracks. Track~2 omits synthetic mode-constant energy numbers; hardware-measured RAPL package energy is reported directly in Table~\ref{tab:rapl}.} \\
+\end{tabular}%
+}
+\end{table*}

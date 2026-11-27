@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{$2^5$ Factorial Main Effects: HC3 Logit GLM and Monte Carlo Within-Block Randomization ($B=10{,}000$, $\hat{p}_{\text{MC}}=(1+k)/(B+1)$)}
+\label{tab:factorial}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+\textbf{Main Factor ($R=8$ Blocks)} & \textbf{$\Delta$SLA (pp) [95\% CI]} & \textbf{Logit $p_{\text{H5}}$} & \textbf{$\hat{p}_{\text{MC,SLA}}$} & \textbf{$\hat{p}_{\text{MC,H5}}$} & \textbf{$\Delta$Lat (ms)} \\
+\midrule
+A: PQC Session Pooling & $+52.15$ [26.2, 78.1] & 0.0000 & 0.0001 & 0.0005 & $-188.8$ \\
+B: Boundary Replication & $+4.49$ [0.3, 8.7] & 0.0696 & 0.2851 & 0.5701 & $+3.5$ \\
+C: SIMD RNS Pre-Enc. & $+3.32$ [0.7, 6.0] & 0.1025 & 0.4363 & 0.5701 & $-21.5$ \\
+D: Lagged D-Bandit & $+8.40$ [5.9, 10.9] & 0.0010 & 0.0385 & 0.1540 & $-9.7$ \\
+E: Feasibility Gate & $+8.01$ [2.8, 13.2] & 0.0010 & 0.0518 & 0.1554 & $+7.6$ \\
+\bottomrule
+\multicolumn{6}{@{}p{0.98\columnwidth}@{}}{\scriptsize Within-block randomization permutes assignments across the 32 treatment cells inside each of the $R=8$ independent environmental blocks; only Factor~A survives Holm-5 ($\hat{p}_{\text{MC,H5}}=0.0005$).} \\
+\end{tabular}%
+}
+\end{table}

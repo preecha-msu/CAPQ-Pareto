@@ -1,0 +1,19 @@
+\begin{table*}[t]
+\centering
+\caption{Positioning of CAPQ-Pareto Relative to Representative Post-Quantum Transport, Encrypted ANN, and Bandit Systems}
+\label{tab:related}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllllll@{}}
+\toprule
+\textbf{System / Study} & \textbf{Transport Security} & \textbf{Middlebox UDP Fallback} & \textbf{Public SQL+Vector} & \textbf{Confidential ANN Tier} & \textbf{Leakage \& Noise Audit} & \textbf{Online Control Scope} \\
+\midrule
+Paquin~\cite{paquin2020pqctls}, Sikeridis~\cite{sikeridis2020pqctls}, Sosnowski~\cite{sosnowski2023pqctls} & Hybrid PQ-TLS 1.3 + RFC~8879 & Static TCP only & None & None & Handshake wire size only & Static configuration \\
+RFC~9000/9002/9308~\cite{rfc9000,rfc9002,rfc9308} & Classical TLS~1.3 QUIC & Timeout TCP fallback rule & Generic payload & None & Transport header exposure & Rule-based Happy Eyeballs \\
+SANNS~\cite{chen2020sanns} & Classical channel & None & Vector-only & HE + garbled circuits & Oblivious shuffle cost & Offline static schedule \\
+Tiptoe~\cite{henzinger2023tiptoe} & Classical channel & None & Web/vector search & Cluster-routed linear HE/PIR & Coarse cluster IDs exposed & Static cluster protocol \\
+Russac D-LinUCB~\cite{russac2019dlinucb}, SW-UCB~\cite{garivier2011swucb} & N/A (bandit theory) & N/A & N/A & N/A & N/A & Non-stationary linear reward \\
+\textbf{CAPQ-Pareto (Empirical Study)} & \textbf{Pooled X25519+ML-KEM-768, ML-DSA-65} & \textbf{Evaluated vs.\ RFC~9308 Rule} & \textbf{PG18.6 SQL + 1M HNSW + INT8} & \textbf{OpenFHE $N=8192$ 1-CT Slot-Agg.} & \textbf{Plain-vs-CKKS + A1--A3 + $\text{IND-CPA}^D$} & \textbf{5D Lagged Gate (C3 UDP policing)} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}

@@ -1,0 +1,5 @@
+corpus,dim,n_pairs,rounding_mode,probability_space,mean_delta_q,sharp_cond_var_bound,sharp_cond_sigma_dq_div_2,marginal_expected_sigma,emp_sigma,pct_pairs_cond_le_dq2_div_4,pct_pairs_cond_gt_dq2_div_6,max_observed_cond_var_over_dq2,emp_abs_q95,clt95_halfwidth_196sigma,worst_case_holder_bound,same_quantile_95_tighter_vs_holder,emp_q95_tighter_vs_holder
+SIFT1M_128d,128,10000,Deterministic_Nearest,"Corpus_Pair_Distribution_P(q,x)",0.0009606,N/A (deterministic),N/A,0.000277,0.000306,N/A,N/A,N/A,0.000594,0.000599,0.003228,5.39,5.43
+SIFT1M_128d,128,10000,Stochastic_Unbiased,"Conditional_Rounding_Noise_P(xi|q,x)",0.0009606,Delta_q^2/4,0.00048,0.000392,0.000324,100.0,3.26,0.20357,0.000642,0.000635,0.003228,5.08,5.03
+BGEM3_1024d,1024,10000,Deterministic_Nearest,"Corpus_Pair_Distribution_P(q,x)",0.0015065,N/A (deterministic),N/A,0.000435,0.000417,N/A,N/A,N/A,0.00081,0.000817,0.018593,22.76,22.96
+BGEM3_1024d,1024,10000,Stochastic_Unbiased,"Conditional_Rounding_Noise_P(xi|q,x)",0.0015065,Delta_q^2/4,0.000753,0.000615,0.000592,100.0,0.05,0.16843,0.001165,0.001161,0.018593,16.01,15.97

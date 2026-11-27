@@ -1,0 +1,5 @@
+centroids_Kc,comparison,n_queries,mean_recall_diff,ci95_lo,ci95_hi,paired_cohens_dz
+96,SPANN_vs_Disjoint_EqualProbe_r2,500,0.1876,0.1735,0.2017,1.165
+96,SPANN_vs_Disjoint_EqualBudget_M224,500,-0.0008,-0.0158,0.0142,-0.005
+192,SPANN_vs_Disjoint_EqualProbe_r2,500,0.2282,0.2138,0.2426,1.393
+192,SPANN_vs_Disjoint_EqualBudget_M224,500,-0.0892,-0.1055,-0.0729,-0.479

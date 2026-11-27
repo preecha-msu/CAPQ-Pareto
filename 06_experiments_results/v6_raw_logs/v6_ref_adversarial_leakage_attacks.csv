@@ -1,0 +1,5 @@
+attack_id,observable_trace,mitigation_state,mutual_info_bits,adversary_success_pct,random_guess_baseline_pct,timing_size_corr_r,compute_padding_overhead_pct,security_verdict
+A1_Bucket_Cardinality_Unpadded,Plaintext/Ciphertext slot count |B_k|,Disabled (Variable Bucket Size),4.0351,78.15,1.56,0.8028,0.0,LEAKS_BUCKET_CARDINALITY
+A1_Bucket_Cardinality_ConstantPadded,Fixed padded slot count B_max=160,Enabled (Proposition 2 Zero-Vector SIMD Padding),0.0,1.56,1.56,0.168,104.8,ZERO_CARDINALITY_LEAKAGE_PROVEN
+A2_Frequency_Correlation_Top5_Topics,"Coarse multi-probe IDs (b1, b2) over 5,000 Zipf(1.15) queries",Constant Padding Only (No ORAM/Dummy-Probe Obfuscation),4.4348,100.0,7.81,0.0,104.8,BOUNDED_LIMITATION_ACCESS_PATTERN_VISIBLE
+A3_Timing_SideChannel_Audit,Server bucket evaluation wall-clock latency (us),Constant B_max=160 Pre-Encoded RNS Evaluation,0.0,2.4,1.56,0.168,104.8,TIMING_CORR_SUPPRESSED_(p=0.00)

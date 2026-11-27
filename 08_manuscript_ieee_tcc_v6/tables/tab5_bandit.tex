@@ -1,0 +1,34 @@
+\begin{table*}[t]
+\centering
+\caption{Online Transport Control Across Three 10-Seed Campaigns ($T=320$ Queries/Seed): Adding the Standard RFC~9308 Timeout-Triggered TCP Fallback Rule and Uncapped Latency Percentiles}
+\label{tab:bandit}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llrrrrrrrrr@{}}
+\toprule
+\textbf{Campaign} & \textbf{Controller / Baseline Policy} & \textbf{Capped Regret [95\% CI]} & \textbf{Mean (ms)} & \textbf{P50 (ms)} & \textbf{P95 (ms)} & \textbf{P99 (ms)} & \textbf{Lat+Priv SLA} & \textbf{Strict $A_t\ge 0.92$ SLA} & \textbf{$p$ vs.\ CAPQ} & \textbf{$p$ vs.\ Rule} \\
+\midrule
+C1: Observable WAN & Static Pooled TCP + 1-CT & 57.07 [53.0, 61.1] & 537.44 & 43.6 & 4261.7 & 6696.0 & 84.03\% & 73.09\% & 0.0019 & 0.0019 \\
+C1: Observable WAN & M8: Static Paced UDP + INT8 + 1-CT (No Fallback) & 28.60 [26.6, 30.6] & 121.61 & 48.0 & 323.5 & 444.1 & 89.44\% & 72.34\% & 0.2754 & 0.0019 \\
+C1: Observable WAN & RFC~9308 Rule: UDP + Timeout TCP Fallback ($H=32$) & 35.55 [32.0, 39.0] & 150.16 & 48.0 & 365.2 & 3556.0 & 88.06\% & 72.31\% & 0.3223 & 1.0000 \\
+C1: Observable WAN & Stationary 5D LinUCB + Gate ($\gamma=1.00$) & 33.39 [28.0, 38.8] & 465.23 & 41.4 & 1582.9 & 10976.3 & 87.94\% & 72.53\% & 0.5566 & 0.4316 \\
+C1: Observable WAN & Sliding-Window 5D LinUCB + Gate ($W=32$) & 25.08 [19.6, 30.6] & 237.87 & 39.2 & 434.7 & 6433.2 & 88.22\% & 72.31\% & 0.0644 & 0.0098 \\
+C1: Observable WAN & CAPQ 5D D-LinUCB + Gate ($\gamma=0.88$) & 32.13 [24.5, 39.7] & 301.13 & 39.8 & 481.6 & 6671.7 & 87.09\% & 72.19\% & 1.0000 & 0.3223 \\
+\midrule
+C2: TCP Queue Shift & Static Pooled TCP + 1-CT & 36.08 [35.5, 36.7] & 61.57 & 43.4 & 142.8 & 178.1 & 99.91\% & 75.00\% & 0.0019 & 0.0019 \\
+C2: TCP Queue Shift & M8: Static Paced UDP + INT8 + 1-CT (No Fallback) & 6.75 [6.7, 6.8] & 27.00 & 22.3 & 54.3 & 54.6 & 100.00\% & 75.00\% & 0.0019 & 1.0000 \\
+C2: TCP Queue Shift & RFC~9308 Rule: UDP + Timeout TCP Fallback ($H=32$) & 6.75 [6.7, 6.8] & 27.00 & 22.3 & 54.3 & 54.6 & 100.00\% & 75.00\% & 0.0019 & 1.0000 \\
+C2: TCP Queue Shift & Stationary 5D LinUCB + Gate ($\gamma=1.00$) & 29.63 [27.4, 31.9] & 44.59 & 14.0 & 112.6 & 128.0 & 98.69\% & 73.69\% & 0.9219 & 0.0019 \\
+C2: TCP Queue Shift & Sliding-Window 5D LinUCB + Gate ($W=32$) & 29.49 [27.6, 31.4] & 41.90 & 13.6 & 112.7 & 128.4 & 98.12\% & 73.12\% & 1.0000 & 0.0019 \\
+C2: TCP Queue Shift & CAPQ 5D D-LinUCB + Gate ($\gamma=0.88$) & 30.09 [27.4, 32.8] & 45.41 & 13.8 & 112.8 & 143.1 & 98.62\% & 73.62\% & 1.0000 & 0.0019 \\
+\midrule
+C3: RFC~9308 Policing & Static Pooled TCP + 1-CT & 70.47 [67.1, 73.8] & 119.83 & 39.1 & 555.4 & 788.1 & 86.72\% & 74.25\% & 0.0039 & 0.0019 \\
+C3: RFC~9308 Policing & M8: Static Paced UDP + INT8 + 1-CT (No Fallback) & 224.47 [223.0, 226.0] & 999.21 & 129.6 & 3559.4 & 5985.1 & 57.81\% & 45.00\% & 0.0019 & 0.0019 \\
+C3: RFC~9308 Policing & RFC~9308 Rule: UDP + Timeout TCP Fallback ($H=32$) & 44.73 [40.5, 49.0] & 165.80 & 41.7 & 518.4 & 3556.0 & 92.41\% & 73.84\% & 0.0840 & 1.0000 \\
+C3: RFC~9308 Policing & Stationary 5D LinUCB + Gate ($\gamma=1.00$) & 30.09 [18.1, 42.1] & 141.60 & 39.1 & 279.5 & 3556.0 & 94.47\% & 73.97\% & 0.0137 & 0.0644 \\
+C3: RFC~9308 Policing & Sliding-Window 5D LinUCB + Gate ($W=32$) & 34.25 [18.8, 49.7] & 155.44 & 39.3 & 485.3 & 3556.0 & 93.03\% & 72.78\% & 0.1934 & 0.0840 \\
+C3: RFC~9308 Policing & CAPQ 5D D-LinUCB + Gate ($\gamma=0.88$) & 37.21 [22.8, 51.6] & 159.29 & 39.3 & 551.1 & 3556.0 & 92.69\% & 72.78\% & 1.0000 & 0.0840 \\
+\bottomrule
+\multicolumn{11}{@{}p{0.99\textwidth}@{}}{\scriptsize In C3, adding a stateless RFC~9308 timeout rule ($H=16,32,64$) recovers Lat+Priv SLA from $57.81\%$ to $91.91\%\text{--}92.72\%$ ($p=0.0840$ vs.\ CAPQ D-LinUCB), while Stationary LinUCB achieves the lowest regret ($30.09$, $94.47\%$ SLA) because 5D context directly observes policed RTT spikes ($2{,}024.7$~ms). Strict $A_t \ge 0.92$ SLA is capped near $75\%$ because confidential queries use $M=224$ ($\text{Recall@10}=0.7852 < 0.92$).} \\
+\end{tabular}%
+}
+\end{table*}

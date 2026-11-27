@@ -1,0 +1,4 @@
+sig_alg,nist_category,pk_bytes,sig_bytes,handshake_auth_chain_bytes,mtu_1500_frames_auth,keygen_us,sign_us,verify_us
+ML-DSA-44,NIST Cat-2 (128-bit),1312,2420,8572,6,17.94,45.81,17.9
+ML-DSA-65,NIST Cat-3 (192-bit),1952,3309,11879,9,29.96,84.61,29.56
+ML-DSA-87,NIST Cat-5 (256-bit),2592,4627,16473,12,55.7,83.59,42.85

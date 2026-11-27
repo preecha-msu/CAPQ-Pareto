@@ -1,71 +1,99 @@
-@techreport{fips203,
+@techreport{nist_fips203_2024,
   author      = {{National Institute of Standards and Technology}},
-  title       = {Module-Lattice-Based Key-Encapsulation Mechanism Standard ({ML-KEM})},
-  institution = {U.S. Department of Commerce, NIST},
+  title       = {Module-Lattice-Based Key-Encapsulation Mechanism Standard},
+  institution = {U.S. Department of Commerce},
   type        = {Federal Information Processing Standards Publication (FIPS)},
   number      = {203},
+  address     = {Gaithersburg, MD, USA},
+  month       = aug,
   year        = {2024},
   doi         = {10.6028/NIST.FIPS.203}
 }
 
-@techreport{fips204,
+@techreport{nist_fips204_2024,
   author      = {{National Institute of Standards and Technology}},
-  title       = {Module-Lattice-Based Digital Signature Standard ({ML-DSA})},
-  institution = {U.S. Department of Commerce, NIST},
+  title       = {Module-Lattice-Based Digital Signature Standard},
+  institution = {U.S. Department of Commerce},
   type        = {Federal Information Processing Standards Publication (FIPS)},
   number      = {204},
+  address     = {Gaithersburg, MD, USA},
+  month       = aug,
   year        = {2024},
   doi         = {10.6028/NIST.FIPS.204}
+}
+
+@inproceedings{cheon2017ckks,
+  author    = {Cheon, Jung Hee and Kim, Andrey and Kim, Miran and Song, Yongsoo},
+  title     = {Homomorphic Encryption for Arithmetic of Approximate Numbers},
+  booktitle = {Proc. Int. Conf. Theory Appl. Cryptology Inf. Security (ASIACRYPT)},
+  pages     = {409--437},
+  year      = {2017},
+  doi       = {10.1007/978-3-319-70694-8_15}
 }
 
 @inproceedings{albadawi2022openfhe,
   author    = {Al Badawi, Ahmad and Bates, Jack and Bergamaschi, Flavio and Cousins, David Bruce and Erabelli, Saroja and Genise, Nicholas and Halevi, Shai and Hunt, Hamish and Kim, Andrey and Lee, Yongwoo and Liu, Zeyu and Micciancio, Daniele and Quah, Ian and Polyakov, Yuriy and Saraswathy, Sikhar and Rohloff, Kurt and Saylor, Jonathan and Suponitsky, Dmitriy and Triplett, Matthew and Vaikuntanathan, Vinod and Zucca, Vincent},
   title     = {{OpenFHE}: Open-Source Fully Homomorphic Encryption Library},
-  booktitle = {Proceedings of the 10th Workshop on Encrypted Computing \& Applied Homomorphic Cryptography (WAHC)},
+  booktitle = {Proc. ACM Workshop Encrypted Comput. Appl. Homomorphic Cryptography (WAHC)},
   pages     = {53--63},
   year      = {2022},
-  publisher = {ACM},
-  doi       = {10.1145/3560827.3563379}
+  doi         = {10.1145/3560827.3563379}
+}
+
+@inproceedings{li2021indcpad,
+  author    = {Li, Baiyu and Micciancio, Daniele},
+  title     = {On the Security of Homomorphic Encryption on Approximate Numbers},
+  booktitle = {Proc. Annu. Int. Conf. Theory Appl. Cryptographic Techn. (EUROCRYPT)},
+  pages     = {648--677},
+  year      = {2021},
+  doi       = {10.1007/978-3-030-77870-5_23}
 }
 
 @inproceedings{paquin2020pqctls,
   author    = {Paquin, Christian and Stebila, Douglas and Tamvada, Goutam},
   title     = {Benchmarking Post-Quantum Cryptography in {TLS}},
-  booktitle = {Post-Quantum Cryptography (PQCrypto 2020)},
-  series    = {Lecture Notes in Computer Science},
-  volume    = {12100},
+  booktitle = {Proc. Int. Conf. Post-Quantum Cryptography (PQCrypto)},
   pages     = {72--91},
   year      = {2020},
-  publisher = {Springer},
-  doi       = {10.1007/978-3-030-44223-1_6}
+  doi       = {10.1007/978-3-030-44223-1_5}
 }
 
-@inproceedings{sikeridis2020pqtls,
-  author    = {Sikeridis, Panos and Kampanakis, Panos and Devetsikiotis, Michael},
-  title     = {Post-Quantum Authentication in {TLS} 1.3: A Performance Study},
-  booktitle = {Proceedings of the Network and Distributed System Security Symposium (NDSS)},
+@inproceedings{sikeridis2020pqctls,
+  author    = {Sikeridis, Dimitrios and Kampanakis, Panos and Devetsikiotis, Michael},
+  title     = {Post-Quantum Authentication in {TLS 1.3}: A Performance Study},
+  booktitle = {Proc. Netw. Traffic Meas. Anal. Conf. (TMA) / NDSS},
+  pages     = {1--15},
   year      = {2020},
   doi       = {10.14722/ndss.2020.24203}
 }
 
-@inproceedings{stebila2016liboqs,
-  author    = {Stebila, Douglas and Mosca, Michele},
-  title     = {Post-Quantum Key Exchange for the Internet and the {Open Quantum Safe} Project},
-  booktitle = {Selected Areas in Cryptography (SAC 2016)},
-  series    = {Lecture Notes in Computer Science},
-  volume    = {10532},
-  pages     = {14--37},
-  year      = {2017},
-  publisher = {Springer},
-  doi       = {10.1007/978-3-319-69453-5_2}
+@inproceedings{sosnowski2023pqctls,
+  author    = {Sosnowski, Markus and Wiedner, Florian and Hauser, Eric and Steger, Lion and Dimitriadis, Dimitrios and Carle, Georg},
+  title     = {The Performance of Post-Quantum {TLS 1.3}},
+  booktitle = {Proc. Netw. Traffic Meas. Anal. Conf. (TMA)},
+  pages     = {1--10},
+  year      = {2023},
+  doi       = {10.23919/TMA58422.2023.10199050}
+}
+
+@techreport{rfc8446,
+  author      = {Rescorla, Eric},
+  title       = {The Transport Layer Security ({TLS}) Protocol Version 1.3},
+  institution = {Internet Engineering Task Force (IETF)},
+  type        = {RFC},
+  number      = {8446},
+  month       = aug,
+  year        = {2018},
+  doi         = {10.17487/RFC8446}
 }
 
 @techreport{rfc8879,
   author      = {Ghedini, Alessandro and Vasiliev, Victor},
   title       = {{TLS} Certificate Compression},
-  institution = {RFC Editor},
+  institution = {Internet Engineering Task Force (IETF)},
   type        = {RFC},
   number      = {8879},
+  month       = dec,
   year        = {2020},
   doi         = {10.17487/RFC8879}
 }
@@ -73,9 +101,10 @@
 @techreport{rfc9000,
   author      = {Iyengar, Jana and Thomson, Martin},
   title       = {{QUIC}: A {UDP}-Based Multiplexed and Secure Transport},
-  institution = {RFC Editor},
+  institution = {Internet Engineering Task Force (IETF)},
   type        = {RFC},
   number      = {9000},
+  month       = may,
   year        = {2021},
   doi         = {10.17487/RFC9000}
 }
@@ -83,9 +112,10 @@
 @techreport{rfc9002,
   author      = {Iyengar, Jana and Swett, Ian},
   title       = {{QUIC} Loss Detection and Congestion Control},
-  institution = {RFC Editor},
+  institution = {Internet Engineering Task Force (IETF)},
   type        = {RFC},
   number      = {9002},
+  month       = may,
   year        = {2021},
   doi         = {10.17487/RFC9002}
 }
@@ -93,51 +123,40 @@
 @techreport{rfc9308,
   author      = {Kuehlewind, Mirja and Trammell, Brian},
   title       = {Applicability of the {QUIC} Transport Protocol},
-  institution = {RFC Editor},
+  institution = {Internet Engineering Task Force (IETF)},
   type        = {RFC},
   number      = {9308},
+  month       = oct,
   year        = {2022},
   doi         = {10.17487/RFC9308}
 }
 
-@inproceedings{cheon2017ckks,
-  author    = {Cheon, Jung Hee and Kim, Andrey and Kim, Miran and Song, Yongsoo},
-  title     = {Homomorphic Encryption for Arithmetic of Approximate Numbers},
-  booktitle = {Advances in Cryptology -- ASIACRYPT 2017},
-  series    = {Lecture Notes in Computer Science},
-  volume    = {10624},
-  pages     = {409--437},
+@inproceedings{langley2017quic,
+  author    = {Langley, Adam and Riddoch, Alistair and Wilk, Alyssa and Vicente, Antonio and Krasic, Charles and Zhang, Dan and Yang, Fan and Kouranov, Fedor and Swett, Ian and Iyengar, Janardhan and others},
+  title     = {The {QUIC} Transport Protocol: Design and {Internet}-Scale Deployment},
+  booktitle = {Proc. ACM SIGCOMM Conf.},
+  pages     = {183--196},
   year      = {2017},
-  publisher = {Springer},
-  doi       = {10.1007/978-3-319-70694-8_15}
+  doi       = {10.1145/3098822.3098842}
 }
 
-@inproceedings{chen2021spann,
-  author    = {Chen, Qi and Zhao, Bing and Wang, Haidong and Li, Mingqin and Liu, Chuanjie and Li, Zengzhong and Yang, Mao and Wang, Jingdong},
-  title     = {{SPANN}: Highly-Efficient Billion-Scale Approximate Nearest Neighbor Search},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {34},
-  pages     = {5199--5212},
-  year      = {2021}
+@inproceedings{stebila2017oqs,
+  author    = {Stebila, Douglas and Mosca, Michele},
+  title     = {Post-Quantum Key Exchange for the {Internet} and the {Open Quantum Safe} Project},
+  booktitle = {Proc. Int. Conf. Selected Areas Cryptography (SAC)},
+  pages     = {14--37},
+  year      = {2016},
+  doi       = {10.1007/978-3-319-69453-5_2}
 }
 
-@inproceedings{henzinger2023tiptoe,
-  author    = {Henzinger, Alexandra and Dauterman, Emma and Corrigan-Gibbs, Henry and Zeldovich, Nickolai},
-  title     = {Private Web Search with {Tiptoe}},
-  booktitle = {Proceedings of the 29th Symposium on Operating Systems Principles (SOSP)},
-  pages     = {396--416},
-  year      = {2023},
-  publisher = {ACM},
-  doi       = {10.1145/3600006.3613134}
-}
-
-@article{malkov2018hnsw,
+@article{malkov2020hnsw,
   author  = {Malkov, Yu A. and Yashunin, D. A.},
   title   = {Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs},
-  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  journal = {IEEE Trans. Pattern Anal. Mach. Intell.},
   volume  = {42},
   number  = {4},
   pages   = {824--836},
+  month   = apr,
   year    = {2020},
   doi     = {10.1109/TPAMI.2018.2889473}
 }
@@ -145,98 +164,154 @@
 @article{jegou2011sift,
   author  = {J{\'e}gou, Herv{\'e} and Douze, Matthijs and Schmid, Cordelia},
   title   = {Product Quantization for Nearest Neighbor Search},
-  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  journal = {IEEE Trans. Pattern Anal. Mach. Intell.},
   volume  = {33},
   number  = {1},
   pages   = {117--128},
+  month   = jan,
   year    = {2011},
   doi     = {10.1109/TPAMI.2010.57}
 }
 
+@inproceedings{chen2021spann,
+  author    = {Chen, Qi and Zhao, Bing and Wang, Haidong and Li, Mingqin and Liu, Chuanjie and Li, Zengzhong and Yang, Mao and Wang, Jingdong},
+  title     = {{SPANN}: Highly-Efficient Billion-Scale Approximate Nearest Neighborhood Search},
+  booktitle = {Proc. Adv. Neural Inf. Process. Syst. (NeurIPS)},
+  volume    = {34},
+  pages     = {5199--5212},
+  year      = {2021}
+}
+
+@inproceedings{chen2020sanns,
+  author    = {Chen, Hao and Chillotti, Ilaria and Dong, Yiwen and Poburinnaya, Oxana and Razenshteyn, Ilya and Riazi, M. Sadegh},
+  title     = {{SANNS}: Scaling Up Secure Approximate $k$-Nearest Neighbors Search},
+  booktitle = {Proc. USENIX Security Symp.},
+  pages     = {2111--2128},
+  year      = {2020}
+}
+
+@inproceedings{henzinger2023tiptoe,
+  author    = {Henzinger, Alexandra and Dauterman, Emma and Corrigan-Gibbs, Henry and Zeldovich, Nickolai},
+  title     = {Private Web Search with {Tiptoe}},
+  booktitle = {Proc. ACM Symp. Operating Syst. Principles (SOSP)},
+  pages     = {396--416},
+  year      = {2023},
+  doi       = {10.1145/3600006.3613134}
+}
+
+@article{pan2024vectordbsurvey,
+  author  = {Pan, James Jie and Wang, Jianguo and Li, Guoliang},
+  title   = {Survey of Vector Database Management Systems},
+  journal = {VLDB J.},
+  volume  = {33},
+  number  = {5},
+  pages   = {1591--1615},
+  year    = {2024},
+  doi     = {10.1007/s00778-024-00864-x}
+}
+
 @article{chen2024bgem3,
   author  = {Chen, Jianlv and Xiao, Shitao and Zhang, Peitian and Luo, Kun and Lian, Defu and Liu, Zheng},
-  title   = {{BGE} {M3}-Embedding: Multi-Lingual, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation},
-  journal = {arXiv preprint arXiv:2402.03216},
-  year    = {2024}
+  title   = {{M3-Embedding}: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation},
+  journal = {Findings Assoc. Comput. Linguistics (ACL)},
+  pages   = {2318--2335},
+  year    = {2024},
+  doi     = {10.18653/v1/2024.findings-acl.137}
 }
 
-@inproceedings{wang2021milvus,
-  author    = {Wang, Jianguo and Yi, Xiaomeng and Guo, Rentong and Jin, Hai and Xu, Peng and Li, Shengjun and Wang, Xiangyu and Guo, Xiangzhou and Li, Chengming and Xu, Xiaohai and Yu, Kun and Yuan, Yuxing and Zou, Yinghao and Long, Jiquan and Cai, Yudong and Li, Zhenxiang and Zhang, Zhifeng and Mo, Yihua and Gu, Jun and Jiang, Ruiyi and Wei, Yi and Xie, Charles},
-  title     = {{Milvus}: A Purpose-Built Vector Data Management System},
-  booktitle = {Proceedings of the ACM SIGMOD International Conference on Management of Data},
-  pages     = {2614--2627},
-  year      = {2021},
-  publisher = {ACM},
-  doi       = {10.1145/3448016.3457550}
+@inproceedings{gupta2015stochastic,
+  author    = {Gupta, Suyog and Agrawal, Ankur and Gopalakrishnan, Kailash and Narayanan, Pritish},
+  title     = {Deep Learning with Limited Numerical Precision},
+  booktitle = {Proc. Int. Conf. Mach. Learn. (ICML)},
+  pages     = {1737--1746},
+  year      = {2015}
 }
 
-@inproceedings{cooper2010ycsb,
-  author    = {Cooper, Brian F. and Silberstein, Adam and Tam, Erwin and Ramakrishnan, Raghu and Sears, Russell},
-  title     = {Benchmarking Cloud Serving Systems with {YCSB}},
-  booktitle = {Proceedings of the 1st ACM Symposium on Cloud Computing (SoCC)},
-  pages     = {143--154},
-  year      = {2010},
-  publisher = {ACM},
-  doi       = {10.1145/1807128.1807152}
+@inproceedings{jacob2018quantization,
+  author    = {Jacob, Benoit and Kligys, Skirmantas and Chen, Bo and Zhu, Menglong and Tang, Matthew and Howard, Andrew and Adam, Hartwig and Kalenichenko, Dmitry},
+  title     = {Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference},
+  booktitle = {Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR)},
+  pages     = {2704--2713},
+  year      = {2018},
+  doi       = {10.1109/CVPR.2018.00286}
 }
 
 @inproceedings{li2010linucb,
   author    = {Li, Lihong and Chu, Wei and Langford, John and Schapire, Robert E.},
   title     = {A Contextual-Bandit Approach to Personalized News Article Recommendation},
-  booktitle = {Proceedings of the 19th International Conference on World Wide Web (WWW)},
+  booktitle = {Proc. Int. Conf. World Wide Web (WWW)},
   pages     = {661--670},
   year      = {2010},
-  publisher = {ACM},
   doi       = {10.1145/1772690.1772758}
 }
 
-@inproceedings{garivier2011ucb,
+@inproceedings{garivier2011swucb,
   author    = {Garivier, Aur{\'e}lien and Moulines, Eric},
   title     = {On Upper-Confidence Bound Policies for Switching Bandit Problems},
-  booktitle = {Algorithmic Learning Theory (ALT 2011)},
-  series    = {Lecture Notes in Computer Science},
-  volume    = {6925},
+  booktitle = {Proc. Int. Conf. Algorithmic Learn. Theory (ALT)},
   pages     = {174--188},
   year      = {2011},
-  publisher = {Springer},
   doi       = {10.1007/978-3-642-24412-4_16}
 }
 
 @inproceedings{russac2019dlinucb,
-  author    = {Russac, Yoann and Vernade, Claire and Capp{\'e}, Olivier},
+  author    = {Russac, Yoan and Vernade, Claire and Capp{\'e}, Olivier},
   title     = {Weighted Linear Bandits for Non-Stationary Environments},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  booktitle = {Proc. Adv. Neural Inf. Process. Syst. (NeurIPS)},
   volume    = {32},
   pages     = {12040--12049},
   year      = {2019}
 }
 
-@article{khan2018rapl,
-  author  = {Khan, Kashif Nizam and Hirki, Mikael and Niemi, Tapio and Nurminen, Jukka K. and Ou, Zhonghong},
-  title   = {{RAPL} in Action: Experiences in Using {RAPL} for Power Measurements},
-  journal = {ACM Transactions on Modeling and Performance Evaluation of Computing Systems},
-  volume  = {3},
-  number  = {2},
-  pages   = {9:1--9:26},
-  year    = {2018},
-  doi     = {10.1145/3177754}
-}
-
 @article{paninski2003entropy,
   author  = {Paninski, Liam},
   title   = {Estimation of Entropy and Mutual Information},
-  journal = {Neural Computation},
+  journal = {Neural Comput.},
   volume  = {15},
   number  = {6},
   pages   = {1191--1253},
+  month   = jun,
   year    = {2003},
   doi     = {10.1162/089976603321780272}
 }
 
-@techreport{iso_gum_2008,
+@article{kunsch1989mbb,
+  author  = {K{\"u}nsch, Hans R.},
+  title   = {The Jackknife and the Bootstrap for General Stationary Observations},
+  journal = {Ann. Statist.},
+  volume  = {17},
+  number  = {3},
+  pages   = {1217--1241},
+  month   = sep,
+  year    = {1989},
+  doi     = {10.1214/aos/1176347265}
+}
+
+@article{phipson2010permutation,
+  author  = {Phipson, Belinda and Smyth, Gordon K.},
+  title   = {Permutation $P$-Values Should Never Be Zero: Calculating Exact $P$-Values When Permutations Are Randomly Drawn},
+  journal = {Stat. Appl. Genet. Mol. Biol.},
+  volume  = {9},
+  number  = {1},
+  pages   = {Article 39},
+  year    = {2010},
+  doi     = {10.2202/1544-6115.1585}
+}
+
+@techreport{bipm2008gum,
   author      = {{Joint Committee for Guides in Metrology (JCGM)}},
-  title       = {Evaluation of Measurement Data -- Guide to the Expression of Uncertainty in Measurement ({GUM})},
-  institution = {BIPM / ISO},
-  number      = {JCGM 100:2008},
+  title       = {Evaluation of Measurement Data --- Guide to the Expression of Uncertainty in Measurement ({GUM})},
+  institution = {Bureau International des Poids et Mesures (BIPM)},
+  type        = {JCGM},
+  number      = {100:2008},
   year        = {2008}
+}
+
+@inproceedings{david2010rapl,
+  author    = {David, Howard and Gorbatov, Eugene and Hanebutte, Ulf R. and Khanna, Rahul and Le, Christian},
+  title     = {{RAPL}: Memory Power Estimation and Capping},
+  booktitle = {Proc. ACM/IEEE Int. Symp. Low-Power Electron. Design (ISLPED)},
+  pages     = {189--194},
+  year      = {2010},
+  doi       = {10.1145/1840845.1840883}
 }

@@ -1,0 +1,24 @@
+\begin{table}[t]
+\centering
+\caption{Steady-State Intel RAPL Package Energy, Idle Power Drift, and GUM $U_{95}$ Uncertainty (\nolinkurl{v5_steady_rapl_omp_energy_gum_u95.csv})}
+\label{tab:rapl}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lcrrrrr@{}}
+\toprule
+\textbf{Mode} & \textbf{OMP} & \textbf{Med.\ (ms)} & \textbf{$P_{\text{act}}$ (W)} & \textbf{Drift} & \textbf{Gross $\pm U_{95}$ (mJ)} & \textbf{Net $\pm U_{95}$ (mJ)} \\
+\midrule
+1-CT ($M=224$) & 1 & 106.6 & 21.99 & $-7.3\%$ & $2336\pm133$ & $1580\pm149$ \\
+1-CT ($M=224$) & 2 & 65.6 & 29.61 & $-2.7\%$ & $1900\pm126$ & $1394\pm134$ \\
+1-CT ($M=224$) & 4 & 43.9 & 32.94 & $-1.4\%$ & $1487\pm153$ & $1181\pm155$ \\
+1-CT ($M=224$) & 8 & 34.8 & 29.57 & $-18.6\%$ & $1207\pm190$ & $956\pm195$ \\
+1-CT ($M=224$) & 12 & 41.1 & 25.85 & $+116.4\%$ & $1243\pm184$ & $791\pm289$ \\
+Heavy 12-Blk & 1 & 253.3 & 20.54 & $-66.4\%$ & $5344\pm545$ & $1760\pm2367$ \\
+Heavy 12-Blk & 2 & 149.0 & 31.50 & $-76.9\%$ & $4709\pm389$ & $1563\pm2494$ \\
+Heavy 12-Blk & 4 & 88.9 & 38.38 & $-0.1\%$ & $3464\pm211$ & $2851\pm240$ \\
+Heavy 12-Blk & 8 & 68.0 & 41.29 & $+48.1\%$ & $2829\pm124$ & $2336\pm215$ \\
+Heavy 12-Blk & 12 & 68.5 & 43.43 & $+101.5\%$ & $2970\pm171$ & $2433\pm330$ \\
+\bottomrule
+\multicolumn{7}{@{}p{0.98\columnwidth}@{}}{\scriptsize Background OS idle drift ($-76.9\%$ to $+116.4\%$) causes Heavy Batch \texttt{OMP=1,2} net uncertainty ($U_{95}=2{,}367\text{--}2{,}494$~mJ) to exceed net point estimates, and 1-CT \texttt{OMP=8} vs.\ \texttt{12} overlap within $\pm U_{95}$.} \\
+\end{tabular}%
+}
+\end{table}

@@ -1,0 +1,16 @@
+region,zone,phys_1rtt_ms,mode,n_queries,mean_lat_ms,mbb_ci95_lo_ms,mbb_ci95_hi_ms,p50_lat_ms,p95_lat_ms,mean_stream_acc,conf_zt_ckks_recall10,pub_150ms_acc092_sla_pct,conf_lat250_priv_sla_pct,conf_strict_acc092_250ms_sla_pct,stream_lat_priv_250ms_sla_pct,stream_strict_acc092_250ms_sla_pct,client_rapl_net_edge_mj,legacy_v2_compact_wire_cost_1m_usd,unified_full_rns_cloud_cost_1m_usd
+Bangkok,asia-southeast3-a,9.77,M1_Fresh_TLS13_PQC,96,126.89,111.76,144.97,86.86,296.03,0.9844,0.9625,80.56,66.67,50.0,77.08,72.92,513.63,1.112,27.26
+Bangkok,asia-southeast3-a,9.77,M2_Pooled_TLS13_Classical,96,23.81,18.65,28.71,14.77,72.12,0.7438,0.0,91.67,0.0,0.0,68.75,68.75,65.77,0.093,0.17
+Bangkok,asia-southeast3-a,9.77,M3_Pooled_TLS13_Hybrid768,96,26.92,23.46,30.45,15.97,74.27,0.8656,0.4875,91.67,100.0,8.33,93.75,70.83,107.72,0.246,26.29
+Bangkok,asia-southeast3-a,9.77,M4_Rule_Heuristic_Pooled_INT8,96,25.86,21.64,32.29,14.49,71.88,0.8646,0.4875,88.89,100.0,8.33,91.67,68.75,100.71,0.248,3.96
+Bangkok,asia-southeast3-a,9.77,M5_CAPQ_V2_Adaptive,96,48.35,43.33,54.67,15.81,169.96,0.9802,0.95,90.28,95.83,66.67,91.67,84.38,388.37,0.969,4.79
+Singapore,asia-southeast1-b,56.05,M1_Fresh_TLS13_PQC,96,266.33,228.22,284.68,219.88,414.34,0.9865,0.9625,2.78,4.17,4.17,3.12,3.12,1339.12,1.07,27.22
+Singapore,asia-southeast1-b,56.05,M2_Pooled_TLS13_Classical,96,49.37,44.01,52.85,40.7,93.65,0.7458,0.0,94.44,0.0,0.0,70.83,70.83,145.5,0.089,0.17
+Singapore,asia-southeast1-b,56.05,M3_Pooled_TLS13_Hybrid768,96,60.23,55.22,66.17,51.83,121.27,0.8677,0.4875,94.44,100.0,8.33,95.83,72.92,242.73,0.237,26.28
+Singapore,asia-southeast1-b,56.05,M4_Rule_Heuristic_Pooled_INT8,96,62.43,54.33,71.82,48.39,125.28,0.8656,0.4875,88.89,100.0,8.33,91.67,68.75,272.44,0.242,3.96
+Singapore,asia-southeast1-b,56.05,M5_CAPQ_V2_Adaptive,96,77.63,71.18,84.19,47.1,202.58,0.9813,0.95,91.67,95.83,66.67,92.71,85.42,580.69,0.938,4.75
+US-Central,us-central1-a,225.5,M1_Fresh_TLS13_PQC,96,971.24,962.24,986.51,937.0,1100.91,0.9865,0.9625,0.0,0.0,0.0,0.0,0.0,84.65,1.015,19.47
+US-Central,us-central1-a,225.5,M2_Pooled_TLS13_Classical,96,229.15,228.34,229.91,228.42,237.43,0.7458,0.0,0.0,0.0,0.0,0.0,0.0,19.09,0.084,0.13
+US-Central,us-central1-a,225.5,M3_Pooled_TLS13_Hybrid768,96,239.15,236.76,242.72,230.48,266.56,0.8677,0.4875,0.0,12.5,0.0,3.12,0.0,32.02,0.22,18.65
+US-Central,us-central1-a,225.5,M4_Rule_Heuristic_Pooled_INT8,96,240.65,236.48,247.85,229.6,262.16,0.8667,0.4875,0.0,20.83,0.0,5.21,0.0,14.55,0.222,2.84
+US-Central,us-central1-a,225.5,M5_CAPQ_V2_Adaptive,96,264.42,255.99,277.61,229.47,387.92,0.9823,0.95,0.0,0.0,0.0,0.0,0.0,46.44,0.885,3.53

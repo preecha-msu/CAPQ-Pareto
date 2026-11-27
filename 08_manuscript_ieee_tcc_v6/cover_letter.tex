@@ -1,24 +1,22 @@
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage[hidelinks]{hyperref}
-\setlength{\parskip}{0.6em}
-\setlength{\parindent}{0pt}
-
+\usepackage{url,hyperref}
+\Urlmuskip=0mu plus 2mu\relax
 \begin{document}
-\textbf{Date:} November 26, 2026\\[0.4em]
-\textbf{To:} Editor-in-Chief and Associate Editors, \textit{IEEE Transactions on Cloud Computing}\\[0.4em]
-\textbf{Subject:} Original Regular Paper Submission: \textit{``CAPQ-Pareto: Coordinate-Confidential Post-Quantum Hybrid Vector-Relational Cloud Querying via Session Pooling, Single-Ciphertext CKKS Aggregation, and Lagged Contextual Control''}
+\noindent November 27, 2026\\[1em]
+\textbf{To:} Editor-in-Chief and Associate Editor, \textit{IEEE Transactions on Cloud Computing}\\
+\textbf{Subject:} Submission of Revised Manuscript (V6): \textit{``Empirical Systems Characterization of Post-Quantum Session Pooling, Single-Ciphertext CKKS Retrieval, and Transport Fallback Across Cloud-Edge Vector-SQL Streams''}\\[1em]
 
-Dear Editor-in-Chief,
+Dear Editor-in-Chief and Associate Editor,
 
-We are pleased to submit our original manuscript for consideration as a Regular Paper in \textit{IEEE Transactions on Cloud Computing}. All empirical measurements, C++ \texttt{OpenFHE} and \texttt{liboqs} cryptographic benchmarks, PostgreSQL~18.6 \texttt{pgvector} concurrency sweeps, silicon RAPL energy traces, and multi-region WAN logs are accompanied by complete raw CSV/JSON artifacts and SHA-256 provenance manifests.
+Please find enclosed our revised manuscript for consideration in \textit{IEEE Transactions on Cloud Computing}. In direct response to the Reviewer's constructive critique, this revision (V6) restores complete single-blind author, institutional, funding, and public repository metadata, adds a comprehensive Related Work section and empirical leakage/$\text{IND-CPA}^D$ analysis, formalizes per-class SLA and unified cloud CPU+egress cost accounting across both multi-region WAN campaigns, decouples plaintext candidate-budget loss from CKKS noise alongside analytical 1-CT bandwidth crossover bounds, and benchmarks online contextual bandits directly against a stateless IETF RFC~9308 timeout-triggered TCP fallback rule.
 
-This manuscript is original, has not been published previously, and is not under consideration elsewhere. All authors have approved the manuscript and disclose the assistive use of generative AI tools in the Acknowledgment section in accordance with IEEE publication policy.
+All experimental tables and vector figures are programmatically generated from reproducible execution logs accompanied by full 64-character SHA-256 verification manifests at \url{https://github.com/preecha-msu/CAPQ-Pareto}. This manuscript is original, is not under consideration elsewhere, and complies fully with IEEE policies.
 
-Sincerely,\\[0.8em]
-Preecha Noiumkar (Member, IEEE)\\
-Department of Information Technology, Faculty of Informatics\\
-Mahasarakham University, Maha Sarakham 44150, Thailand
+\vspace{1.2em}
+\noindent Sincerely,\\[0.8em]
+\textbf{Preecha Noiumkar}, Member, IEEE\\
+Lecturer and Researcher, Department of Information Technology\\
+Faculty of Informatics, Mahasarakham University, Maha Sarakham 44150, Thailand\\
+E-mail: \texttt{preecha.n@msu.ac.th} \quad|\quad ORCID: \url{https://orcid.org/0009-0000-5964-4896}
 \end{document}

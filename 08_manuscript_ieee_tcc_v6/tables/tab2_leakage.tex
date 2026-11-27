@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\caption{Empirical Adversarial Leakage Audit on Confidential Routing (\texttt{A1--A3}, $K_c=64$, $N=5{,}000$)}
+\label{tab:leakage}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+\textbf{Attack Scenario} & \textbf{Mitigation State} & \textbf{MI (bits)} & \textbf{Adv.\ Hit} & \textbf{Rand.} & \textbf{Time-$|B_k|$ $r$} \\
+\midrule
+A1: Unpadded $|B_k|$ & Disabled & 4.0351 & 78.15\% & 1.56\% & 0.8028 \\
+A1: Padded $B_{\max}$ & No ORAM/Cover & 0.0000 & 1.56\% & 1.56\% & 0.1680 \\
+A2: Eval Timing & Fixed $M$ SIMD & 4.4348 & 100.00\% & 7.81\% & 0.0000 \\
+A3: Zipf(1.15) Top-5 & Fixed $M$ SIMD & 0.0000 & 2.40\% & 1.56\% & 0.1680 \\
+\bottomrule
+\multicolumn{6}{@{}p{0.98\columnwidth}@{}}{\scriptsize Source: \nolinkurl{v6_ref_adversarial_leakage_attacks.csv}. Padding eliminates cardinality and timing channels (\texttt{A1, A2}), whereas Zipfian query-frequency correlation (\texttt{A3}) identifies top-5 popular clusters ($100\%$) unless paired with ORAM or dummy cover traffic.} \\
+\end{tabular}%
+}
+\end{table}
