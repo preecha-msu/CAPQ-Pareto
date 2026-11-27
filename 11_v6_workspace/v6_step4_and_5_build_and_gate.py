@@ -911,8 +911,10 @@ We sincerely thank the Reviewer for an exceptionally rigorous, constructive, and
 
 COV_V6_TEX = r"""\documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
-\usepackage{url,hyperref}
+\usepackage{amsmath,amssymb,microtype}
+\usepackage[hidelinks]{hyperref}
 \Urlmuskip=0mu plus 2mu\relax
+\emergencystretch=2.0em
 \begin{document}
 \noindent November 27, 2026\\[1em]
 \textbf{To:} Editor-in-Chief and Associate Editor, \textit{IEEE Transactions on Cloud Computing}\\
