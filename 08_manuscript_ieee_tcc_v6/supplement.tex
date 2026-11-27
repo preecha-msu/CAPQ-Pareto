@@ -1,8 +1,15 @@
 \documentclass[10pt,journal,compsoc]{IEEEtran}
 \usepackage{amsmath,amssymb,amsfonts,booktabs,graphicx,url,microtype}
+\IfFileExists{stfloats.sty}{\usepackage{stfloats}}{}
+\IfFileExists{placeins.sty}{\usepackage{placeins}}{\newcommand{\FloatBarrier}{\clearpage}}
 \usepackage[hidelinks]{hyperref}
 \Urlmuskip=0mu plus 2mu\relax
 \emergencystretch=2.0em
+\raggedbottom
+\setlength{\textfloatsep}{14pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{14pt plus 2pt minus 2pt}
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}
+\setlength{\dblfloatsep}{10pt plus 2pt minus 2pt}
 \setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
 \setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
 
@@ -17,7 +24,7 @@ Repository: \protect\url{https://github.com/preecha-msu/CAPQ-Pareto}}
 \section{Complete Proof of Proposition 1 (\texorpdfstring{Conditional $\Delta_q^2/4$ vs.\ Marginal $\Delta_q^2/6$}{Conditional vs. Marginal Variance})}
 Let $\mathbf{x} \in \mathbb{S}^{D-1}$ satisfy $\sum_{i=1}^D x_i^2 = 1$, and let $\mathbf{q} \in \mathbb{R}^D$ have non-zero range $R_q = \max_i q_i - \min_i q_i > 0$ with step size $\Delta_q = R_q/(2^b - 1)$ (if $R_q = 0$, $\widehat{\mathbf{q}} = \mathbf{q}$ and $\mathcal{E} = 0$ identically). Define $s_i = (q_i - q_{\min})/\Delta_q \in [0, 2^b - 1]$ and $u_i = s_i - \lfloor s_i \rfloor \in [0, 1)$.
 
-\textbf{Part (2) Exact Conditional Variance and Sharp $\Delta_q^2/4$ Bound:} Under unbiased stochastic rounding, $\widehat{s}_i = \lfloor s_i \rfloor + \xi_i$ with independent $\xi_i \sim \mathrm{Bernoulli}(u_i)$ conditioned on $(\mathbf{q},\mathbf{x})$. Because $\widehat{q}_i - q_i = \Delta_q(\xi_i - u_i)$, linearity of expectation gives $\mathbb{E}_{\boldsymbol{\xi}}[\mathcal{E}\mid\mathbf{q},\mathbf{x}] = \Delta_q \sum_{i=1}^D x_i (\mathbb{E}[\xi_i] - u_i) = 0$. By mutual independence of $\{\xi_i\}_{i=1}^D$ given $(\mathbf{q},\mathbf{x})$:
+\smallskip\noindent\textbf{Part (2) Exact Conditional Variance and Sharp $\Delta_q^2/4$ Bound:} Under unbiased stochastic rounding, $\widehat{s}_i = \lfloor s_i \rfloor + \xi_i$ with independent $\xi_i \sim \mathrm{Bernoulli}(u_i)$ conditioned on $(\mathbf{q},\mathbf{x})$. Because $\widehat{q}_i - q_i = \Delta_q(\xi_i - u_i)$, linearity of expectation gives $\mathbb{E}_{\boldsymbol{\xi}}[\mathcal{E}\mid\mathbf{q},\mathbf{x}] = \Delta_q \sum_{i=1}^D x_i (\mathbb{E}[\xi_i] - u_i) = 0$. By mutual independence of $\{\xi_i\}_{i=1}^D$ given $(\mathbf{q},\mathbf{x})$:
 \begin{align}
 \mathrm{Var}_{\boldsymbol{\xi}}(\mathcal{E} \mid \mathbf{q}, \mathbf{x}) &= \Delta_q^2 \sum_{i=1}^D x_i^2 \mathrm{Var}(\xi_i \mid u_i) \nonumber\\
 &= \Delta_q^2 \sum_{i=1}^D x_i^2 u_i(1 - u_i).
@@ -25,8 +32,9 @@ Let $\mathbf{x} \in \mathbb{S}^{D-1}$ satisfy $\sum_{i=1}^D x_i^2 = 1$, and let 
 Since $u(1-u) = \frac{1}{4} - (u - \frac{1}{2})^2 \le \frac{1}{4}$ for all $u \in [0,1]$, we obtain the sharp deterministic upper bound $\mathrm{Var}_{\boldsymbol{\xi}}(\mathcal{E}\mid\mathbf{q},\mathbf{x}) \le \frac{\Delta_q^2}{4}\sum_{i=1}^D x_i^2 = \frac{\Delta_q^2}{4}$ (attained when $u_i = 1/2$ on every coordinate where $x_i \neq 0$). Note that $\mathrm{Var}_{\boldsymbol{\xi}}(\mathcal{E}\mid\mathbf{q},\mathbf{x})$ strictly exceeds $\Delta_q^2/6$ whenever coordinates concentrate near mid-riser offsets $u_i \in (0.211, 0.789)$, which occurs on $3.26\%$ of real \texttt{SIFT1M} pairs (maximum observed $0.2036\,\Delta_q^2$). Conversely, under the marginal model $u_i \sim \mathcal{U}(0,1)$, $\mathbb{E}[u_i(1-u_i)] = \int_0^1 (u - u^2)\,du = \frac{1}{6}$, yielding $\mathbb{E}_{\mathbf{u}}[\mathrm{Var}_{\boldsymbol{\xi}}(\mathcal{E}\mid\mathbf{q},\mathbf{x})] = \frac{\Delta_q^2}{6}$. Moreover, since each zero-mean independent summand $Z_i = \Delta_q x_i(\xi_i - u_i)$ has support length $\Delta_q |x_i|$, Hoeffding's lemma yields $\Pr_{\boldsymbol{\xi}}(|\mathcal{E}| \ge t \mid \mathbf{q},\mathbf{x}) \le 2\exp(-2t^2/\Delta_q^2)$.
 
 \section{Extended Operational Fault Audit, 1-CT Bandwidth Schedule, and Supplementary Figures}
+Tables~1--2 and Figs.~S1--S6 provide the granular link-bandwidth crossover schedule, nine-scenario operational fault-injection results, stage-level CKKS latency/wire breakdowns, socket regime distributions, OpenMP RAPL uncertainty profiles, uncapped tail-latency comparisons, cross-ISA AEAD goodput, and all ten two-way factorial interaction terms.
 
-\begin{table}[h!]
+\begin{table}[!t]
 \centering
 \caption{1-CT ($N=8192$) vs.\ Multi-CT ($N=4096$) Compute + Downlink Time Across Link Goodputs ($N_{\text{vec}}=5{,}000, K_c=96, M=224$)}
 \resizebox{\columnwidth}{!}{%
@@ -46,7 +54,7 @@ Since $u(1-u) = \frac{1}{4} - (u - \frac{1}{2})^2 \le \frac{1}{4}$ for all $u \i
 }
 \end{table}
 
-\begin{table*}[t]
+\begin{table*}[!t]
 \centering
 \caption{Operational Fault Injection and Replay/Abuse Resilience Audit (\nolinkurl{v6_ref_operational_failure_abuse_audit.csv})}
 \resizebox{\textwidth}{!}{%
@@ -68,47 +76,50 @@ Since $u(1-u) = \frac{1}{4} - (u - \frac{1}{2})^2 \le \frac{1}{4}$ for all $u \i
 }
 \end{table*}
 
-\begin{figure*}[t]
+\begin{figure*}[!t]
 \centering
 \includegraphics[width=0.88\textwidth]{figures/fig_s1_ckks_stage_and_wire.pdf}
 \caption{Figure S1: OpenFHE RNS-CKKS stage latency breakdown and serialized wire footprint at $K_c=96, N_{\text{vec}}=5{,}000$.}
 \end{figure*}
 
-\begin{figure*}[t]
+\begin{figure*}[!b]
 \centering
 \includegraphics[width=0.88\textwidth]{figures/fig_s2_netns_socket_profiles.pdf}
 \caption{Figure S2: Measured Linux \texttt{netns} socket transfer latencies across regimes \texttt{S1--S4}, \texttt{B1} (TCP queue contention), and \texttt{B2} (RFC~9308 UDP policing).}
 \end{figure*}
 
-\begin{figure*}[t]
+\FloatBarrier
+\begin{figure*}[!t]
 \centering
 \includegraphics[width=0.88\textwidth]{figures/fig_s3_heavy_omp_rapl_gum.pdf}
 \caption{Figure S3: Heavy 12-block OpenMP RAPL energy ($\pm U_{95}$ showing wide idle-drift uncertainty at \texttt{OMP=1,2}) and pre-to-post background idle power drift.}
 \end{figure*}
 
-\begin{figure*}[t]
+\begin{figure*}[!b]
 \centering
 \includegraphics[width=0.88\textwidth]{figures/fig_s4_bandit_three_campaigns_sla.pdf}
 \caption{Figure S4: Capped-loss cumulative regret vs.\ uncapped P95 tail latency across \texttt{C1--C3}, including the stateless RFC~9308 timeout fallback rule ($H=32$).}
 \end{figure*}
 
-\begin{figure*}[t]
+\FloatBarrier
+\begin{figure*}[!t]
 \centering
 \includegraphics[width=0.88\textwidth]{figures/fig_s5_live_gcp_mbb_and_conf_sla.pdf}
 \caption{Figure S5: (a)~Reconciled Track~1 strict per-class $A_t \ge 0.92$ SLA; (b)~native C \texttt{OpenSSL EVP} hot AEAD goodput across \nolinkurl{x86_64} and Cloud \texttt{ARM64}.}
 \end{figure*}
 
-\begin{figure*}[t]
+\begin{figure*}[!b]
 \centering
 \includegraphics[width=0.88\textwidth]{figures/fig_s6_factorial_10_interactions.pdf}
 \caption{Figure S6: Full $2^5$ factorial two-way interaction effects (all 10 interaction terms non-significant after Holm correction).}
 \end{figure*}
 
+\FloatBarrier
 \clearpage
 \section{Full 64-Character SHA-256 Provenance Manifest}
 Every digest below is programmatically verified to contain all \textbf{64 hexadecimal characters} (no truncation) and matches \nolinkurl{SHA256SUMS_V6.txt} in \url{https://github.com/preecha-msu/CAPQ-Pareto}.
 
-\begin{table*}[h!]
+\begin{table*}[!b]
 \centering
 \caption{Complete 64-Hexadecimal SHA-256 Verification Manifest of Active V6 Real-Data Artifacts}
 \resizebox{\textwidth}{!}{%
