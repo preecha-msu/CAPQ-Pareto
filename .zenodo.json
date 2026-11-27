@@ -17,5 +17,18 @@
     "QUIC RFC 9308 Fallback",
     "IEEE TCC"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "doi": "10.5281/zenodo.24575614",
+  "identifiers": [
+    {
+      "identifier": "10.5281/zenodo.24575614",
+      "relation": "isIdenticalTo",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "https://github.com/preecha-msu/CAPQ-Pareto/tree/v6",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
 }

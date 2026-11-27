@@ -11,7 +11,9 @@ Department of Information Technology, Faculty of Informatics, Mahasarakham Unive
 \texttt{preecha.n@msu.ac.th} \quad|\quad \url{https://github.com/preecha-msu/CAPQ-Pareto/tree/v6}}
 \date{November 2026}
 
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{}
 \begin{document}
+\sloppy
 \maketitle
 
 We sincerely thank the Reviewer for an exceptionally rigorous, constructive, and mathematically precise audit of V5. Every back-of-the-envelope calculation and forensic observation in the review was verified against our raw CSV/JSON logs and confirmed to be completely accurate. Following the Reviewer's strategic guidance, we refactored V6 into a transparent \textbf{empirical systems study} without fabricating or estimating a single number, executing deterministic mathematical/statistical reprocessing directly on our logged ground-truth datasets with full 64-hex SHA-256 verification:
@@ -42,5 +44,8 @@ We sincerely thank the Reviewer for an exceptionally rigorous, constructive, and
   \item \textbf{Predicate-Filtered Hybrid SQL+HNSW Benchmark (Table~9B \& Fig.~3b):} Evaluates $4{,}000$ filtered queries ($\sigma \in [1\%,100\%]$) in \texttt{PostgreSQL~18.6}, showing \nolinkurl{pgvector-0.8.1} iterative scans preserve $0.987\text{--}0.996$ 1-MTU \texttt{INT8} recall where legacy post-filtering collapses to $0.060$, and identifying the $\sigma \le 2\%$ B-Tree exact-scan crossover.
   \item \textbf{Exact $\ge 0.92$ 1-CT Slot-Provisioning Law (Table~4C \& Fig.~4a) + Unweighted 4D Pareto + One-Command Verifier:} Proves $N=8192$ packs up to $M=3{,}072$ candidates into one $129.01$~KiB CT, measures C++ OpenFHE latency at exact $\ge 0.92$ recall budgets ($M=512/1{,}536/2{,}048$ for $5\text{k}/25\text{k}/100\text{k}$), and provides \nolinkurl{reproduce_and_verify_v6.py} on branch \texttt{/tree/v6}.
 \end{itemize}
+
+
+\smallskip\noindent\textbf{Permanent Zenodo Archive:} \url{https://doi.org/10.5281/zenodo.24575614} (DOI: \texttt{10.5281/zenodo.24575614}).\smallskip
 
 \end{document}

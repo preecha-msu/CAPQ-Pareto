@@ -23,6 +23,7 @@
 \setlength{\belowcaptionskip}{2pt plus 1pt minus 1pt}
 \newtheorem{proposition}{Proposition}
 
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{}
 \begin{document}
 
 \title{Empirical Systems Characterization of Post-Quantum Session Pooling, Single-Ciphertext CKKS Retrieval, and Transport Fallback Across Cloud-Edge Vector-SQL Streams}
@@ -30,7 +31,7 @@
 \author{Preecha~Noiumkar,~\IEEEmembership{Member,~IEEE}%
 \IEEEcompsocitemizethanks{\IEEEcompsocthanksitem P. Noiumkar is with the Department of Information Technology, Faculty of Informatics, Mahasarakham University, Maha Sarakham 44150, Thailand (e-mail: preecha.n@msu.ac.th; ORCID: \protect\url{https://orcid.org/0009-0000-5964-4896}).\protect\\
 Corresponding author: Preecha Noiumkar (e-mail: preecha.n@msu.ac.th).}%
-\thanks{This research project was financially supported by the Faculty of Informatics, Mahasarakham University. Public code, raw execution logs, and full 64-character SHA-256 manifests are available at \protect\url{https://github.com/preecha-msu/CAPQ-Pareto/tree/v6}.}}
+\thanks{This research project was financially supported by the Faculty of Informatics, Mahasarakham University. Public code, raw execution logs, and full 64-character SHA-256 manifests are available at \protect\url{https://github.com/preecha-msu/CAPQ-Pareto/tree/v6} (permanent Zenodo archive: \url{https://doi.org/10.5281/zenodo.24575614}).}}
 
 \markboth{IEEE TRANSACTIONS ON CLOUD COMPUTING}%
 {NOIUMKAR: EMPIRICAL CHARACTERIZATION OF PQC POOLING, 1-CT CKKS RETRIEVAL, AND TRANSPORT FALLBACK}
@@ -256,7 +257,7 @@ Five scope boundaries govern our findings: (i)~reaching $\ge 0.92$ confidential 
 This empirical study decoupled transport, quantization, homomorphic aggregation, and online control effects across PQC-hardened vector-relational streams. Persistent hybrid PQC session pooling ($+52.15$~pp SLA) and single-MTU \texttt{INT8} quantization ($5.39\times\text{--}22.76\times$ tighter 95\% error bounds) deliver the primary latency gains. In the confidential tier, $N=8192$ 1-CT slot aggregation cuts response traffic $7.05\times$ (beneficial below $426$~Mbps downlink), while plaintext-vs.-CKKS controls prove that corpus-scaling recall degradation stems from candidate-slot budgets rather than CKKS noise. Finally, static pooled UDP+\texttt{INT8}+1-CT paired with a stateless RFC~9308 timeout-to-TCP fallback suffices on normal and policed paths, positioning contextual bandits as specialized controllers for complex multi-regime policies rather than universal replacements for protocol engineering.
 
 \section*{Acknowledgment, Data Availability, and AI Disclosure}
-This research project was financially supported by the Faculty of Informatics, Mahasarakham University. Source code, C++ OpenFHE/liboqs bridges, raw CSV/JSON execution logs, and full 64-character SHA-256 verification manifests are publicly available at \url{https://github.com/preecha-msu/CAPQ-Pareto/tree/v6}. In accordance with IEEE publication policies, generative AI tools (Claude and Gemini) assisted in Python data-processing/plotting script maintenance and LaTeX prose editing; all experimental logs, mathematical proofs, statistical tests, and numerical claims were executed and verified programmatically against ground-truth hardware outputs by the author.
+This research project was financially supported by the Faculty of Informatics, Mahasarakham University. Source code, C++ OpenFHE/liboqs bridges, raw CSV/JSON execution logs, and full 64-character SHA-256 verification manifests are publicly available at \url{https://github.com/preecha-msu/CAPQ-Pareto/tree/v6} (permanent Zenodo archive: \url{https://doi.org/10.5281/zenodo.24575614}). In accordance with IEEE publication policies, generative AI tools (Claude and Gemini) assisted in Python data-processing/plotting script maintenance and LaTeX prose editing; all experimental logs, mathematical proofs, statistical tests, and numerical claims were executed and verified programmatically against ground-truth hardware outputs by the author.
 
 {\emergencystretch=2.4em\sloppy
 \bibliographystyle{IEEEtran}

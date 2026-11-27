@@ -47,7 +47,7 @@ def main() -> int:
     ban = list(csv.DictReader((logs / "v6_bandit_5d_with_rfc9308_rule_and_tails.csv").open(encoding="utf-8")))
     c3_rule = next(r for r in ban if "Bidirectional_RFC9308" in r["campaign"] and r["controller"] == "Rule_QUIC_RFC9308_TCP_Fallback_H32")
     print(f"[PASS 5/5] RFC 9308 Fallback Rule verified in C3: Lat+Priv SLA={c3_rule['lat_priv_sla_pct']}%, Mean={c3_rule['mean_lat_ms']} ms.")
-    print("ALL CAPQ-PARETO V6 ARTIFACT & NUMERICAL AUDITS PASSED 100%.")
+    print("ALL CAPQ-PARETO V6 ARTIFACT & NUMERICAL AUDITS PASSED 100% (Zenodo DOI: 10.5281/zenodo.24575614).")
     return 0
 
 if __name__ == "__main__":
