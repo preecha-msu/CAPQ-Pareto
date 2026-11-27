@@ -1,11 +1,11 @@
 \begin{table*}[t]
 \centering
-\caption{Coordinate-Confidential OpenFHE RNS-CKKS Evaluation ($N_q=500$ Real SIFT Queries): Equal-Probe vs.\ Equal-Candidate-Budget Controls, Plaintext-vs.-CKKS Recall Decomposition, 100k Corpus Scaling, and Downlink Bandwidth Crossover $B^\star$}
+\caption{Coordinate-Confidential OpenFHE RNS-CKKS Evaluation ($N_q=500$ SIFT Queries): Equal-Budget Controls, Plaintext-vs.-CKKS Noise Decomposition, 100k Scaling, Downlink Crossover $B^\star$, and Exact $\ge 0.92$ 1-CT Slot-Provisioning Law}
 \label{tab:ckks_full}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}rrlrrrrrrrrc@{}}
 \toprule
-\textbf{$N_{\text{vec}}$} & \textbf{$K_c$} & \textbf{Indexing \& Return Mode (Ring $N$)} & \textbf{Uniq.\ Cands} & \textbf{Plain FP64 R@10} & \textbf{CKKS R@10 [95\% CI]} & \textbf{$\Delta R_{\text{CKKS}}$} & \textbf{Srv / Dec (ms)} & \textbf{Med.\ E2E (ms)} & \textbf{Req / Resp (KiB)} & \textbf{Max $|\Delta\text{IP}|$} & \textbf{Crossover $B^\star$} \\
+\textbf{$N_{\text{vec}}$} & \textbf{$K_c$} & \textbf{Indexing \& Return Mode (Ring $N$)} & \textbf{Uniq.\ / Rule} & \textbf{Plain FP64 R@10} & \textbf{CKKS R@10 [95\% CI]} & \textbf{$\Delta R_{\text{CKKS}}$} & \textbf{Srv / Dec (ms)} & \textbf{Med.\ E2E (ms)} & \textbf{Req / Resp (KiB)} & \textbf{Max $|\Delta\text{IP}|$} & \textbf{Crossover $B^\star$} \\
 \midrule
 \multicolumn{12}{@{}l@{}}{\textit{Part A: Controlled Disjoint vs.\ SPANN Evaluation at $N_{\text{vec}}=5{,}000$ (Separating Equal-Probe $r=2$ from Equal-Budget $M=224$)}} \\
 5,000 & 96 & Disjoint Equal-Probe $r=2$, 1-CT ($8192$) & 113.3 & 0.5950 & 0.5968 [0.574, 0.619] & $-0.0018$ & 15.89 / 0.54 & 19.30 & 384.9 / 129.0 & 0.00095 & --- \\
@@ -17,7 +17,7 @@
 5,000 & 192 & SPANN $r=2, M=224$, Multi-CT ($4096$) & 155.5 & 0.7586 & 0.7618 [0.743, 0.781] & $-0.0032$ & 11.31 / 3.31 & 15.70 & 128.8 / 909.3 & 0.00020 & --- \\
 5,000 & 192 & SPANN $r=2, M=224$, True 1-CT ($8192$) & 155.5 & 0.7586 & 0.7612 [0.742, 0.780] & $-0.0026$ & 27.27 / 0.58 & 30.60 & 384.9 / 129.0 & 0.00110 & 429.0~Mbps \\
 \midrule
-\multicolumn{12}{@{}l@{}}{\textit{Part B: Enclave Corpus Scaling ($5{,}000 \to 25{,}000 \to 100{,}000$ Vectors; Median Rank-10/11 Score Gap $\Delta s_{10,11} = 3.8\text{--}5.9\times 10^{-3}$)}} \\
+\multicolumn{12}{@{}l@{}}{\textit{Part B: Fixed-Budget Corpus Scaling ($5{,}000 \to 25{,}000 \to 100{,}000$ Vectors at $M=224$ and $M=512$)}} \\
 5,000 & 96 & SPANN $r=2, M=224$, Multi-CT ($4096$) & $M=224$ & 0.7862 & 0.7890 [0.771, 0.807] & $-0.0028$ & 11.49 / 3.40 & 15.99 & 128.8 / 909.3 & 0.00019 & --- \\
 5,000 & 96 & SPANN $r=2, M=224$, True 1-CT ($8192$) & $M=224$ & 0.7862 & 0.7882 [0.770, 0.806] & $-0.0020$ & 27.58 / 0.58 & 30.99 & 384.9 / 129.0 & 0.00108 & 426.2~Mbps \\
 5,000 & 96 & SPANN $r=4, M=512$, True 1-CT ($8192$) & $M=512$ & 0.9218 & 0.9216 [0.911, 0.932] & $+0.0002$ & 60.30 / 0.60 & 63.79 & 384.9 / 129.0 & 0.00164 & --- \\
@@ -27,8 +27,13 @@
 100,000 & 1280 & SPANN $r=2, M=224$, Multi-CT ($4096$) & $M=224$ & 0.5452 & 0.5504 [0.528, 0.573] & $-0.0052$ & 11.58 / 3.25 & 16.08 & 128.8 / 909.3 & 0.00019 & --- \\
 100,000 & 1280 & SPANN $r=2, M=224$, True 1-CT ($8192$) & $M=224$ & 0.5452 & 0.5502 [0.527, 0.573] & $-0.0050$ & 26.45 / 0.57 & 29.85 & 384.9 / 129.0 & 0.00111 & 464.2~Mbps \\
 100,000 & 1280 & SPANN $r=4, M=512$, True 1-CT ($8192$) & $M=512$ & 0.7318 & 0.7322 [0.713, 0.751] & $-0.0004$ & 57.92 / 0.59 & 61.44 & 384.9 / 129.0 & 0.00135 & --- \\
+\midrule
+\multicolumn{12}{@{}l@{}}{\textit{Part C: Exact $\ge 0.92$ Recall Slot-Provisioning Law at Ring $N=8192$ ($M_{\text{cap}}=3{,}072$ Candidates Packed into 1 Response CT $= 129.01$~KiB)}} \\
+5,000 & 96 & Provisioned SPANN $r=4, M=512$, 1-CT ($8192$) & $r_{0.90}=4, r_{0.92}=4$ & 0.9218 & 0.9100 (30q C++) & $-0.0118$ & 85.78 / 0.74 & 90.29 (p95: 102.5) & 384.9 / \textbf{129.0} & 0.00104 & 1-CT ($\le 3072$) \\
+25,000 & 384 & Provisioned SPANN $r=12, M=1536$, 1-CT ($8192$) & $r_{0.90}=8, r_{0.92}=12$ & 0.9522 & 0.9633 (30q C++) & $+0.0111$ & 220.93 / 0.64 & 224.22 (p95: 309.6) & 384.9 / \textbf{129.0} & 0.00134 & 1-CT ($\le 3072$) \\
+100,000 & 1280 & Provisioned SPANN $r=16, M=2048$, 1-CT ($8192$) & $r_{0.90}=16, r_{0.92}=16$ & 0.9218 & 0.9067 (30q C++) & $-0.0151$ & 280.31 / 0.60 & 283.74 (p95: 301.1) & 384.9 / \textbf{129.0} & 0.00198 & 1-CT ($\le 3072$) \\
 \bottomrule
-\multicolumn{12}{@{}p{0.99\textwidth}@{}}{\scriptsize Paired effect sizes ($N_q=500$): at equal candidate budget $M=224$, SPANN minus Disjoint yields $\Delta\text{Recall@10} = -0.0008$ (95\% CI $[-0.0158, +0.0142]$, $d_z=-0.005$) at $K_c=96$ and $-0.0892$ ($[-0.1055, -0.0729]$, $d_z=-0.479$) at $K_c=192$. Wire sizes are exact binary KiB ($1\text{ KiB}=1{,}024\text{ B}$; $909.33\text{ KiB}=931{,}154\text{ B}$ vs.\ $129.01\text{ KiB}=132{,}106\text{ B}$).} \\
+\multicolumn{12}{@{}p{0.99\textwidth}@{}}{\scriptsize Equal-budget ($M=224$) paired effect sizes ($N_q=500$): SPANN minus Disjoint $\Delta\text{R@10} = -0.0008$ (95\% CI $[-0.0158, +0.0142]$, $d_z=-0.005$) at $K_c=96$ and $-0.0892$ ($[-0.1055, -0.0729]$, $d_z=-0.479$) at $K_c=192$. At $N=8192$, up to $3{,}072$ candidate scores aggregate into a single $129.01$~KiB ($132{,}106$~B) response ciphertext.} \\
 \end{tabular}%
 }
 \end{table*}

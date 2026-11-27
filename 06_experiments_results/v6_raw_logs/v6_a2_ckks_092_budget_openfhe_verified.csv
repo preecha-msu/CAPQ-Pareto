@@ -1,0 +1,4 @@
+enclave_vectors_N,centroids_Kc,r_for_085_recall,r_for_090_recall,r_for_092_recall,evaluated_r,provisioned_M_slots,n_aggregated_resp_cts,plaintext_500q_recall10,ckks_verified_30q_recall10,med_srv_fhe_ms,med_dec_ms,med_total_fhe_e2e_ms,p95_total_fhe_e2e_ms,req_wire_kib,resp_wire_kib,max_ckks_err
+5000,96,4,4,4,4,512,1,0.9218,0.91,85.78,0.74,90.29,102.55,384.93,129.01,0.001042
+25000,384,6,8,12,12,1536,1,0.9522,0.9633,220.93,0.64,224.22,309.56,384.93,129.01,0.001336
+100000,1280,12,16,16,16,2048,1,0.9218,0.9067,280.31,0.6,283.74,301.12,384.93,129.01,0.001975

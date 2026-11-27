@@ -1,12 +1,17 @@
-# CAPQ-Pareto: Hardware- and Multi-Region Cloud-Verified 4D Pareto Cryptographic Orchestration
+# CAPQ-Pareto (V6 — IEEE Transactions on Cloud Computing Empirical Artifact Suite)
 
-Official reproducible research artifact for **CAPQ-Pareto** formatted for *IEEE Transactions on Cloud Computing (IEEE TCC, `compsoc`)*.
+**Title:** *Empirical Systems Characterization of Post-Quantum Session Pooling, Single-Ciphertext CKKS Retrieval, and Transport Fallback Across Cloud-Edge Vector-SQL Streams*  
+**Author:** Preecha Noiumkar (Member, IEEE), Department of Information Technology, Faculty of Informatics, Mahasarakham University (`preecha.n@msu.ac.th`, ORCID: `0009-0000-5964-4896`)  
+**Branch:** `v6` (`https://github.com/preecha-msu/CAPQ-Pareto/tree/v6`)
 
-## Verified Experimental Scope (1,980 Real Trials — Zero Synthetic Estimation)
-1. **Controlled WAN Core Campaign (`720` Paired Runs):** `02_orchestrator/run_core_720_campaign.py`
-2. **High-Dimensional `BGE-M3` (`1024d`) Cross-DB (`PostgreSQL 18.6` vs. `Qdrant`) & WAN Shock Ablation (`360` Runs):** `02_orchestrator/run_ablation_360_real.py`
-3. **Cross-Architecture `Local x86_64` vs. Google Cloud `Tau T2A ARM64` (`Neoverse-N1`) (`540` Runs):** `02_orchestrator/run_step_c3_arm64_cloud.py`
-4. **Live 3-Region Google Cloud WAN Audit (`Bangkok asia-southeast3`, `Singapore asia-southeast1`, `US-Central us-central1`) (`360` Paired Trials / `1,440` Live Queries):** `02_orchestrator/run_step_c4_multiregion_gcp.py`
-5. **Emergency Zero-Orphan Cloud Teardown:** `bash 04_testbed_infra/teardown_all_gcp.sh`
+## One-Command Clean-Room Verification
+Run the standalone verifier from the repository root to check all **full 64-character SHA-256 digests** (`SHA256SUMS_V6.txt`) and cross-verify key table metrics directly from the logged CSV artifacts:
+```bash
+python reproduce_and_verify_v6.py
+```
 
-All raw telemetry CSVs and generated LaTeX tables are cryptographically locked in `06_experiments_results/sha256_manifest.json`. To compile on Overleaf, upload `CAPQ-Pareto-Overleaf-IEEE-TCC.zip` and compile `main.tex` and `supplement.tex` with `pdfLaTeX`.
+## Directory Layout on Branch `v6`
+- `08_manuscript_ieee_tcc_v6/` — Complete LaTeX sources (`main.tex`, `supplement.tex`, `response_to_reviewers.tex`, `cover_letter.tex`, `references.bib`, auto-generated `tables/*.tex`, and vector `figures/*.pdf`).
+- `06_experiments_results/v6_raw_logs/` — All verified V6 CSV/JSON datasets, including Native-C `AES-256-GCM` socket benchmarks (`v6_b1_*`), PostgreSQL 18.6 predicate-filtered hybrid SQL+HNSW (`v6_b2_*`), N=8192 1-CT provisioning curves up to M=3,072 (`v6_a2_*`), SLA sensitivity & unweighted 4D Pareto (`v6_a3_*`), and reconciled dual-track WAN logs.
+- `11_v6_workspace/` — Native-C (`bench_v6_native_c_tcp_vs_udp_aead.c`), OpenFHE C++ / Python reprocessing, figure generation, and automated PDF audit scripts.
+- `SHA256SUMS_V6.txt` — Untruncated 64-hexadecimal SHA-256 manifest of all active V6 data artifacts.

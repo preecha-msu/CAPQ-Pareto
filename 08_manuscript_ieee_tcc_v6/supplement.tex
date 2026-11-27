@@ -4,7 +4,7 @@
 \IfFileExists{placeins.sty}{\usepackage{placeins}}{\newcommand{\FloatBarrier}{\clearpage}}
 \usepackage[hidelinks]{hyperref}
 \Urlmuskip=0mu plus 2mu\relax
-\emergencystretch=2.0em
+\emergencystretch=2.4em
 \raggedbottom
 \setlength{\textfloatsep}{14pt plus 2pt minus 2pt}
 \setlength{\dbltextfloatsep}{14pt plus 2pt minus 2pt}
@@ -17,7 +17,7 @@
 \title{Electronic Supplementary Material for ``Empirical Systems Characterization of Post-Quantum Session Pooling, Single-Ciphertext CKKS Retrieval, and Transport Fallback Across Cloud-Edge Vector-SQL Streams''}
 \author{Preecha~Noiumkar,~\IEEEmembership{Member,~IEEE}\\
 \small Department of Information Technology, Faculty of Informatics, Mahasarakham University, Maha Sarakham 44150, Thailand\\
-Repository: \protect\url{https://github.com/preecha-msu/CAPQ-Pareto}}
+Repository: \protect\url{https://github.com/preecha-msu/CAPQ-Pareto/tree/v6}}
 \markboth{IEEE TRANSACTIONS ON CLOUD COMPUTING --- SUPPLEMENTARY MATERIAL}{NOIUMKAR: CAPQ-PARETO SUPPLEMENTARY MATERIAL}
 \maketitle
 
@@ -117,12 +117,12 @@ Tables~1--2 and Figs.~S1--S6 provide the granular link-bandwidth crossover sched
 \FloatBarrier
 \onecolumn
 \section{Full 64-Character SHA-256 Provenance Manifest}
-Every digest below is programmatically verified to contain all \textbf{64 hexadecimal characters} (no truncation) and matches \nolinkurl{SHA256SUMS_V6.txt} in \url{https://github.com/preecha-msu/CAPQ-Pareto}.
+Every digest below is programmatically verified to contain all \textbf{64 hexadecimal characters} (no truncation) and matches \nolinkurl{SHA256SUMS_V6.txt} in \url{https://github.com/preecha-msu/CAPQ-Pareto/tree/v6}.
 
 \begin{table}[!ht]
 \centering
 \caption{Complete 64-Hexadecimal SHA-256 Verification Manifest of Active V6 Real-Data Artifacts}
-\resizebox{\textwidth}{!}{%
+\resizebox*{0.98\textwidth}{0.78\textheight}{%
 \begin{tabular}{@{}lrl@{}}
 \toprule
 \textbf{Artifact Filename} & \textbf{Size} & \textbf{Full 64-Character SHA-256 Digest} \\
@@ -134,6 +134,13 @@ Every digest below is programmatically verified to contain all \textbf{64 hexade
 \texttt{v5\_pg18\_hnsw\_concurrency\_2000ops\_per\_level.csv} & 413~B & \texttt{025effe5331f078cbf1502bb2be13c2dc5b8bdaa122eddda11979e8ebd07d7fd} \\
 \texttt{v5\_real\_netns\_socket\_traces\_m1\_m8.json} & 117,861~B & \texttt{7b086cd8b71709418a66ed390b07861bfe92db8a2a2f33d19c817ea4e48fcafe} \\
 \texttt{v5\_steady\_rapl\_omp\_energy\_gum\_u95.csv} & 1,586~B & \texttt{bce44879c973a6c03e8a9644385fd7102709fee67082fa44755712649d5f9f7e} \\
+\texttt{v6\_a2\_ckks\_092\_budget\_openfhe\_verified.csv} & 563~B & \texttt{00603083088d4880e5e4e1b75a494712a23d41244f6c26fa798cfb5c3bc4918f} \\
+\texttt{v6\_a2\_ckks\_provisioning\_curve\_5k\_25k\_100k.csv} & 1,526~B & \texttt{6430d6a42088959b48a8f032191f4e2912661fc9e74ab108baa13d0e9a32c4fb} \\
+\texttt{v6\_a3\_sla\_threshold\_sensitivity\_grid.csv} & 29,553~B & \texttt{020b2d33e3b9ae184011c9e8d50cbd31e739f61b85b9c9d70b6530afb15d7e4e} \\
+\texttt{v6\_a3\_unweighted\_pareto\_4d\_audit.csv} & 2,150~B & \texttt{31906d7928c87323e41740301bda3a9acde913908984d1ef8463d32e3e27d414} \\
+\texttt{v6\_b1\_native\_c\_tcp\_vs\_udp\_aead.csv} & 1,783~B & \texttt{a7d77672c5a084ca868ba62b51226d63c68c49614e67b334ed0f4289113f8a57} \\
+\texttt{v6\_b1\_native\_c\_tcp\_vs\_udp\_aead\_raw480.csv} & 33,956~B & \texttt{f54c84aa3e9c287ec428bea192782da3579820f18ae77f1340b3bbac5ab40b2d} \\
+\texttt{v6\_b2\_pg18\_filtered\_hybrid\_hnsw.csv} & 2,155~B & \texttt{33808c0890a4e0a9690b69c28d5f8a0345a13dda394e4ad89553a35c1fa4589f} \\
 \texttt{v6\_bandit\_5d\_fair\_m8\_10seeds.csv} & 2,593~B & \texttt{2d1587521777b040f0f32cf209dd436a89138019e0cd8d1ed3842bbbd5a3d3dd} \\
 \texttt{v6\_bandit\_5d\_with\_rfc9308\_rule\_and\_tails.csv} & 4,911~B & \texttt{e97735424b9e089ac9825d6fe2b88823d1ccfed565eedb953d8f7e0bf6bb417f} \\
 \texttt{v6\_ckks\_1ct\_bandwidth\_crossover\_curve.csv} & 1,084~B & \texttt{4c176ccaed80b02c7be05256f10f654e61bd714f86c1bc78df1eb25dc2aecabd} \\
