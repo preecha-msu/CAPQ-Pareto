@@ -24,3 +24,6 @@ venv/
 01_workloads/**/*.npz
 01_workloads/**/*.jsonl
 04_testbed_infra/qdrant_local_storage/
+11_v6_workspace/pdf_page_previews/
+01_workloads/**/*.npy
+*.so

@@ -6,7 +6,7 @@ import subprocess
 import zipfile
 from pathlib import Path
 
-REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto")
+REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto-V2")
 ZIP_TARGET = Path(r"D:\Research\CAPQ-Pareto-Overleaf-IEEE-TCC.zip")
 
 REFERENCES_BIB = r"""@techreport{nist_fips203_2024,
@@ -543,7 +543,7 @@ def main() -> None:
             ["git", "commit", "-m", "feat(paper): integrate 720-run real SHA-256 results, 4D Pareto PDFs, and full IEEE TCC manuscript"],
             check=True,
         )
-        subprocess.run(["git", "push", "origin", "main"], check=True)
+        subprocess.run(["git", "push", "-u", "origin", "v2"], check=True)
         print("[OK] Replaced .tex, figures, tables, and SHA-256 manifest on GitHub (origin/main).")
     else:
         print("[INFO] Git working tree already up to date.")

@@ -12,7 +12,7 @@ from datasets import get_dataset_split_names, load_dataset
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 
-REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto")
+REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto-V2")
 sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit"))
 sys.path.insert(0, str(REPO_ROOT / "01_workloads" / "quantizer_preprocessor"))
 

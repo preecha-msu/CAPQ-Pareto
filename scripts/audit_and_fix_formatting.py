@@ -8,7 +8,7 @@ import zipfile
 from pathlib import Path
 import numpy as np
 
-REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto")
+REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto-V2")
 sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit"))
 import sha256_manifest as sm
 
@@ -712,10 +712,10 @@ done
 
 rm -rf /tmp/capq_pdf_audit_{doc_stem}
 mkdir -p /tmp/capq_pdf_audit_{doc_stem}
-cp /mnt/d/Research/CAPQ-Pareto/main.tex /tmp/capq_pdf_audit_{doc_stem}/
-cp /mnt/d/Research/CAPQ-Pareto/supplement.tex /tmp/capq_pdf_audit_{doc_stem}/
-cp /mnt/d/Research/CAPQ-Pareto/references.bib /tmp/capq_pdf_audit_{doc_stem}/
-cp -r /mnt/d/Research/CAPQ-Pareto/00_manuscript /tmp/capq_pdf_audit_{doc_stem}/
+cp /mnt/d/Research/CAPQ-Pareto-V2/main.tex /tmp/capq_pdf_audit_{doc_stem}/
+cp /mnt/d/Research/CAPQ-Pareto-V2/supplement.tex /tmp/capq_pdf_audit_{doc_stem}/
+cp /mnt/d/Research/CAPQ-Pareto-V2/references.bib /tmp/capq_pdf_audit_{doc_stem}/
+cp -r /mnt/d/Research/CAPQ-Pareto-V2/00_manuscript /tmp/capq_pdf_audit_{doc_stem}/
 
 cd /tmp/capq_pdf_audit_{doc_stem}
 pdflatex -interaction=nonstopmode -halt-on-error {doc_stem}.tex >/dev/null
@@ -732,7 +732,7 @@ fi
 
 PAGES=$(pdfinfo {doc_stem}.pdf | awk '/^Pages:/ {{print $2}}')
 pdftotext {doc_stem}.pdf /tmp/capq_pdf_audit_{doc_stem}/rendered.txt
-cp {doc_stem}.pdf /mnt/d/Research/CAPQ-Pareto-{cap_stem}-IEEE-TCC.pdf
+cp {doc_stem}.pdf /mnt/d/Research/CAPQ-Pareto-V2-{cap_stem}-IEEE-TCC.pdf
 echo "PAGES=$PAGES"
 """
     res = subprocess.run(["wsl", "-u", "root", "-e", "bash", "-c", wsl_sh], capture_output=True, text=True)

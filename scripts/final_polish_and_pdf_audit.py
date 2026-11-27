@@ -9,7 +9,7 @@ import zipfile
 from pathlib import Path
 import numpy as np
 
-REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto")
+REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto-V2")
 sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit"))
 import sha256_manifest as sm
 
@@ -970,10 +970,10 @@ fi
 
 rm -rf /tmp/capq_latex_build
 mkdir -p /tmp/capq_latex_build
-cp /mnt/d/Research/CAPQ-Pareto/main.tex /tmp/capq_latex_build/
-cp /mnt/d/Research/CAPQ-Pareto/supplement.tex /tmp/capq_latex_build/
-cp /mnt/d/Research/CAPQ-Pareto/references.bib /tmp/capq_latex_build/
-cp -r /mnt/d/Research/CAPQ-Pareto/00_manuscript /tmp/capq_latex_build/
+cp /mnt/d/Research/CAPQ-Pareto-V2/main.tex /tmp/capq_latex_build/
+cp /mnt/d/Research/CAPQ-Pareto-V2/supplement.tex /tmp/capq_latex_build/
+cp /mnt/d/Research/CAPQ-Pareto-V2/references.bib /tmp/capq_latex_build/
+cp -r /mnt/d/Research/CAPQ-Pareto-V2/00_manuscript /tmp/capq_latex_build/
 
 cd /tmp/capq_latex_build
 pdflatex -interaction=nonstopmode -halt-on-error {doc_stem}.tex >/dev/null
@@ -989,7 +989,7 @@ if grep -E "LaTeX Warning:.*undefined" {doc_stem}.log >/dev/null 2>&1; then
 fi
 
 PAGES=$(pdfinfo {doc_stem}.pdf | awk '/^Pages:/ {{print $2}}')
-cp {doc_stem}.pdf /mnt/d/Research/CAPQ-Pareto-{doc_stem.capitalize()}-IEEE-TCC.pdf
+cp {doc_stem}.pdf /mnt/d/Research/CAPQ-Pareto-V2-{doc_stem.capitalize()}-IEEE-TCC.pdf
 echo "COMPILED_PAGES=$PAGES"
 """
     res = subprocess.run(["wsl", "-u", "root", "-e", "bash", "-c", wsl_sh], capture_output=True, text=True)

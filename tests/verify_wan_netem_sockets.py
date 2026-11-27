@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 import numpy as np
 
-REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto")
+REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto-V2")
 sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit"))
 sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit" / "energy_rapl_scaphandre"))
 sys.path.insert(0, str(REPO_ROOT / "02_orchestrator" / "pareto_math_model"))

@@ -108,7 +108,7 @@ class EdgeQuicCli(QuicConnectionProtocol):
 
 
 async def run_edge_gateway() -> None:
-    repo = Path("/mnt/d/Research/CAPQ-Pareto")
+    repo = Path("/mnt/d/Research/CAPQ-Pareto-V2")
     sift_d = np.load(repo / "01_workloads/unstructured_vectors/sift1m_rag_embeddings/sift_128d_real_5k_200q.npz")
     sift_base = np.ascontiguousarray(sift_d["base"], dtype=np.float32)
     sift_q = np.ascontiguousarray(sift_d["queries"], dtype=np.float32)

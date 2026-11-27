@@ -1,6 +1,11 @@
-omp_threads,n_sustained_queries,window_sec,mean_query_ms,med_query_ms,active_pkg_power_w,idle_ref_power_w,idle_drift_pct,gross_energy_mj_per_q,net_energy_mj_per_q,u95_uncertainty_mj,rel_uncertainty_u95_pct,sensor_scope
-1,16,11.89,742.89,743.15,38.24,5.26,31.57,28408.9,24500.63,1422.19,5.8,CPU_Package_RAPL_EMI_rapl_package0_pkg_Persistent_CPP_OpenMP
-2,28,6.19,221.12,220.42,33.92,5.42,2.65,7501.42,6302.41,511.29,8.1,CPU_Package_RAPL_EMI_rapl_package0_pkg_Persistent_CPP_OpenMP
-4,44,5.93,134.78,135.75,40.14,5.94,-35.28,5409.6,4608.98,436.11,9.5,CPU_Package_RAPL_EMI_rapl_package0_pkg_Persistent_CPP_OpenMP
-8,64,6.47,101.16,99.59,43.77,4.81,-11.71,4427.86,3940.83,188.13,4.8,CPU_Package_RAPL_EMI_rapl_package0_pkg_Persistent_CPP_OpenMP
-12,64,4.72,73.71,73.34,46.09,4.82,-0.37,3396.99,3042.07,170.77,5.6,CPU_Package_RAPL_EMI_rapl_package0_pkg_Persistent_CPP_OpenMP
+workload,ring_N,dim_D,omp_threads,n_sustained_queries,window_sec,mean_query_ms,med_query_ms,active_pkg_power_w,idle_ref_power_w,idle_drift_pct,gross_energy_mj_per_q,net_energy_mj_per_q,u95_uncertainty_mj,rel_uncertainty_u95_pct,sensor_scope
+N8192_BGEM3_1024d_64cands,8192,1024,1,8,2.51,308.54,308.38,29.63,6.19,10.76,9312.31,7366.63,1186.25,16.1,Intel_RAPL_EMI_rapl_package0_pkg_Excludes_Wireless_NIC
+N8192_BGEM3_1024d_64cands,8192,1024,2,14,4.12,290.84,289.71,31.8,5.53,23.37,9367.28,7737.21,733.9,9.5,Intel_RAPL_EMI_rapl_package0_pkg_Excludes_Wireless_NIC
+N8192_BGEM3_1024d_64cands,8192,1024,4,20,7.74,384.74,366.89,36.89,6.91,-16.85,14284.0,11607.52,1229.34,10.6,Intel_RAPL_EMI_rapl_package0_pkg_Excludes_Wireless_NIC
+N8192_BGEM3_1024d_64cands,8192,1024,8,26,13.17,503.31,501.64,39.3,9.16,-56.16,19905.82,15268.91,3825.71,25.1,Intel_RAPL_EMI_rapl_package0_pkg_Excludes_Wireless_NIC
+N8192_BGEM3_1024d_64cands,8192,1024,12,28,15.1,537.7,519.66,37.67,6.06,-1.06,20321.98,17055.0,740.28,4.3,Intel_RAPL_EMI_rapl_package0_pkg_Excludes_Wireless_NIC
+N4096_SIFT_128d_224cands,4096,128,1,48,2.52,50.05,49.96,19.44,7.35,32.35,1019.65,633.98,143.78,22.7,Intel_RAPL_EMI_rapl_package0_pkg_Excludes_Wireless_NIC
+N4096_SIFT_128d_224cands,4096,128,2,48,3.32,67.25,65.87,35.59,6.17,18.69,2459.62,2033.1,188.68,9.3,Intel_RAPL_EMI_rapl_package0_pkg_Excludes_Wireless_NIC
+N4096_SIFT_128d_224cands,4096,128,4,56,4.32,74.89,71.16,36.03,8.66,-40.02,2782.12,2113.78,365.21,17.3,Intel_RAPL_EMI_rapl_package0_pkg_Excludes_Wireless_NIC
+N4096_SIFT_128d_224cands,4096,128,8,56,3.92,68.96,68.39,33.02,5.84,-0.82,2311.96,1902.83,122.04,6.4,Intel_RAPL_EMI_rapl_package0_pkg_Excludes_Wireless_NIC
+N4096_SIFT_128d_224cands,4096,128,12,56,4.02,70.76,70.19,32.18,5.1,18.53,2311.73,1945.46,142.09,7.3,Intel_RAPL_EMI_rapl_package0_pkg_Excludes_Wireless_NIC

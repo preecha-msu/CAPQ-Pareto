@@ -10,7 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
-REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto")
+REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto-V2")
 sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit"))
 import sha256_manifest as sm
 
@@ -909,7 +909,7 @@ def main() -> None:
   - `540` Cross-Architecture `x86_64` vs. GCP `Tau T2A ARM64` Runs (`arm64_vs_x86_real_cloud_audit.csv`)
   - `360` Live 3-Region GCP WAN Paired Trials / `1,440` Live Internet Queries across **Bangkok** (`asia-southeast3`), **Singapore** (`asia-southeast1`), and **US-Central** (`us-central1`) (`gcp_multiregion_360_real_wan.csv`)
 - [x] **Phase 7 (Non-Parametric Statistics & 8 Vector Figures):** Paired Wilcoxon, Holm--Bonferroni, McNemar audits, 6 LaTeX tables, and 8 vector PDF figures (`Figures 1--8`).
-- [x] **Phase 8 / Step C5 (Full ~12-Page IEEE TCC `compsoc` Manuscript & Artifact):** Pre-submission audited `main.tex`, `supplement.tex`, `CAPQ-Pareto-Overleaf-IEEE-TCC.zip`, and GitHub `origin/main` synchronized with `0` active cloud VMs (`$0.00/hr`).
+- [x] **Phase 8 / Step C5 (Full ~12-Page IEEE TCC `compsoc` Manuscript & Artifact):** Pre-submission audited `main.tex`, `supplement.tex`, `CAPQ-Pareto-Overleaf-IEEE-TCC-V2.zip`, and GitHub `origin/main` synchronized with `0` active cloud VMs (`$0.00/hr`).
 """,
         encoding="utf-8",
         newline="\n",
@@ -927,7 +927,7 @@ Official reproducible research artifact for **CAPQ-Pareto** formatted for *IEEE 
 4. **Live 3-Region Google Cloud WAN Audit (`Bangkok asia-southeast3`, `Singapore asia-southeast1`, `US-Central us-central1`) (`360` Paired Trials / `1,440` Live Queries):** `02_orchestrator/run_step_c4_multiregion_gcp.py`
 5. **Emergency Zero-Orphan Cloud Teardown:** `bash 04_testbed_infra/teardown_all_gcp.sh`
 
-All raw telemetry CSVs and generated LaTeX tables are cryptographically locked in `06_experiments_results/sha256_manifest.json`. To compile on Overleaf, upload `CAPQ-Pareto-Overleaf-IEEE-TCC.zip` and compile `main.tex` and `supplement.tex` with `pdfLaTeX`.
+All raw telemetry CSVs and generated LaTeX tables are cryptographically locked in `06_experiments_results/sha256_manifest.json`. To compile on Overleaf, upload `CAPQ-Pareto-Overleaf-IEEE-TCC-V2.zip` and compile `main.tex` and `supplement.tex` with `pdfLaTeX`.
 """,
         encoding="utf-8",
         newline="\n",

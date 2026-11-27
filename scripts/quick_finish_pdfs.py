@@ -1,7 +1,7 @@
 from pathlib import Path
 import json, re, subprocess, sys, zipfile
 
-REPO = Path(r"D:\Research\CAPQ-Pareto")
+REPO = Path(r"D:\Research\CAPQ-Pareto-V2")
 sys.path.insert(0, str(REPO / "05_telemetry_audit"))
 import sha256_manifest as sm
 
@@ -75,7 +75,7 @@ for tf in sorted((REPO / "00_manuscript/tables").glob("*.tex")):
         "\\documentclass[10pt,journal,compsoc]{IEEEtran}\n"
         "\\usepackage{amsmath,amssymb,graphicx,adjustbox,booktabs,multirow,array,xcolor,url}\n"
         "\\begin{document}\n"
-        f"\\input{{/mnt/d/Research/CAPQ-Pareto/00_manuscript/tables/{tf.name}}}\n"
+        f"\\input{{/mnt/d/Research/CAPQ-Pareto-V2/00_manuscript/tables/{tf.name}}}\n"
         "\\end{document}\n"
     )
     chk = subprocess.run(
@@ -115,8 +115,8 @@ for stem in ["supplement", "main"]:
     sh = f"""
 set -e
 rm -rf /tmp/capq_final_{stem} && mkdir -p /tmp/capq_final_{stem}
-cp /mnt/d/Research/CAPQ-Pareto/{stem}.tex /mnt/d/Research/CAPQ-Pareto/references.bib /tmp/capq_final_{stem}/
-cp -r /mnt/d/Research/CAPQ-Pareto/00_manuscript /tmp/capq_final_{stem}/
+cp /mnt/d/Research/CAPQ-Pareto-V2/{stem}.tex /mnt/d/Research/CAPQ-Pareto-V2/references.bib /tmp/capq_final_{stem}/
+cp -r /mnt/d/Research/CAPQ-Pareto-V2/00_manuscript /tmp/capq_final_{stem}/
 cd /tmp/capq_final_{stem}
 pdflatex -interaction=nonstopmode -halt-on-error {stem}.tex > build.log 2>&1 || (tail -n 30 build.log && exit 1)
 if grep -q "\\\\citation" {stem}.aux; then
@@ -126,8 +126,8 @@ pdflatex -interaction=nonstopmode -halt-on-error {stem}.tex >> build.log 2>&1
 pdflatex -interaction=nonstopmode -halt-on-error {stem}.tex >> build.log 2>&1
 PAGES=$(pdfinfo {stem}.pdf | awk '/^Pages:/ {{print $2}}')
 pdftotext {stem}.pdf rendered.txt
-cp {stem}.pdf /mnt/d/Research/CAPQ-Pareto-{cap}-IEEE-TCC.pdf
-echo "[PDF OK] D:\\Research\\CAPQ-Pareto-{cap}-IEEE-TCC.pdf -> $PAGES pages"
+cp {stem}.pdf /mnt/d/Research/CAPQ-Pareto-V2-{cap}-IEEE-TCC.pdf
+echo "[PDF OK] D:\\Research\\CAPQ-Pareto-V2-{cap}-IEEE-TCC.pdf -> $PAGES pages"
 """
     r = subprocess.run(["wsl", "-u", "root", "-e", "bash", "-c", sh], text=True, capture_output=True)
     if r.returncode != 0:

@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 import numpy as np
 
-REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto")
+REPO_ROOT = Path(r"D:\Research\CAPQ-Pareto-V2")
 sys.path.insert(0, str(REPO_ROOT / "01_workloads" / "quantizer_preprocessor"))
 sys.path.insert(0, str(REPO_ROOT / "05_telemetry_audit"))
 
